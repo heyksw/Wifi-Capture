@@ -1,0 +1,629 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4936472F27871DF7003D52EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936472E27871DF7003D52EE /* AppDelegate.swift */; };
+		4936473127871DF7003D52EE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936473027871DF7003D52EE /* SceneDelegate.swift */; };
+		4936473327871DF7003D52EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936473227871DF7003D52EE /* ViewController.swift */; };
+		4936473627871DF7003D52EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4936473427871DF7003D52EE /* Main.storyboard */; };
+		4936473827871DF8003D52EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4936473727871DF8003D52EE /* Assets.xcassets */; };
+		4936473B27871DF8003D52EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4936473927871DF8003D52EE /* LaunchScreen.storyboard */; };
+		4936474627871DF8003D52EE /* Wifi_CaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */; };
+		4936475027871DF8003D52EE /* Wifi_CaptureUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936474F27871DF8003D52EE /* Wifi_CaptureUITests.swift */; };
+		4936475227871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4936474227871DF8003D52EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4936472327871DF7003D52EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4936472A27871DF7003D52EE;
+			remoteInfo = "Wifi-Capture";
+		};
+		4936474C27871DF8003D52EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4936472327871DF7003D52EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4936472A27871DF7003D52EE;
+			remoteInfo = "Wifi-Capture";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4936472B27871DF7003D52EE /* Wifi-Capture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Wifi-Capture.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4936472E27871DF7003D52EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		4936473027871DF7003D52EE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		4936473227871DF7003D52EE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		4936473527871DF7003D52EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4936473727871DF8003D52EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4936473A27871DF8003D52EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4936473C27871DF8003D52EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4936474127871DF8003D52EE /* Wifi-CaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wifi-CaptureTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureTests.swift; sourceTree = "<group>"; };
+		4936474B27871DF8003D52EE /* Wifi-CaptureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wifi-CaptureUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4936474F27871DF8003D52EE /* Wifi_CaptureUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITests.swift; sourceTree = "<group>"; };
+		4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4936472827871DF7003D52EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936473E27871DF8003D52EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936474827871DF8003D52EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4936472227871DF7003D52EE = {
+			isa = PBXGroup;
+			children = (
+				4936472D27871DF7003D52EE /* Wifi-Capture */,
+				4936474427871DF8003D52EE /* Wifi-CaptureTests */,
+				4936474E27871DF8003D52EE /* Wifi-CaptureUITests */,
+				4936472C27871DF7003D52EE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4936472C27871DF7003D52EE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4936472B27871DF7003D52EE /* Wifi-Capture.app */,
+				4936474127871DF8003D52EE /* Wifi-CaptureTests.xctest */,
+				4936474B27871DF8003D52EE /* Wifi-CaptureUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4936472D27871DF7003D52EE /* Wifi-Capture */ = {
+			isa = PBXGroup;
+			children = (
+				4936472E27871DF7003D52EE /* AppDelegate.swift */,
+				4936473027871DF7003D52EE /* SceneDelegate.swift */,
+				4936473227871DF7003D52EE /* ViewController.swift */,
+				4936473427871DF7003D52EE /* Main.storyboard */,
+				4936473727871DF8003D52EE /* Assets.xcassets */,
+				4936473927871DF8003D52EE /* LaunchScreen.storyboard */,
+				4936473C27871DF8003D52EE /* Info.plist */,
+			);
+			path = "Wifi-Capture";
+			sourceTree = "<group>";
+		};
+		4936474427871DF8003D52EE /* Wifi-CaptureTests */ = {
+			isa = PBXGroup;
+			children = (
+				4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */,
+			);
+			path = "Wifi-CaptureTests";
+			sourceTree = "<group>";
+		};
+		4936474E27871DF8003D52EE /* Wifi-CaptureUITests */ = {
+			isa = PBXGroup;
+			children = (
+				4936474F27871DF8003D52EE /* Wifi_CaptureUITests.swift */,
+				4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */,
+			);
+			path = "Wifi-CaptureUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4936472A27871DF7003D52EE /* Wifi-Capture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4936475527871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-Capture" */;
+			buildPhases = (
+				4936472727871DF7003D52EE /* Sources */,
+				4936472827871DF7003D52EE /* Frameworks */,
+				4936472927871DF7003D52EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Wifi-Capture";
+			productName = "Wifi-Capture";
+			productReference = 4936472B27871DF7003D52EE /* Wifi-Capture.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4936474027871DF8003D52EE /* Wifi-CaptureTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4936475827871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-CaptureTests" */;
+			buildPhases = (
+				4936473D27871DF8003D52EE /* Sources */,
+				4936473E27871DF8003D52EE /* Frameworks */,
+				4936473F27871DF8003D52EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4936474327871DF8003D52EE /* PBXTargetDependency */,
+			);
+			name = "Wifi-CaptureTests";
+			productName = "Wifi-CaptureTests";
+			productReference = 4936474127871DF8003D52EE /* Wifi-CaptureTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4936474A27871DF8003D52EE /* Wifi-CaptureUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4936475B27871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-CaptureUITests" */;
+			buildPhases = (
+				4936474727871DF8003D52EE /* Sources */,
+				4936474827871DF8003D52EE /* Frameworks */,
+				4936474927871DF8003D52EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4936474D27871DF8003D52EE /* PBXTargetDependency */,
+			);
+			name = "Wifi-CaptureUITests";
+			productName = "Wifi-CaptureUITests";
+			productReference = 4936474B27871DF8003D52EE /* Wifi-CaptureUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4936472327871DF7003D52EE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1300;
+				LastUpgradeCheck = 1300;
+				TargetAttributes = {
+					4936472A27871DF7003D52EE = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					4936474027871DF8003D52EE = {
+						CreatedOnToolsVersion = 13.0;
+						TestTargetID = 4936472A27871DF7003D52EE;
+					};
+					4936474A27871DF8003D52EE = {
+						CreatedOnToolsVersion = 13.0;
+						TestTargetID = 4936472A27871DF7003D52EE;
+					};
+				};
+			};
+			buildConfigurationList = 4936472627871DF7003D52EE /* Build configuration list for PBXProject "Wifi-Capture" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4936472227871DF7003D52EE;
+			productRefGroup = 4936472C27871DF7003D52EE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4936472A27871DF7003D52EE /* Wifi-Capture */,
+				4936474027871DF8003D52EE /* Wifi-CaptureTests */,
+				4936474A27871DF8003D52EE /* Wifi-CaptureUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4936472927871DF7003D52EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4936473B27871DF8003D52EE /* LaunchScreen.storyboard in Resources */,
+				4936473827871DF8003D52EE /* Assets.xcassets in Resources */,
+				4936473627871DF7003D52EE /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936473F27871DF8003D52EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936474927871DF8003D52EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4936472727871DF7003D52EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4936473327871DF7003D52EE /* ViewController.swift in Sources */,
+				4936472F27871DF7003D52EE /* AppDelegate.swift in Sources */,
+				4936473127871DF7003D52EE /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936473D27871DF8003D52EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4936474627871DF8003D52EE /* Wifi_CaptureTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4936474727871DF8003D52EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4936475227871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift in Sources */,
+				4936475027871DF8003D52EE /* Wifi_CaptureUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4936474327871DF8003D52EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4936472A27871DF7003D52EE /* Wifi-Capture */;
+			targetProxy = 4936474227871DF8003D52EE /* PBXContainerItemProxy */;
+		};
+		4936474D27871DF8003D52EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4936472A27871DF7003D52EE /* Wifi-Capture */;
+			targetProxy = 4936474C27871DF8003D52EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4936473427871DF7003D52EE /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4936473527871DF7003D52EE /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		4936473927871DF8003D52EE /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4936473A27871DF8003D52EE /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4936475327871DF8003D52EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4936475427871DF8003D52EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4936475627871DF8003D52EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-Capture";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4936475727871DF8003D52EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-Capture";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4936475927871DF8003D52EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-CaptureTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wifi-Capture.app/Wifi-Capture";
+			};
+			name = Debug;
+		};
+		4936475A27871DF8003D52EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-CaptureTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wifi-Capture.app/Wifi-Capture";
+			};
+			name = Release;
+		};
+		4936475C27871DF8003D52EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-CaptureUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Wifi-Capture";
+			};
+			name = Debug;
+		};
+		4936475D27871DF8003D52EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GR2P6HT7LF;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "heyksw.Wifi-CaptureUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Wifi-Capture";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4936472627871DF7003D52EE /* Build configuration list for PBXProject "Wifi-Capture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4936475327871DF8003D52EE /* Debug */,
+				4936475427871DF8003D52EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4936475527871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-Capture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4936475627871DF8003D52EE /* Debug */,
+				4936475727871DF8003D52EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4936475827871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-CaptureTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4936475927871DF8003D52EE /* Debug */,
+				4936475A27871DF8003D52EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4936475B27871DF8003D52EE /* Build configuration list for PBXNativeTarget "Wifi-CaptureUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4936475C27871DF8003D52EE /* Debug */,
+				4936475D27871DF8003D52EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4936472327871DF7003D52EE /* Project object */;
+}
