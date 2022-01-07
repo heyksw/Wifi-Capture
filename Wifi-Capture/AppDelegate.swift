@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  Wifi-Capture
-//
-//  Created by 김상우 on 2022/01/06.
-//
-
 import UIKit
 
 @main
