@@ -1,10 +1,20 @@
 import SnapKit
 import Foundation
 import UIKit
+import AVFoundation
 
 class MainViewController: UIViewController {
     var didSetupConstraints = false
-
+    
+    var captureDevice: AVCaptureDevice?
+    var captureSession: AVCaptureSession?
+    var input: AVCaptureDeviceInput?
+    var output: AVCapturePhotoOutput?
+    var setting: AVCapturePhotoSettings?
+    var previewLayer: AVCaptureVideoPreviewLayer?
+    let mainDispatchQueue = DispatchQueue.main
+    let globalDispatchQueue = DispatchQueue.global()
+    
     // safe area
     let safetyArea: UIView = {
         let view = UIView()
@@ -15,7 +25,7 @@ class MainViewController: UIViewController {
     // 카메라 들어갈 뷰
     let cameraView: UIImageView = {
         let view = UIImageView()
-        view.image = UIImage(named: "cute_cat")
+        //view.image = UIImage(named: "cute_cat")
         
         return view
     }()
@@ -32,27 +42,26 @@ class MainViewController: UIViewController {
         return view
     }()
     
-    // footer 에 왼쪽 뷰
+    // footer 에 왼쪽, 중간, 오른쪽 뷰
     let footerLeftView: UIView = {
         let view = UIView()
         view.backgroundColor = .gray
         return view
     }()
 
-    // footer 에 들어갈 가운데 뷰
     let footerCenterView: UIView = {
         let view = UIView()
         view.backgroundColor = .gray
         return view
     }()
     
-    // footer 에 들어갈 전면, 후면 반전 버튼
     let footerRightView: UIView = {
         let view = UIView()
         view.backgroundColor = .gray
         return view
     }()
 
+    // footer 에 들어갈 전면, 후면 반전 버튼
     let galleryButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -81,15 +90,71 @@ class MainViewController: UIViewController {
         return button
     }()
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // 상단 네비게이션 바 세팅
-        setUpNavigationBar()
+        self.setUpNavigationBar()
  
-        // 전체 UI 세팅
+        // UI 세팅
         self.setUI()
         
+        // 카메라 불러오기
+        self.settingCamera()
+        
+        cameraShootButton.addTarget(self, action: #selector(tapCameraShootButton(_:)), for: .touchDown)
+    }
+    
+    
+    // AVFoundation camera setting
+    func settingCamera() {
+        print("setting Camera")
+        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
+            print("captureDivce error")
+            return}
+        
+        do {
+            captureSession = AVCaptureSession()
+            captureSession?.sessionPreset = .photo
+            input = try AVCaptureDeviceInput(device: captureDevice)
+            output = AVCapturePhotoOutput()
+            setting = AVCapturePhotoSettings()
+            
+            guard let input = input, let output = output else {return}
+            
+            captureSession?.addInput(input)
+            captureSession?.addOutput(output)
+            
+            guard let session = captureSession else {return}
+            
+            previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            guard let previewLayer = previewLayer else {
+                return
+            }
+
+            
+            // startRunning 은 UI 쓰레드를 방해할 수 있기 때문에 다른 쓰레드에 담아줌
+            globalDispatchQueue.async {
+                session.startRunning()
+            }
+            
+            mainDispatchQueue.async {
+                previewLayer.frame = self.cameraView.frame
+                self.cameraView.layer.addSublayer(previewLayer)
+            }
+            
+        } catch {
+            print("setting Camera Error")
+        }
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        globalDispatchQueue.async {
+            self.captureSession?.stopRunning()
+        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -102,10 +167,9 @@ class MainViewController: UIViewController {
     }
 
 
-    
 }
 
-extension MainViewController {
+extension MainViewController: AVCapturePhotoCaptureDelegate {
     
     func setUpNavigationBar() {
         self.navigationItem.title = "Wifi-Capture"
@@ -203,6 +267,39 @@ extension MainViewController {
 
         super.updateViewConstraints()
 
+    }
+
+    
+    // photoCapture proecess 가 끝날 떄 호출되는 delegate 메서드
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        print("photoOutput")
+        guard let imageData = photo.fileDataRepresentation() else {
+            print("imageData Error")
+            return}
+        let outputImage = UIImage(data: imageData)
+        
+        
+        globalDispatchQueue.async {
+            guard let session = self.captureSession else {
+                print("session error at photoOut func")
+                return
+            }
+            session.stopRunning()
+        }
+        
+        mainDispatchQueue.async {
+            //self.cameraView.layer.removeFromSuperlayer()
+            print("cameraView to outputImage")
+            self.cameraView.layer.contents = outputImage
+        }
+    }
+
+    
+    @IBAction func tapCameraShootButton(_ sender: UIButton) {
+        print("tapCameraShootButton")
+        guard let setting = setting else {return}
+        output?.capturePhoto(with: setting, delegate: self)
+        
     }
 
 }
