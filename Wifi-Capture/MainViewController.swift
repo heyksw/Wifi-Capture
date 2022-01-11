@@ -21,6 +21,7 @@ class MainViewController: UIViewController {
         view.backgroundColor = .black
         return view
     }()
+    
        
     // 카메라 들어갈 뷰
     let cameraView: UIImageView = {
@@ -103,6 +104,8 @@ class MainViewController: UIViewController {
         // 카메라 불러오기
         self.settingCamera()
         
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinchCamera(_:)))
+        view.addGestureRecognizer(pinch)
         cameraShootButton.addTarget(self, action: #selector(tapCameraShootButton(_:)), for: .touchDown)
     }
     
@@ -110,9 +113,13 @@ class MainViewController: UIViewController {
     // AVFoundation camera setting
     func settingCamera() {
         print("setting Camera")
-        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-            print("captureDivce error")
-            return}
+        guard let captureDevice = getDefaultCamera() else {
+            return
+        }
+
+//        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
+//            print("captureDivce error")
+//            return}
         
         do {
             captureSession = AVCaptureSession()
@@ -136,6 +143,7 @@ class MainViewController: UIViewController {
             
             // startRunning 은 UI 쓰레드를 방해할 수 있기 때문에 다른 쓰레드에 담아줌
             globalDispatchQueue.async {
+                // 재 촬영 버튼을 누른다면 다시 start 해주도록 나중에 구현해야 함.
                 session.startRunning()
             }
             
@@ -169,10 +177,12 @@ class MainViewController: UIViewController {
 
 }
 
+// 익스텐션
 extension MainViewController: AVCapturePhotoCaptureDelegate {
     
+    // 네비게이션 바 세팅
     func setUpNavigationBar() {
-        self.navigationItem.title = "Wifi-Capture"
+        self.navigationItem.title = "Custom Camera"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = .black
@@ -191,6 +201,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
     }
     
     
+    // UI 배치, StackView 배치
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(safetyArea)
@@ -224,6 +235,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
     }
     
     
+    // SnapKit 으로 Constraint 설정
     override func updateViewConstraints() {
         if (!didSetupConstraints) {
             cameraView.snp.makeConstraints { (make) in
@@ -268,6 +280,56 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
         super.updateViewConstraints()
 
     }
+    
+    
+    
+    // 카메라 줌 인, 줌 아웃 구현
+    // device.videoZoomFactor 에 접근하려면 lock / unlock 과정이 필요함
+    // https://developer.apple.com/documentation/avfoundation/avcapturedevice
+    // https://gist.github.com/yusuke024/3b5a89835deab5b9027efea794b80a45
+    @objc
+    func handlePinchCamera(_ pinch: UIPinchGestureRecognizer) {
+        guard let device = getDefaultCamera() else {return}
+        
+        var initialScale: CGFloat = device.videoZoomFactor
+        let minAvailableZoomScale = 1.0
+        let maxAvailableZoomScale = device.maxAvailableVideoZoomFactor
+        
+        do {
+            try device.lockForConfiguration()
+            if(pinch.state == UIPinchGestureRecognizer.State.began){
+                initialScale = device.videoZoomFactor
+            }
+            else {
+                if(initialScale*(pinch.scale) < minAvailableZoomScale){
+                    device.videoZoomFactor = minAvailableZoomScale
+                }
+                else if(initialScale*(pinch.scale) > maxAvailableZoomScale){
+                    device.videoZoomFactor = maxAvailableZoomScale
+                }
+                else {
+                    device.videoZoomFactor = initialScale * (pinch.scale)
+                }
+            }
+            pinch.scale = 1.0
+        } catch {
+            return
+        }
+        device.unlockForConfiguration()
+    }
+    
+    
+    // iphone 버전 별로 Camera Type 이 다르기 때문에 버전 별로 최적의 device camera 찾기
+    // https://developer.apple.com/documentation/avfoundation/avcapturedevice/2361508-default
+    func getDefaultCamera() -> AVCaptureDevice? {
+        if let device = AVCaptureDevice.default(.builtInDualCamera,for: AVMediaType.video,position: .back) {
+            return device
+        }
+        else if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video,position: .back) {
+            return device
+        }
+        else { return nil }
+    }
 
     
     // photoCapture proecess 가 끝날 떄 호출되는 delegate 메서드
@@ -278,7 +340,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
             return}
         let outputImage = UIImage(data: imageData)
         
-        
+        // globalQueue 에서 Session stop
         globalDispatchQueue.async {
             guard let session = self.captureSession else {
                 print("session error at photoOut func")
@@ -287,6 +349,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
             session.stopRunning()
         }
         
+        // mainQueue 쓰레드에서 UI 작업
         mainDispatchQueue.async {
             //self.cameraView.layer.removeFromSuperlayer()
             print("cameraView to outputImage")
@@ -294,7 +357,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
         }
     }
 
-    
+    // 촬영 버튼 클릭 이벤트
     @IBAction func tapCameraShootButton(_ sender: UIButton) {
         print("tapCameraShootButton")
         guard let setting = setting else {return}
