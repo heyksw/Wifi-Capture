@@ -4,6 +4,7 @@ import UIKit
 import AVFoundation
 import Photos
 
+
 class MainViewController: UIViewController {
     
     enum UserStates {
@@ -34,8 +35,7 @@ class MainViewController: UIViewController {
         view.backgroundColor = .black
         return view
     }()
-    
-       
+
     // 카메라 들어갈 뷰
     let cameraView: UIImageView = {
         let view = UIImageView()
@@ -59,19 +59,19 @@ class MainViewController: UIViewController {
     // footer 에 왼쪽, 중간, 오른쪽 뷰
     let footerLeftView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = .black
         return view
     }()
 
     let footerCenterView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = .black
         return view
     }()
     
     let footerRightView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = .black
         return view
     }()
 
@@ -80,7 +80,7 @@ class MainViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("갤러리", for: .normal)
-        button.backgroundColor = .black
+        button.backgroundColor = .gray
         button.setTitleColor(.white, for: .normal)
         return button
     }()
@@ -90,7 +90,7 @@ class MainViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("촬영", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.backgroundColor = .black
+        button.backgroundColor = .gray
         button.setTitleColor(.white, for: .normal)
         return button
     }()
@@ -99,7 +99,7 @@ class MainViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("화면 전환", for: .normal)
-        button.backgroundColor = .black
+        button.backgroundColor = .gray
         button.setTitleColor(.white, for: .normal)
         return button
     }()
@@ -109,13 +109,10 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         
         // 상단 네비게이션 바 세팅
-        self.setUpNavigationBar()
+        self.setNavigationBar()
  
         // UI 세팅
         self.setUI()
-        
-        // 카메라 불러오기
-        self.setCamera()
         
         // 앨범에 접근할 권한 요청
         self.getPhotoLibraryAuthorization()
@@ -180,6 +177,8 @@ class MainViewController: UIViewController {
         super.viewWillAppear(animated)
         // user state 세팅
         self.userState = .beforeTakePictures
+        // 카메라 불러오기
+        self.setCamera()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -205,7 +204,7 @@ class MainViewController: UIViewController {
 extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // 네비게이션 바 세팅
-    func setUpNavigationBar() {
+    func setNavigationBar() {
         self.navigationItem.title = "와캡"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
@@ -243,7 +242,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             safetyArea.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
             safetyArea.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
-    
+        
+        
+        
+        
+        
         safetyArea.addSubview(cameraView)
         safetyArea.addSubview(footerView)
         
@@ -297,9 +300,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             turnButton.snp.makeConstraints { make in
                 make.center.equalToSuperview()
             }
+        
             
             didSetupConstraints = true
         }
+        
 
         super.updateViewConstraints()
 
@@ -349,7 +354,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         else if (self.userState == .afterTakePictures) {
 
             mainDispatchQueue.async {
-                
+
                 if (pinch.state == .began || pinch.state == .changed){
                     // 확대
                     if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
@@ -365,7 +370,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 pinch.scale = 1.0
                 print(self.recognizedPhotoScale)
             }
-            
         }
         
     }
@@ -421,8 +425,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         // mainQueue 쓰레드에서 UI 작업
         mainDispatchQueue.async {
-            //self.cameraView.layer.removeFromSuperlayer()
-            print("cameraView to outputImage")
             self.cameraView.layer.contents = outputImage
             // 보내줄 때 scale 1로 초기화
             self.recognizedPhotoScale = 1.0
@@ -436,6 +438,13 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }, completionHandler: nil)
         
         userState = .afterTakePictures
+        
+        
+        // 넘어가기
+        let recognizeViewController = RecognizeViewController()
+        recognizeViewController.receivedImage = outputImage
+        self.navigationController?.pushViewController(recognizeViewController, animated: true)
+        
         
     }
 
