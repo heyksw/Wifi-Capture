@@ -222,8 +222,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         navigationItem.rightBarButtonItem = settingButton
         navigationItem.leftBarButtonItem = informationButton
     }
-    
-    
+        
     // UI 배치, StackView 배치
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
@@ -243,10 +242,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             safetyArea.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
         
-        
-        
-        
-        
+
         safetyArea.addSubview(cameraView)
         safetyArea.addSubview(footerView)
         
@@ -320,7 +316,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     @objc
     func handlePinch(_ pinch: UIPinchGestureRecognizer) {
         
-        // 사진을 찍기 전, 그러니까 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
+        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
         if (self.userState == .beforeTakePictures) {
             guard let device = getDefaultCamera() else {return}
             

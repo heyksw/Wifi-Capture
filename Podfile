@@ -8,6 +8,7 @@ target 'Wifi-Capture' do
   # Pods for Wifi-Capture
 
   pod 'SnapKit', '~> 5.0.0'
-  pod 'GoogleMLKit/TextRecognition','2.2.0'
+  pod 'GoogleMLKit/TextRecognition', '2.5.0'
+  pod 'GoogleMLKit/TextRecognitionKorean', '2.5.0'
 
 end

@@ -1,14 +1,15 @@
 // 문자인식을 담당하는 뷰 컨트롤러
 import UIKit
 import Foundation
-import MLKitTextRecognition
+
+import MLKitTextRecognitionKorean
 import VisionKit
 import MLKitVision
 import SnapKit
 
-
 class RecognizeViewController: UIViewController {
-    let textRecognizer = TextRecognizer.textRecognizer()
+    let koreanOptions = KoreanTextRecognizerOptions()
+    
     let safetyArea: UIView = {
         let view = UIView()
         view.backgroundColor = .black
@@ -131,6 +132,8 @@ extension RecognizeViewController: UIScrollViewDelegate {
     }
     
     func recognizeText(image: UIImage?){
+        let textRecognizer = TextRecognizer.textRecognizer(options: koreanOptions)
+        
         guard let image = image else {
             return
         }

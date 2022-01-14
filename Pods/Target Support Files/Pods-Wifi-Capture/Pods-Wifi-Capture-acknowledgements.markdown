@@ -1092,6 +1092,14 @@ Copyright 2021 Google
 
 Copyright 2021 Google
 
+## MLKitTextRecognitionCommon
+
+Copyright 2021 Google
+
+## MLKitTextRecognitionKorean
+
+Copyright 2021 Google
+
 ## MLKitVision
 
 Copyright 2021 Google
