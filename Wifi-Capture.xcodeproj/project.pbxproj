@@ -16,6 +16,8 @@
 		4936475227871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */; };
 		4936475F27873D4D003D52EE /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475E27873D4D003D52EE /* MainViewController.swift */; };
 		49D40947279031A500626A01 /* RecognizeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D40946279031A500626A01 /* RecognizeViewController.swift */; };
+		49D4094A2795653700626A01 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D409492795653700626A01 /* NetworkExtension.framework */; };
+		49D4094C2795660000626A01 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D4094B2795660000626A01 /* ExternalAccessory.framework */; };
 		CF5B64D9D388695B78B00D18 /* Pods_Wifi_Capture.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B53C4C875C289228FD884E64 /* Pods_Wifi_Capture.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +54,9 @@
 		4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4936475E27873D4D003D52EE /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		49D40946279031A500626A01 /* RecognizeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeViewController.swift; sourceTree = "<group>"; };
+		49D409482795653700626A01 /* Wifi-Capture.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Wifi-Capture.entitlements"; sourceTree = "<group>"; };
+		49D409492795653700626A01 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		49D4094B2795660000626A01 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		B53C4C875C289228FD884E64 /* Pods_Wifi_Capture.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Wifi_Capture.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -60,7 +65,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49D4094C2795660000626A01 /* ExternalAccessory.framework in Frameworks */,
 				CF5B64D9D388695B78B00D18 /* Pods_Wifi_Capture.framework in Frameworks */,
+				49D4094A2795653700626A01 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,6 +113,7 @@
 		4936472D27871DF7003D52EE /* Wifi-Capture */ = {
 			isa = PBXGroup;
 			children = (
+				49D409482795653700626A01 /* Wifi-Capture.entitlements */,
 				4936472E27871DF7003D52EE /* AppDelegate.swift */,
 				4936473027871DF7003D52EE /* SceneDelegate.swift */,
 				4936475E27873D4D003D52EE /* MainViewController.swift */,
@@ -137,6 +145,8 @@
 		C22005BFE9376CAB094F5451 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				49D4094B2795660000626A01 /* ExternalAccessory.framework */,
+				49D409492795653700626A01 /* NetworkExtension.framework */,
 				B53C4C875C289228FD884E64 /* Pods_Wifi_Capture.framework */,
 			);
 			name = Frameworks;
@@ -516,6 +526,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Wifi-Capture/Wifi-Capture.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
@@ -544,6 +555,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Wifi-Capture/Wifi-Capture.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GR2P6HT7LF;

@@ -7,8 +7,16 @@ import VisionKit
 import MLKitVision
 import SnapKit
 
+import NetworkExtension
+import SystemConfiguration.CaptiveNetwork
+import CoreLocation
+import SystemConfiguration
+
+
 class RecognizeViewController: UIViewController {
     let koreanOptions = KoreanTextRecognizerOptions()
+    var locationManager: CLLocationManager?
+    let locationManagerDispatchQueue = DispatchQueue.global()
     
     let safetyArea: UIView = {
         let view = UIView()
@@ -51,13 +59,16 @@ class RecognizeViewController: UIViewController {
         setNavigationBar()
         setUI()
         recognizeText(image: receivedImage)
+        //searchConnectiveWifi()
+        connectWifi()
+        //getWifiInfo()
+        
     }
-    
-    
     
 }
 
-extension RecognizeViewController: UIScrollViewDelegate {
+
+extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelegate {
     
     func setNavigationBar() {
         self.navigationController?.navigationBar.tintColor = .white
@@ -149,7 +160,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
             
             let resultText = result.text
             
-            print("resultText = \(resultText)")
+            print("인식한 문자 = \(resultText)")
             for block in result.blocks {
                 let blockText = block.text
                 let blockFrame = block.frame
@@ -177,10 +188,35 @@ extension RecognizeViewController: UIScrollViewDelegate {
             
             self.textView.text += resultText
         }
+    }
+ 
+    // 와이파이 연결하기
+    func connectWifi() {
+        let wifiConfiguration = NEHotspotConfiguration(ssid: "SK_WiFiGIGAD354_5G", passphrase: "ECI3F@6408", isWEP: false)
+        NEHotspotConfigurationManager.shared.apply(wifiConfiguration)
         
-        
+        // 이건 동기 처리가 필요하다고 생각함.
+        //getWifiInfo()
+
     }
     
+    // 현재 연결된 와이파이 정보 찾기
+    func getCurrentWifiInfo() {
+        NEHotspotNetwork.fetchCurrent(completionHandler: { network in
+            if let captiveNetwork = network {
+                print("---- 연결된 와이파이 정보 ----")
+                print(captiveNetwork.ssid)
+            } else {
+                print("와이파이에 연결되지 않았습니다")
+            }
+        })
+    }
     
+    // 연결가능한 와이파이 리스트 출력
+    // 그냥 연결가능한 와이파이의 리스트를 출력할 수는 없다.
+    // apple의 리퀘스트 승인을 받아야 함
+    func searchConnectiveWifi() {
+        
+    }
     
 }
