@@ -12,8 +12,18 @@ import SystemConfiguration.CaptiveNetwork
 import CoreLocation
 import SystemConfiguration
 
+struct ExtractedResult {
+    var ID: String
+    var PW: String
+}
+
 
 class RecognizeViewController: UIViewController {
+    let elementBoxDrawing = ElementBoxDrawing()
+    
+    // 와이파이 연결을 처리할 global Queue. attribute 를 주지 않으면 serial Queue 가 됨.
+    let wifiDispatchQueue = DispatchQueue(label: "WiFi")
+    
     let koreanOptions = KoreanTextRecognizerOptions()
     var locationManager: CLLocationManager?
     let locationManagerDispatchQueue = DispatchQueue.global()
@@ -53,6 +63,9 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
+    // 인식된 글자 프레임들이 이 레이어 위에 그려짐
+    var frameSublayer = CALayer()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,9 +73,16 @@ class RecognizeViewController: UIViewController {
         setUI()
         recognizeText(image: receivedImage)
         //searchConnectiveWifi()
-        connectWifi()
-        //getWifiInfo()
+        //connectWifi()
+        getCurrentWifiInfo()
         
+        let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
+        view.addGestureRecognizer(tapGetPosition)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        //removeFrames()
+        self.elementBoxDrawing.removeFrames(layer: frameSublayer)
     }
     
 }
@@ -78,6 +98,7 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(safetyArea)
+        imageView.layer.addSublayer(frameSublayer)
         
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide
@@ -114,13 +135,9 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         scrollView.snp.makeConstraints { (make) in
             make.top.equalTo(safetyArea)
             make.top.left.right.equalTo(safetyArea)
+            print("view.frame.width = \(view.frame.width)")
+            make.height.equalTo(view.frame.width * (4/3))
             make.bottom.equalTo(self.footerView.snp.top)
-        }
-
-        footerView.snp.makeConstraints { (make) in
-            make.height.equalTo(200)
-            make.bottom.left.right.equalTo(safetyArea)
-            make.top.equalTo(self.scrollView.snp.bottom)
         }
         
         textView.snp.makeConstraints { make in
@@ -132,7 +149,14 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             make.centerX.equalToSuperview()
             make.top.equalToSuperview()
             make.width.equalToSuperview()
+            
             make.height.equalToSuperview()
+        }
+        
+        footerView.snp.makeConstraints { (make) in
+            //make.height.equalToSuperview()
+            make.bottom.left.right.equalTo(safetyArea)
+            make.top.equalTo(self.scrollView.snp.bottom)
         }
         
         super.updateViewConstraints()
@@ -142,81 +166,114 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         return self.imageView
     }
     
+    // 세로 이미지 회전 문제로 인한 함수
+    func fixOrientation(img: UIImage) -> UIImage {
+        if (img.imageOrientation == .up) {
+            return img
+        }
+         
+        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
+        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
+        img.draw(in: rect)
+         
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        
+        return normalizedImage
+    }
+    
+    
+    // 문자 인식하기
     func recognizeText(image: UIImage?){
         let textRecognizer = TextRecognizer.textRecognizer(options: koreanOptions)
         
-        guard let image = image else {
+        guard var image = imageView.image else {
             return
         }
         
+        image = fixOrientation(img: image)
+
         let vImage = VisionImage(image: image)
         vImage.orientation = image.imageOrientation
-        
+    
         textRecognizer.process(vImage) { result, error in
             guard error == nil, let result = result else {
-                print("text recognizing error !")
-                return
-            }
+                print("문자 인식 과정에서 에러 발생")
+                return }
             
-            let resultText = result.text
-            
-            print("인식한 문자 = \(resultText)")
             for block in result.blocks {
-                let blockText = block.text
-                let blockFrame = block.frame
-                let type = type(of: block)
-                print("block type = \(type)")
-                print("blockText = \(blockText)")
-                let blockCorner = block.cornerPoints
-                print("blockCornerPoints = \(block.cornerPoints)")
-                print("blockFramge = \(blockFrame)")
-
-                
                 for line in block.lines {
-                    let lineText = line.text
-                    print("lineText = \(lineText)")
-                    
-                    for element in line.elements {
-                        let elementText = element.text
-                        print("elementText = \(element.text)")
-
-                        
+                    for elem in line.elements {
+                        self.elementBoxDrawing.addElementFrame(featureFrame: elem.frame, imageSize: image.size, viewFrame: self.imageView.frame, layer: self.frameSublayer)
                     }
                 }
-
             }
             
-            self.textView.text += resultText
+            self.textView.text += result.text
         }
+        
     }
+    
  
     // 와이파이 연결하기
+    //https://developer.apple.com/documentation/networkextension/nehotspotconfigurationmanager/2866649-apply
     func connectWifi() {
+        print("---- connect Wifi 함수 실행 ----")
         let wifiConfiguration = NEHotspotConfiguration(ssid: "SK_WiFiGIGAD354_5G", passphrase: "ECI3F@6408", isWEP: false)
-        NEHotspotConfigurationManager.shared.apply(wifiConfiguration)
         
-        // 이건 동기 처리가 필요하다고 생각함.
-        //getWifiInfo()
-
+        // 와이파이가 연결 이슈를 끝낸 후에, 현재 와이파이 상태를 탐색해야하므로 sync 로 처리
+        // 근데 apply의 완료 해들러는 Wi-Fi의 연결 성공여부를 리턴하지 않음.
+        // error값은 Wi-Fi에 연결되지 못하더라도 성공여부 관계 없이 nil로 들어옴.
+        wifiDispatchQueue.sync {
+            NEHotspotConfigurationManager.shared.apply(wifiConfiguration) { error in
+                print("connect Wifi 의 CompletionHandler")
+                if error != nil {
+                    //
+                }
+                else {
+                    //
+                }
+            }
+        }
+        
     }
     
     // 현재 연결된 와이파이 정보 찾기
     func getCurrentWifiInfo() {
-        NEHotspotNetwork.fetchCurrent(completionHandler: { network in
-            if let captiveNetwork = network {
-                print("---- 연결된 와이파이 정보 ----")
-                print(captiveNetwork.ssid)
-            } else {
-                print("와이파이에 연결되지 않았습니다")
-            }
-        })
+        print("---- getCurrentWifiInfo 함수 실행 ----")
+        
+        // connectWifi 의 일이 끝나길 기다리고, 이 일을 수행하는 것이 많다.
+        wifiDispatchQueue.sync {
+            NEHotspotNetwork.fetchCurrent(completionHandler: { network in
+                if let captiveNetwork = network {
+                    print("---- 연결된 와이파이 정보 ----")
+                    print(captiveNetwork.ssid)
+                } else {
+                    print("와이파이에 연결되지 않았습니다")
+                }
+            })
+        }
     }
     
     // 연결가능한 와이파이 리스트 출력
     // 그냥 연결가능한 와이파이의 리스트를 출력할 수는 없다.
-    // apple의 리퀘스트 승인을 받아야 함
+    // *** Apple의 리퀘스트 승인을 받아야 함
     func searchConnectiveWifi() {
         
+    }
+    
+    // 탭 했을때 호출되는 함수
+    // super view 에서의 좌표와 image view 에서의 좌표는 다르다. convert 해줘야 함.
+    @objc
+    func handleTap(gestureRecognizer: UITapGestureRecognizer){
+        print("---- handleTap 함수 호출 ! ----")
+        if gestureRecognizer.state == UIGestureRecognizer.State.recognized
+        {
+            let location = gestureRecognizer.location(in: gestureRecognizer.view)
+            print("[location] x = \(location.x), y = \(location.y)")
+            let imageLocation = self.view.convert(location, to: imageView)
+            print("[imageLocation] x = \(imageLocation.x), y = \(imageLocation.y)")
+        }
     }
     
 }

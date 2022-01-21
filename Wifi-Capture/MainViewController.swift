@@ -4,8 +4,13 @@ import UIKit
 import AVFoundation
 import Photos
 
+import MLKitTextRecognitionKorean
+import MLKitVision
+import VisionKit
+
 
 class MainViewController: UIViewController {
+    let koreanOptions = KoreanTextRecognizerOptions()
     
     enum UserStates {
         case beforeTakePictures
@@ -18,11 +23,17 @@ class MainViewController: UIViewController {
     var captureDevice: AVCaptureDevice?
     var captureSession: AVCaptureSession?
     var input: AVCaptureDeviceInput?
-    var output: AVCapturePhotoOutput?
+    var photoOutput: AVCapturePhotoOutput?
     var setting: AVCapturePhotoSettings?
     var previewLayer: AVCaptureVideoPreviewLayer?
     let mainDispatchQueue = DispatchQueue.main
     let globalDispatchQueue = DispatchQueue.global()
+    
+    
+    var videoOutput: AVCaptureVideoDataOutput?
+    var orientation: AVCaptureVideoOrientation = .portrait
+    let videoQueue = DispatchQueue(label: "com.tucan9389.camera-queue")
+    
     
     var recognizedPhotoScale: CGFloat = 1.0
     let maxPhotoScale: CGFloat = 3.0
@@ -139,10 +150,19 @@ class MainViewController: UIViewController {
             captureSession = AVCaptureSession()
             captureSession?.sessionPreset = .photo
             input = try AVCaptureDeviceInput(device: captureDevice)
-            output = AVCapturePhotoOutput()
+            photoOutput = AVCapturePhotoOutput()
             setting = AVCapturePhotoSettings()
             
-            guard let input = input, let output = output else {return}
+            // video 추가
+            videoOutput = AVCaptureVideoDataOutput()
+            videoOutput?.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String : Int(kCVPixelFormatType_32BGRA)]
+            // Sets the sample buffer delegate and the queue for invoking callbacks.
+            videoOutput?.setSampleBufferDelegate(self, queue: videoQueue)
+            guard let videoOutput = videoOutput else { return }
+            captureSession?.addOutput(videoOutput)
+            
+            
+            guard let input = input, let output = photoOutput else {return}
             
             captureSession?.addInput(input)
             captureSession?.addOutput(output)
@@ -164,6 +184,7 @@ class MainViewController: UIViewController {
             mainDispatchQueue.async {
                 previewLayer.frame = self.cameraView.frame
                 self.cameraView.layer.addSublayer(previewLayer)
+                
             }
             
         } catch {
@@ -197,8 +218,8 @@ class MainViewController: UIViewController {
         return mainViewController
     }
 
-
 }
+
 
 // 익스텐션
 extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -257,18 +278,19 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         view.setNeedsUpdateConstraints()
     }
     
-    
     // SnapKit 으로 Constraint 설정
     override func updateViewConstraints() {
         if (!didSetupConstraints) {
             cameraView.snp.makeConstraints { (make) in
                 make.top.equalTo(safetyArea)
                 make.top.left.right.equalTo(safetyArea)
+                print("value = \(view.frame.width * 4/3)")
+                make.height.equalTo(view.frame.width * 4/3)
                 make.bottom.equalTo(self.footerView.snp.top)
             }
 
             footerView.snp.makeConstraints { (make) in
-                make.height.equalTo(200)
+                //make.height.equalTo(200)
                 make.bottom.left.right.equalTo(safetyArea)
                 make.top.equalTo(self.cameraView.snp.bottom)
             }
@@ -301,12 +323,13 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             didSetupConstraints = true
         }
         
+        print("main camera view")
+        print(cameraView.bounds.size.width)
+        print(cameraView.bounds.size.height)
 
         super.updateViewConstraints()
 
     }
-    
-    
     
     // 카메라 줌 인, 줌 아웃 구현
     // 사진 줌 인, 줌 아웃 구현
@@ -370,7 +393,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
     }
     
-    
     // iphone 버전 별로 Camera Type 이 다르기 때문에 버전 별로 최적의 device camera 찾기
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/2361508-default
     func getDefaultCamera() -> AVCaptureDevice? {
@@ -383,7 +405,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         else { return nil }
     }
 
-    
     // 사진 앨범 접근 권한 요청
     func getPhotoLibraryAuthorization() {
         PHPhotoLibrary.requestAuthorization { status in
@@ -394,7 +415,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             }
         }
     }
-    
     
     // photoCapture proecess 가 끝날 떄 호출되는 delegate 메서드
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
@@ -435,19 +455,17 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         userState = .afterTakePictures
         
-        
         // 넘어가기
         let recognizeViewController = RecognizeViewController()
         recognizeViewController.receivedImage = outputImage
         self.navigationController?.pushViewController(recognizeViewController, animated: true)
-        
         
     }
 
     // 촬영 버튼 클릭 이벤트
     @IBAction func tapCameraShootButton(_ sender: UIButton) {
         guard let setting = setting else {return}
-        output?.capturePhoto(with: setting, delegate: self)
+        photoOutput?.capturePhoto(with: setting, delegate: self)
         
     }
     
@@ -465,18 +483,42 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         imagePicker.sourceType = .photoLibrary
         
         present(imagePicker, animated: true, completion: nil)
-        
     }
     
     // 앨범에서 사진을 선택한 뒤 실행되는 delegate 메서드
     // https://developer.apple.com/documentation/uikit/uiimagepickercontrollerdelegate/1619126-imagepickercontroller
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            print("image Picked")
-            // 본격적 문자 인식
             
+            // 문자 인식 페이지로 넘어감
+            let recognizeViewController = RecognizeViewController()
+            recognizeViewController.receivedImage = image
+            
+            dismiss(animated: true, completion: nil)
+            self.navigationController?.pushViewController(recognizeViewController, animated: true)
             
         }
     }
+    
+}
+
+extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+    // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
+        let ciContext = CIContext()
+        guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
+        
+        let uiImage: UIImage = UIImage(cgImage: cgImage)
+        //recognizeText(image: uiImage)
+        // print("uiImage = \(uiImage)")
+        // 이걸 출력하면서 uiImage 가 계속 바뀐다는걸 체크했음.
+        // 이제 이걸로 실시간 프레임 씌우면 될거 같다.
+        
+    }
+    
     
 }
