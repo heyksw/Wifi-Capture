@@ -1,6 +1,0 @@
-
-import Foundation
-
-func parseText() {
-    
-}
