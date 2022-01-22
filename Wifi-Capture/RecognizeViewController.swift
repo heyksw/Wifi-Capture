@@ -20,11 +20,12 @@ struct ExtractedResult {
 
 class RecognizeViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
+    let textRecognize = TextRecognize()
     
     // 와이파이 연결을 처리할 global Queue. attribute 를 주지 않으면 serial Queue 가 됨.
     let wifiDispatchQueue = DispatchQueue(label: "WiFi")
     
-    let koreanOptions = KoreanTextRecognizerOptions()
+    //let koreanOptions = KoreanTextRecognizerOptions()
     var locationManager: CLLocationManager?
     let locationManagerDispatchQueue = DispatchQueue.global()
     
@@ -66,15 +67,22 @@ class RecognizeViewController: UIViewController {
     // 인식된 글자 프레임들이 이 레이어 위에 그려짐
     var frameSublayer = CALayer()
 
+    let textReconize = TextRecognizer()
+    var recognizedResult: Text?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigationBar()
         setUI()
-        recognizeText(image: receivedImage)
-        //searchConnectiveWifi()
-        //connectWifi()
-        getCurrentWifiInfo()
+        // escaping closure
+        textRecognize.recognizeText(image: receivedImage) { [weak self] result in
+            guard let self = self else { return }
+            guard let result = result else { return }
+            self.recognizedResult = result
+            self.drawAllElement(result: self.recognizedResult)
+            self.textView.text += result.text
+        }
         
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
         view.addGestureRecognizer(tapGetPosition)
@@ -135,7 +143,6 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         scrollView.snp.makeConstraints { (make) in
             make.top.equalTo(safetyArea)
             make.top.left.right.equalTo(safetyArea)
-            print("view.frame.width = \(view.frame.width)")
             make.height.equalTo(view.frame.width * (4/3))
             make.bottom.equalTo(self.footerView.snp.top)
         }
@@ -149,7 +156,6 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             make.centerX.equalToSuperview()
             make.top.equalToSuperview()
             make.width.equalToSuperview()
-            
             make.height.equalToSuperview()
         }
         
@@ -166,53 +172,72 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         return self.imageView
     }
     
-    // 세로 이미지 회전 문제로 인한 함수
-    func fixOrientation(img: UIImage) -> UIImage {
-        if (img.imageOrientation == .up) {
-            return img
-        }
-         
-        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
-        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
-        img.draw(in: rect)
-         
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-        
-        return normalizedImage
-    }
     
-    
-    // 문자 인식하기
-    func recognizeText(image: UIImage?){
-        let textRecognizer = TextRecognizer.textRecognizer(options: koreanOptions)
-        
-        guard var image = imageView.image else {
+    func drawAllElement(result: Text?) {
+        print("---- drawAllElement 호출 ----")
+        guard let result = result else {
+            print("--- result 에러 ----")
+            return }
+        guard let image = imageView.image else {
+            print("--- image 에러 ----")
             return
         }
-        
-        image = fixOrientation(img: image)
-
-        let vImage = VisionImage(image: image)
-        vImage.orientation = image.imageOrientation
-    
-        textRecognizer.process(vImage) { result, error in
-            guard error == nil, let result = result else {
-                print("문자 인식 과정에서 에러 발생")
-                return }
-            
-            for block in result.blocks {
-                for line in block.lines {
-                    for elem in line.elements {
-                        self.elementBoxDrawing.addElementFrame(featureFrame: elem.frame, imageSize: image.size, viewFrame: self.imageView.frame, layer: self.frameSublayer)
-                    }
+        for block in result.blocks {
+            for line in block.lines {
+                for element in line.elements {
+                    self.elementBoxDrawing.addElementFrame(featureFrame: element.frame, imageSize: image.size, viewFrame: imageView.frame, layer: frameSublayer)
                 }
             }
-            
-            self.textView.text += result.text
         }
-        
     }
+    
+//    // 세로 이미지 회전 문제로 인한 함수
+//    func fixOrientation(img: UIImage) -> UIImage {
+//        if (img.imageOrientation == .up) {
+//            return img
+//        }
+//
+//        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
+//        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
+//        img.draw(in: rect)
+//
+//        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+//        UIGraphicsEndImageContext()
+//
+//        return normalizedImage
+//    }
+    
+    
+//    // 문자 인식하기
+//    func recognizeText(image: UIImage?){
+//        let textRecognizer = TextRecognizer.textRecognizer(options: koreanOptions)
+//
+//        guard var image = imageView.image else {
+//            return
+//        }
+//
+//        image = fixOrientation(img: image)
+//
+//        let vImage = VisionImage(image: image)
+//        vImage.orientation = image.imageOrientation
+//
+//        textRecognizer.process(vImage) { result, error in
+//            guard error == nil, let result = result else {
+//                print("문자 인식 과정에서 에러 발생")
+//                return }
+//
+//            for block in result.blocks {
+//                for line in block.lines {
+//                    for elem in line.elements {
+//                        self.elementBoxDrawing.addElementFrame(featureFrame: elem.frame, imageSize: image.size, viewFrame: self.imageView.frame, layer: self.frameSublayer)
+//                    }
+//                }
+//            }
+//
+//            self.textView.text += result.text
+//        }
+//
+//    }
     
  
     // 와이파이 연결하기

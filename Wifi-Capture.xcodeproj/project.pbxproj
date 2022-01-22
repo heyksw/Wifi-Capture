@@ -19,6 +19,7 @@
 		49D40947279031A500626A01 /* RecognizeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D40946279031A500626A01 /* RecognizeViewController.swift */; };
 		49D4094A2795653700626A01 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D409492795653700626A01 /* NetworkExtension.framework */; };
 		49D4094C2795660000626A01 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D4094B2795660000626A01 /* ExternalAccessory.framework */; };
+		49F02DBF279BCF8B0018C26F /* TextRecognize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F02DBE279BCF8B0018C26F /* TextRecognize.swift */; };
 		CF5B64D9D388695B78B00D18 /* Pods_Wifi_Capture.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B53C4C875C289228FD884E64 /* Pods_Wifi_Capture.framework */; };
 /* End PBXBuildFile section */
 
@@ -59,6 +60,7 @@
 		49D409482795653700626A01 /* Wifi-Capture.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Wifi-Capture.entitlements"; sourceTree = "<group>"; };
 		49D409492795653700626A01 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		49D4094B2795660000626A01 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
+		49F02DBE279BCF8B0018C26F /* TextRecognize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognize.swift; sourceTree = "<group>"; };
 		B53C4C875C289228FD884E64 /* Pods_Wifi_Capture.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Wifi_Capture.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -121,6 +123,7 @@
 				4936475E27873D4D003D52EE /* MainViewController.swift */,
 				49D40946279031A500626A01 /* RecognizeViewController.swift */,
 				495F277D2799958D008427C2 /* ElementBoxDrawing.swift */,
+				49F02DBE279BCF8B0018C26F /* TextRecognize.swift */,
 				4936473727871DF8003D52EE /* Assets.xcassets */,
 				4936473C27871DF8003D52EE /* Info.plist */,
 				4936473927871DF8003D52EE /* LaunchScreen.storyboard */,
@@ -357,6 +360,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4936475F27873D4D003D52EE /* MainViewController.swift in Sources */,
+				49F02DBF279BCF8B0018C26F /* TextRecognize.swift in Sources */,
 				495F277E2799958D008427C2 /* ElementBoxDrawing.swift in Sources */,
 				49D40947279031A500626A01 /* RecognizeViewController.swift in Sources */,
 				4936472F27871DF7003D52EE /* AppDelegate.swift in Sources */,

@@ -115,6 +115,8 @@ class MainViewController: UIViewController {
         return button
     }()
     
+    var frameSublayer = CALayer()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -248,6 +250,8 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(safetyArea)
+        
+        cameraView.layer.addSublayer(frameSublayer)
         
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide
@@ -517,6 +521,7 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         // print("uiImage = \(uiImage)")
         // 이걸 출력하면서 uiImage 가 계속 바뀐다는걸 체크했음.
         // 이제 이걸로 실시간 프레임 씌우면 될거 같다.
+        
         
     }
     
