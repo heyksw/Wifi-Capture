@@ -6,11 +6,16 @@ import Photos
 
 import MLKitTextRecognitionKorean
 import MLKitVision
-import VisionKit
 
 
 class MainViewController: UIViewController {
-    let koreanOptions = KoreanTextRecognizerOptions()
+    // CIContext 를 만드는건 코스트가 많이 들어서 처음에 선언하고 재사용 하는 것이 좋다.
+    let ciContext = CIContext()
+    var testCount = 1
+    
+    let elementBoxDrawing = ElementBoxDrawing()
+    let textRecognize = TextRecognize()
+    
     
     enum UserStates {
         case beforeTakePictures
@@ -22,7 +27,7 @@ class MainViewController: UIViewController {
     
     var captureDevice: AVCaptureDevice?
     var captureSession: AVCaptureSession?
-    var input: AVCaptureDeviceInput?
+    var deviceInput: AVCaptureDeviceInput?
     var photoOutput: AVCapturePhotoOutput?
     var setting: AVCapturePhotoSettings?
     var previewLayer: AVCaptureVideoPreviewLayer?
@@ -32,7 +37,7 @@ class MainViewController: UIViewController {
     
     var videoOutput: AVCaptureVideoDataOutput?
     var orientation: AVCaptureVideoOrientation = .portrait
-    let videoQueue = DispatchQueue(label: "com.tucan9389.camera-queue")
+    let videoQueue = DispatchQueue(label: "Video Camera Queue")
     
     
     var recognizedPhotoScale: CGFloat = 1.0
@@ -115,7 +120,20 @@ class MainViewController: UIViewController {
         return button
     }()
     
+
     var frameSublayer = CALayer()
+
+    var recognizeResult: Text? {
+        didSet {
+            frameSublayer.setNeedsDisplay()
+        }
+    }
+    
+    
+    
+    
+    var lastTimeStamp = CMTime()
+    var fps = 15
     
     
     override func viewDidLoad() {
@@ -123,18 +141,25 @@ class MainViewController: UIViewController {
         
         // 상단 네비게이션 바 세팅
         self.setNavigationBar()
- 
+        
         // UI 세팅
         self.setUI()
+        
+        //self.cameraView.drawRect(imageView: self.cameraView)
         
         // 앨범에 접근할 권한 요청
         self.getPhotoLibraryAuthorization()
         
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinch(_:)))
+        let tapFocus = UITapGestureRecognizer(target: self, action: #selector(self.tapFocus(_:)))
+        
         view.addGestureRecognizer(pinch)
+        view.addGestureRecognizer(tapFocus)
+        
         cameraShootButton.addTarget(self, action: #selector(tapCameraShootButton(_:)), for: .touchDown)
         galleryButton.addTarget(self, action: #selector(tapGalleryButton), for: .touchDown)
     }
+    
     
     
     // AVFoundation camera setting
@@ -143,28 +168,31 @@ class MainViewController: UIViewController {
         guard let captureDevice = getDefaultCamera() else {
             return
         }
-
-//        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-//            print("captureDivce error")
-//            return}
+        
+        self.captureDevice = captureDevice
         
         do {
             captureSession = AVCaptureSession()
             captureSession?.sessionPreset = .photo
-            input = try AVCaptureDeviceInput(device: captureDevice)
+            deviceInput = try AVCaptureDeviceInput(device: captureDevice)
             photoOutput = AVCapturePhotoOutput()
             setting = AVCapturePhotoSettings()
             
             // video 추가
             videoOutput = AVCaptureVideoDataOutput()
             videoOutput?.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String : Int(kCVPixelFormatType_32BGRA)]
+
+            // 공식문서를 읽고 추가한 코드
+            videoOutput?.alwaysDiscardsLateVideoFrames = true
+            
             // Sets the sample buffer delegate and the queue for invoking callbacks.
             videoOutput?.setSampleBufferDelegate(self, queue: videoQueue)
             guard let videoOutput = videoOutput else { return }
+            
             captureSession?.addOutput(videoOutput)
             
             
-            guard let input = input, let output = photoOutput else {return}
+            guard let input = deviceInput, let output = photoOutput else {return}
             
             captureSession?.addInput(input)
             captureSession?.addOutput(output)
@@ -175,7 +203,9 @@ class MainViewController: UIViewController {
             guard let previewLayer = previewLayer else {
                 return
             }
-
+            
+            // 이렇게 하는게 맞나 ..?
+            previewLayer.addSublayer(frameSublayer)
             
             // startRunning 은 UI 쓰레드를 방해할 수 있기 때문에 다른 쓰레드에 담아줌
             globalDispatchQueue.async {
@@ -202,6 +232,7 @@ class MainViewController: UIViewController {
         self.userState = .beforeTakePictures
         // 카메라 불러오기
         self.setCamera()
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -288,7 +319,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             cameraView.snp.makeConstraints { (make) in
                 make.top.equalTo(safetyArea)
                 make.top.left.right.equalTo(safetyArea)
-                print("value = \(view.frame.width * 4/3)")
+                //print("value = \(view.frame.width * 4/3)")
                 make.height.equalTo(view.frame.width * 4/3)
                 make.bottom.equalTo(self.footerView.snp.top)
             }
@@ -335,79 +366,32 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
 
     }
     
-    // 카메라 줌 인, 줌 아웃 구현
-    // 사진 줌 인, 줌 아웃 구현
-    // device.videoZoomFactor 에 접근하려면 lock / unlock 과정이 필요함
-    // https://developer.apple.com/documentation/avfoundation/avcapturedevice
-    // https://gist.github.com/yusuke024/3b5a89835deab5b9027efea794b80a45
-    @objc
-    func handlePinch(_ pinch: UIPinchGestureRecognizer) {
-        
-        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
-        if (self.userState == .beforeTakePictures) {
-            guard let device = getDefaultCamera() else {return}
-            
-            var initialScale: CGFloat = device.videoZoomFactor
-            let minAvailableZoomScale = 1.0
-            let maxAvailableZoomScale = device.maxAvailableVideoZoomFactor
-            
-            do {
-                try device.lockForConfiguration()
-                if(pinch.state == UIPinchGestureRecognizer.State.began){
-                    initialScale = device.videoZoomFactor
-                }
-                else {
-                    if(initialScale*(pinch.scale) < minAvailableZoomScale){
-                        device.videoZoomFactor = minAvailableZoomScale
-                    }
-                    else if(initialScale*(pinch.scale) > maxAvailableZoomScale){
-                        device.videoZoomFactor = maxAvailableZoomScale
-                    }
-                    else {
-                        device.videoZoomFactor = initialScale * (pinch.scale)
-                    }
-                }
-                pinch.scale = 1.0
-            } catch {
-                return
-            }
-            device.unlockForConfiguration()
-        }
-        // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
-        else if (self.userState == .afterTakePictures) {
-
-            mainDispatchQueue.async {
-
-                if (pinch.state == .began || pinch.state == .changed){
-                    // 확대
-                    if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
-                        self.cameraView.transform = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-                        self.recognizedPhotoScale *= pinch.scale
-                    }
-                    // 축소
-                    else if (self.recognizedPhotoScale > self.minPhotoScale && pinch.scale < 1.0) {
-                        self.cameraView.transform  = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-                        self.recognizedPhotoScale *= pinch.scale
-                    }
-                }
-                pinch.scale = 1.0
-                print(self.recognizedPhotoScale)
-            }
-        }
-        
-    }
-    
     // iphone 버전 별로 Camera Type 이 다르기 때문에 버전 별로 최적의 device camera 찾기
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/2361508-default
     func getDefaultCamera() -> AVCaptureDevice? {
-        if let device = AVCaptureDevice.default(.builtInDualCamera,for: AVMediaType.video,position: .back) {
-            return device
-        }
-        else if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video,position: .back) {
-            return device
-        }
-        else { return nil }
+        
+        var deviceTypes: [AVCaptureDevice.DeviceType]!
+        if #available(iOS 11.1, *)
+        { deviceTypes = [.builtInTrueDepthCamera, .builtInDualCamera, .builtInWideAngleCamera] }
+        else
+        { deviceTypes = [.builtInDualCamera, .builtInWideAngleCamera] }
+        let discoverySession = AVCaptureDevice.DiscoverySession( deviceTypes: deviceTypes, mediaType: .video, position: .unspecified )
+        let devices = discoverySession.devices
+        guard !devices.isEmpty else { fatalError("Missing capture devices.")}
+        
+        return devices.first(where: { device in device.position == .back })!
+        
+        
+//        if let device = AVCaptureDevice.default(.builtInDualCamera,for: AVMediaType.video,position: .back) {
+//            return device
+//        }
+//        else if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video,position: .back) {
+//            return device
+//        }
+//        else { return nil }
     }
+    
+    
 
     // 사진 앨범 접근 권한 요청
     func getPhotoLibraryAuthorization() {
@@ -420,7 +404,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
     }
     
-    // photoCapture proecess 가 끝날 떄 호출되는 delegate 메서드
+    // photoCapture process 가 끝날 떄 호출되는 delegate 메서드
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         print("photoOutput")
         
@@ -461,6 +445,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         // 넘어가기
         let recognizeViewController = RecognizeViewController()
+        
+        print("다음 페이지로 넘길 때 height, width \(outputImage?.size.height) , \(outputImage?.size.width)")
+        
+        elementBoxDrawing.removeFrames(layer: frameSublayer)
+        
         recognizeViewController.receivedImage = outputImage
         self.navigationController?.pushViewController(recognizeViewController, animated: true)
         
@@ -486,6 +475,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         
+        
+        globalDispatchQueue.async {
+            self.captureSession?.stopRunning()
+        }
+        
         present(imagePicker, animated: true, completion: nil)
     }
     
@@ -504,26 +498,221 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
     }
     
-}
-
-extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
-    // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        
-        let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
-        let ciContext = CIContext()
-        guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
-        
-        let uiImage: UIImage = UIImage(cgImage: cgImage)
-        //recognizeText(image: uiImage)
-        // print("uiImage = \(uiImage)")
-        // 이걸 출력하면서 uiImage 가 계속 바뀐다는걸 체크했음.
-        // 이제 이걸로 실시간 프레임 씌우면 될거 같다.
-        
-        
+    // 갤러리 픽을 취소했을때
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        globalDispatchQueue.async {
+            self.captureSession?.startRunning()
+        }
+        dismiss(animated: true, completion: nil)
     }
     
+
+    
+    func drawAllElement(result: Text?, imageSize: CGSize) {
+        //print("----- drawAllElement 호출")
+        guard let result = result else {
+            print("result 에러")
+            return }
+ 
+        for block in result.blocks {
+            for line in block.lines {
+//                self.elementBoxDrawing.addBlockFrame(featureFrame: block.frame, imageSize: image.size, viewFrame: cameraView.frame, layer: self.frameSublayer)
+                for element in line.elements {
+                    print("1 element = \(element.text)")
+                    print("1 element Frame = \(element.frame)")
+                    self.elementBoxDrawing.addElementFrame(featureFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame, layer: self.frameSublayer)
+                }
+            }
+        }
+    }
+}
+
+
+
+extension UIImage {
+    // 이미지 회전 에러가 났을 때 원래대로 돌려줄 회전 함수
+    func rotateImage(radians: Float) -> UIImage? {
+            var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
+            // Trim off the extremely small float value to prevent core graphics from rounding it up
+            newSize.width = floor(newSize.width)
+            newSize.height = floor(newSize.height)
+
+            UIGraphicsBeginImageContextWithOptions(newSize, false, self.scale)
+            let context = UIGraphicsGetCurrentContext()!
+
+            // Move origin to middle
+            context.translateBy(x: newSize.width/2, y: newSize.height/2)
+            // Rotate around middle
+            context.rotate(by: CGFloat(radians))
+            // Draw the image at its center
+            self.draw(in: CGRect(x: -self.size.width/2, y: -self.size.height/2, width: self.size.width, height: self.size.height))
+
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+
+            return newImage
+        }
+}
+
+
+
+// About Video Image Buffer
+extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+    
+    // 코드 실행 시간 측정을 위한 함수. 시간을 개선시켜야겠다. -> 지금 현재가 최선인듯하다. 내 역량안에서는.
+    public func measureTime(_ closure: () -> ()) {
+        let startDate = Date()
+        closure()
+        print( Date().timeIntervalSince(startDate) )
+    }
+    
+    
+    // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
+        guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
+        var uiImage: UIImage = UIImage(cgImage: cgImage)
+        // 이미지 회전 에러가 났다면 제대로 다시 돌려줌.
+        if uiImage.size.width > uiImage.size.height {
+            guard let newImage = uiImage.rotateImage(radians: .pi/2) else { return }
+            uiImage = newImage
+        }
+        
+        textRecognize.recognizeText(uiImage: uiImage) { [weak self] result in
+            guard let result = result else { return }
+            self?.mainDispatchQueue.async {
+                self?.elementBoxDrawing.removeFrames(layer: self?.frameSublayer)
+                self?.drawAllElement(result: result, imageSize: uiImage.size)
+            }
+        }
+        
+    }
+}
+
+
+
+// About Gesture
+extension MainViewController {
+    // 카메라 줌 인, 줌 아웃 구현
+    // 사진 줌 인, 줌 아웃 구현
+    // device.videoZoomFactor 에 접근하려면 lock / unlock 과정이 필요함
+    // https://developer.apple.com/documentation/avfoundation/avcapturedevice
+    // https://gist.github.com/yusuke024/3b5a89835deab5b9027efea794b80a45
+    @objc
+    func handlePinch(_ pinch: UIPinchGestureRecognizer) {
+        print("====== handlePinch 호출 ======")
+        
+        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
+        if (self.userState == .beforeTakePictures) {
+            guard let device = self.captureDevice else {return}
+            
+            var initialScale: CGFloat = device.videoZoomFactor
+            let minAvailableZoomScale = 1.0
+            let maxAvailableZoomScale = device.maxAvailableVideoZoomFactor
+            
+            do {
+                try device.lockForConfiguration()
+                if(pinch.state == UIPinchGestureRecognizer.State.began){
+                    initialScale = device.videoZoomFactor
+                }
+                else {
+                    if(initialScale*(pinch.scale) < minAvailableZoomScale){
+                        device.videoZoomFactor = minAvailableZoomScale
+                    }
+                    else if(initialScale*(pinch.scale) > maxAvailableZoomScale){
+                        device.videoZoomFactor = maxAvailableZoomScale
+                    }
+                    else {
+                        device.videoZoomFactor = initialScale * (pinch.scale)
+                    }
+                }
+                pinch.scale = 1.0
+            } catch {
+                return
+            }
+            device.unlockForConfiguration()
+        }
+        // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
+        else if (self.userState == .afterTakePictures) {
+            mainDispatchQueue.async {
+
+                if (pinch.state == .began || pinch.state == .changed){
+                    // 확대
+                    if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
+                        self.cameraView.transform = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
+                        self.recognizedPhotoScale *= pinch.scale
+                    }
+                    // 축소
+                    else if (self.recognizedPhotoScale > self.minPhotoScale && pinch.scale < 1.0) {
+                        self.cameraView.transform  = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
+                        self.recognizedPhotoScale *= pinch.scale
+                    }
+                }
+                pinch.scale = 1.0
+                print(self.recognizedPhotoScale)
+            }
+        }
+
+    }
+    
+    
+    // https://developer.apple.com/documentation/avfoundation/avcapturedevice/1385853-focuspointofinterest
+    // 이 공식문서에 따르면 이 왼쪽 위가 (0, 0) 이고 오른쪽 아래가 (1, 1) 인 좌표계를 사용한다.
+    @objc
+    func tapFocus(_ sender: UITapGestureRecognizer) {
+        guard let device = self.captureDevice else {
+            return }
+
+        if (sender.state == .ended) {
+            let thisFocusPoint = sender.location(in: cameraView)
+            focusAnimationAt(thisFocusPoint)
+            
+            print("========= tap location : \(thisFocusPoint) ========")
+            
+            let focus_x = thisFocusPoint.x / cameraView.frame.size.width
+            let focus_y = thisFocusPoint.y / cameraView.frame.size.height
+            
+            print("========== focus_x, focus_y = \(focus_x) , \(focus_y) =========")
+            
+            if (device.isFocusModeSupported(.autoFocus) && device.isFocusPointOfInterestSupported) {
+                do {
+                    try device.lockForConfiguration()
+                    device.focusMode = .autoFocus
+                    device.focusPointOfInterest = CGPoint(x: focus_x, y: focus_y)
+                    //device.focusMode = .autoFocus
+
+                    if (device.isExposureModeSupported(.autoExpose) && device.isExposurePointOfInterestSupported) {
+                        device.exposureMode = .autoExpose;
+                        device.exposurePointOfInterest = CGPoint(x: focus_x, y: focus_y);
+                     }
+
+                    device.unlockForConfiguration()
+                } catch {
+                    print(error)
+                }
+            }
+        }
+    }
+    
+    func focusAnimationAt(_ point: CGPoint) {
+        print("focus Animation 호출")
+        let focusView = UIImageView(image: UIImage(named: "aim"))
+        focusView.center = point
+        cameraView.addSubview(focusView)
+
+        focusView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+
+        UIView.animate(withDuration: 0.4, delay: 0.0, options: .curveEaseInOut, animations: {
+//            focusView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+            focusView.transform = CGAffineTransform(scaleX: 0.3, y: 0.3)
+        }) { (success) in
+            UIView.animate(withDuration: 0.15, delay: 0.0, options: .curveEaseInOut, animations: {
+                focusView.alpha = 0.0
+            }) { (success) in
+                focusView.removeFromSuperview()
+            }
+        }
+    }
     
 }

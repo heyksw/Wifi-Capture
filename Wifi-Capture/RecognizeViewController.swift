@@ -3,7 +3,6 @@ import UIKit
 import Foundation
 
 import MLKitTextRecognitionKorean
-import VisionKit
 import MLKitVision
 import SnapKit
 
@@ -22,18 +21,30 @@ class RecognizeViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognize()
     
+    
+    let mainDispatchQueue = DispatchQueue.main
     // 와이파이 연결을 처리할 global Queue. attribute 를 주지 않으면 serial Queue 가 됨.
     let wifiDispatchQueue = DispatchQueue(label: "WiFi")
     
-    //let koreanOptions = KoreanTextRecognizerOptions()
-    var locationManager: CLLocationManager?
-    let locationManagerDispatchQueue = DispatchQueue.global()
+    let textRecognizeDispatchQueue = DispatchQueue.global()
     
     let safetyArea: UIView = {
         let view = UIView()
         view.backgroundColor = .black
         return view
     }()
+    
+    let topContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        return view
+    }()
+    
+    let topTextView: UITextView = {
+        let view = UITextView()
+        return view
+    }()
+    
     var receivedImage: UIImage?
     let scrollView = UIScrollView()
     let imageView: UIImageView = {
@@ -53,7 +64,7 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
-    let textView: UITextView = {
+    let bottomTextView: UITextView = {
         let view = UITextView()
         view.text = "[ 머신러닝 - 문자를 인식한 결과입니다. ] \n \n"
         view.backgroundColor = .black
@@ -66,23 +77,38 @@ class RecognizeViewController: UIViewController {
     
     // 인식된 글자 프레임들이 이 레이어 위에 그려짐
     var frameSublayer = CALayer()
-
-    let textReconize = TextRecognizer()
-    var recognizedResult: Text?
     
     
     override func viewDidLoad() {
+        print("---------- 다음 페이지로 넘어왔음 -------------")
+        
         super.viewDidLoad()
         setNavigationBar()
         setUI()
-        // escaping closure
-        textRecognize.recognizeText(image: receivedImage) { [weak self] result in
-            guard let self = self else { return }
-            guard let result = result else { return }
-            self.recognizedResult = result
-            self.drawAllElement(result: self.recognizedResult)
-            self.textView.text += result.text
+        
+        
+        
+        textRecognizeDispatchQueue.async {
+            
+            guard let receivedImage = self.receivedImage else {
+                return
+            }
+
+            print("받은 이미지 width , height = \(receivedImage.size.width) , \(receivedImage.size.height)")
+            
+            let vImage = VisionImage(image: receivedImage)
+            vImage.orientation = receivedImage.imageOrientation
+            
+            self.textRecognize.recognizeText(uiImage: receivedImage) { [weak self] result in
+                guard let result = result else { return }
+
+                    self?.mainDispatchQueue.async {
+                        self?.drawAllElement(result: result)
+                        self?.bottomTextView.text += result.text
+                }
+            }
         }
+        
         
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
         view.addGestureRecognizer(tapGetPosition)
@@ -90,6 +116,7 @@ class RecognizeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         //removeFrames()
+        // removeFrames 의 layer 는 옵셔널 타입인데, 옵셔널 바인딩 안하고 왜 에러가 안나지?
         self.elementBoxDrawing.removeFrames(layer: frameSublayer)
     }
     
@@ -99,14 +126,20 @@ class RecognizeViewController: UIViewController {
 extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelegate {
     
     func setNavigationBar() {
+        // https://zeddios.tistory.com/864
+        // 여기가 아직 문제다.
+        let navigationAppearance = UINavigationBarAppearance()
+        navigationAppearance.backgroundColor = .black
+        navigationAppearance.configureWithOpaqueBackground()
+        self.navigationController?.navigationBar.standardAppearance = navigationAppearance
         self.navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = .black
     }
     
+    
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(safetyArea)
-        imageView.layer.addSublayer(frameSublayer)
         
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide
@@ -122,32 +155,51 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             safetyArea.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
         
+        safetyArea.addSubview(topContainerView)
+        topContainerView.addSubview(topTextView)
+        
         safetyArea.addSubview(scrollView)
         safetyArea.addSubview(footerView)
         
-        footerView.addArrangedSubview(textView)
+        footerView.addArrangedSubview(bottomTextView)
         
         scrollView.addSubview(imageView)
+        imageView.layer.addSublayer(frameSublayer)
 
         imageView.image = receivedImage
         
         scrollView.delegate = self 
         scrollView.zoomScale = 1.0
         scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 2.0
+        scrollView.maximumZoomScale = 3.0
         
         view.setNeedsUpdateConstraints()
     }
     
     override func updateViewConstraints() {
+        
+        topContainerView.snp.makeConstraints { (make) in
+            make.top.equalTo(safetyArea.snp.top)
+            make.height.equalTo(60)
+            make.left.right.equalTo(safetyArea)
+        }
+        
+        topTextView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview().offset(10)
+            make.left.equalToSuperview().offset(10)
+            make.right.equalToSuperview().offset(-10)
+            make.bottom.equalToSuperview().offset(-10)
+            
+        }
+        
         scrollView.snp.makeConstraints { (make) in
-            make.top.equalTo(safetyArea)
-            make.top.left.right.equalTo(safetyArea)
+            make.top.equalTo(topContainerView.snp.bottom)
+            make.left.right.equalTo(safetyArea)
             make.height.equalTo(view.frame.width * (4/3))
             make.bottom.equalTo(self.footerView.snp.top)
         }
         
-        textView.snp.makeConstraints { make in
+        bottomTextView.snp.makeConstraints { make in
             make.width.equalTo(self.view)
         }
         
@@ -178,67 +230,23 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         guard let result = result else {
             print("--- result 에러 ----")
             return }
-        guard let image = imageView.image else {
+        guard let image = self.receivedImage else {
             print("--- image 에러 ----")
             return
         }
+        
+        print("RecognizeViewController draw All Element image width, height = \(image.size.width), \(image.size.height)")
+        
         for block in result.blocks {
             for line in block.lines {
                 for element in line.elements {
+                    print("element = \(element.text)")
+                    print("element frame = \(element.frame)")
                     self.elementBoxDrawing.addElementFrame(featureFrame: element.frame, imageSize: image.size, viewFrame: imageView.frame, layer: frameSublayer)
                 }
             }
         }
     }
-    
-//    // 세로 이미지 회전 문제로 인한 함수
-//    func fixOrientation(img: UIImage) -> UIImage {
-//        if (img.imageOrientation == .up) {
-//            return img
-//        }
-//
-//        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale)
-//        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
-//        img.draw(in: rect)
-//
-//        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
-//        UIGraphicsEndImageContext()
-//
-//        return normalizedImage
-//    }
-    
-    
-//    // 문자 인식하기
-//    func recognizeText(image: UIImage?){
-//        let textRecognizer = TextRecognizer.textRecognizer(options: koreanOptions)
-//
-//        guard var image = imageView.image else {
-//            return
-//        }
-//
-//        image = fixOrientation(img: image)
-//
-//        let vImage = VisionImage(image: image)
-//        vImage.orientation = image.imageOrientation
-//
-//        textRecognizer.process(vImage) { result, error in
-//            guard error == nil, let result = result else {
-//                print("문자 인식 과정에서 에러 발생")
-//                return }
-//
-//            for block in result.blocks {
-//                for line in block.lines {
-//                    for elem in line.elements {
-//                        self.elementBoxDrawing.addElementFrame(featureFrame: elem.frame, imageSize: image.size, viewFrame: self.imageView.frame, layer: self.frameSublayer)
-//                    }
-//                }
-//            }
-//
-//            self.textView.text += result.text
-//        }
-//
-//    }
-    
  
     // 와이파이 연결하기
     //https://developer.apple.com/documentation/networkextension/nehotspotconfigurationmanager/2866649-apply
