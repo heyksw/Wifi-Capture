@@ -34,7 +34,7 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
-    let topContainerView: UIView = {
+    let topSuperView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
         return view
@@ -52,8 +52,15 @@ class RecognizeViewController: UIViewController {
         view.contentMode = .scaleAspectFit
         return view
     }()
+    
+    let bottomSuperView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        return view
+    }()
+    
     // 하단 버튼들이 들어갈 footer 스택 뷰
-    let footerView: UIStackView = {
+    let bottomStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.spacing = 10
@@ -63,16 +70,48 @@ class RecognizeViewController: UIViewController {
         view.distribution = .equalSpacing
         return view
     }()
+
     
-    let bottomTextView: UITextView = {
-        let view = UITextView()
-        view.text = "[ 머신러닝 - 문자를 인식한 결과입니다. ] \n \n"
+    let bottomLeftView: UIView = {
+        let view = UIView()
         view.backgroundColor = .black
-        view.textColor = .white
-        view.contentMode = .scaleAspectFit
-        view.font = UIFont.systemFont(ofSize: 18)
-        view.textAlignment = NSTextAlignment.center
         return view
+    }()
+    
+    let bottomMiddleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    let bottomRightView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        return view
+    }()
+    
+    let bottomLeftButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("다시 찍기", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        return button
+    }()
+    
+    let bottomMiddleButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("십자 버튼", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        return button
+    }()
+    
+    let bottomRightButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("전화 버튼", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        return button
     }()
     
     // 인식된 글자 프레임들이 이 레이어 위에 그려짐
@@ -86,7 +125,9 @@ class RecognizeViewController: UIViewController {
         setNavigationBar()
         setUI()
         
-        
+        // 키보드 이슈
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: self.view.window)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: self.view.window)
         
         textRecognizeDispatchQueue.async {
             
@@ -104,7 +145,7 @@ class RecognizeViewController: UIViewController {
 
                     self?.mainDispatchQueue.async {
                         self?.drawAllElement(result: result)
-                        self?.bottomTextView.text += result.text
+                        self?.topTextView.text += result.text
                 }
             }
         }
@@ -118,6 +159,10 @@ class RecognizeViewController: UIViewController {
         //removeFrames()
         // removeFrames 의 layer 는 옵셔널 타입인데, 옵셔널 바인딩 안하고 왜 에러가 안나지?
         self.elementBoxDrawing.removeFrames(layer: frameSublayer)
+        
+        // 메모리 해제
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
 }
@@ -127,13 +172,10 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
     
     func setNavigationBar() {
         // https://zeddios.tistory.com/864
-        // 여기가 아직 문제다.
-        let navigationAppearance = UINavigationBarAppearance()
-        navigationAppearance.backgroundColor = .black
-        navigationAppearance.configureWithOpaqueBackground()
-        self.navigationController?.navigationBar.standardAppearance = navigationAppearance
         self.navigationController?.navigationBar.tintColor = .white
-        view.backgroundColor = .black
+        self.navigationController?.navigationBar.barTintColor = .black
+        self.navigationController?.navigationBar.backgroundColor = .black
+        self.navigationController?.navigationBar.isTranslucent = false
     }
     
     
@@ -155,13 +197,21 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             safetyArea.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
         
-        safetyArea.addSubview(topContainerView)
-        topContainerView.addSubview(topTextView)
+        safetyArea.addSubview(topSuperView)
+        topSuperView.addSubview(topTextView)
         
         safetyArea.addSubview(scrollView)
-        safetyArea.addSubview(footerView)
+        safetyArea.addSubview(bottomSuperView)
         
-        footerView.addArrangedSubview(bottomTextView)
+        bottomSuperView.addSubview(bottomStackView)
+        
+        bottomStackView.addArrangedSubview(bottomLeftView)
+        bottomStackView.addArrangedSubview(bottomMiddleView)
+        bottomStackView.addArrangedSubview(bottomRightView)
+        
+        bottomLeftView.addSubview(bottomLeftButton)
+        bottomMiddleView.addSubview(bottomMiddleButton)
+        bottomRightView.addSubview(bottomRightButton)
         
         scrollView.addSubview(imageView)
         imageView.layer.addSublayer(frameSublayer)
@@ -177,8 +227,7 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
     }
     
     override func updateViewConstraints() {
-        
-        topContainerView.snp.makeConstraints { (make) in
+        topSuperView.snp.makeConstraints { (make) in
             make.top.equalTo(safetyArea.snp.top)
             make.height.equalTo(60)
             make.left.right.equalTo(safetyArea)
@@ -193,14 +242,10 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         }
         
         scrollView.snp.makeConstraints { (make) in
-            make.top.equalTo(topContainerView.snp.bottom)
+            make.top.equalTo(topSuperView.snp.bottom)
             make.left.right.equalTo(safetyArea)
-            make.height.equalTo(view.frame.width * (4/3))
-            make.bottom.equalTo(self.footerView.snp.top)
-        }
-        
-        bottomTextView.snp.makeConstraints { make in
-            make.width.equalTo(self.view)
+            //make.height.equalTo(view.frame.width * (4/3))
+            make.bottom.equalTo(self.bottomStackView.snp.top)
         }
         
         
@@ -211,10 +256,41 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             make.height.equalToSuperview()
         }
         
-        footerView.snp.makeConstraints { (make) in
+        bottomSuperView.snp.makeConstraints { (make) in
             //make.height.equalToSuperview()
-            make.bottom.left.right.equalTo(safetyArea)
-            make.top.equalTo(self.scrollView.snp.bottom)
+//            make.bottom.left.right.equalTo(safetyArea)
+//            make.top.equalTo(self.scrollView.snp.bottom)
+            
+            make.left.right.bottom.equalTo(safetyArea)
+            make.height.equalTo(100)
+        }
+        
+        bottomStackView.snp.makeConstraints { (make) in
+            make.top.bottom.left.right.equalToSuperview()
+        }
+        
+        bottomLeftView.snp.makeConstraints { (make) in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        bottomMiddleView.snp.makeConstraints { (make) in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        bottomRightView.snp.makeConstraints { (make) in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        bottomLeftButton.snp.makeConstraints { (make) in
+            make.center.equalToSuperview()
+        }
+        
+        bottomMiddleButton.snp.makeConstraints { (make) in
+            make.center.equalToSuperview()
+        }
+        
+        bottomRightButton.snp.makeConstraints { (make) in
+            make.center.equalToSuperview()
         }
         
         super.updateViewConstraints()
@@ -295,10 +371,47 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         
     }
     
+}
+
+
+
+extension RecognizeViewController {
+    // 키보드가 올라올 때 footer view 도 같이 올라가도록
+    @objc
+    func keyboardWillShow(_ sender: Notification) {
+        print("===== keyboardWillShow =====")
+        
+        if let keyboardFrame: NSValue = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keybaordRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keybaordRectangle.height
+            
+            bottomSuperView.frame.origin.y -= keyboardHeight
+            
+            print("keyboardHeight = \(keyboardHeight)")
+          }
+    }
+    
+    // 키보드가 내려갈 때 footer view 도 다시 같이 내려감
+    @objc
+    func keyboardWillHide(_ sender: Notification) {
+        print("====keyboardWillHide====")
+        
+        if let keyboardFrame: NSValue = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keybaordRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keybaordRectangle.height
+            bottomSuperView.frame.origin.y += keyboardHeight
+            
+            print("keyboardHeight = \(keyboardHeight)")
+          }
+    }
+    
     // 탭 했을때 호출되는 함수
     // super view 에서의 좌표와 image view 에서의 좌표는 다르다. convert 해줘야 함.
     @objc
     func handleTap(gestureRecognizer: UITapGestureRecognizer){
+        // 뷰를 탭하면 키보드가 내려감
+        self.topTextView.resignFirstResponder()
+        
         print("---- handleTap 함수 호출 ! ----")
         if gestureRecognizer.state == UIGestureRecognizer.State.recognized
         {
@@ -307,6 +420,6 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             let imageLocation = self.view.convert(location, to: imageView)
             print("[imageLocation] x = \(imageLocation.x), y = \(imageLocation.y)")
         }
+        //view.endEditing(true)
     }
-    
 }

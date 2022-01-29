@@ -462,7 +462,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
     }
     
-    // 갤러리 버튼 클릭 이벤트 -> 앨범에 접근
+    // 갤러리 버튼 클릭 이벤트 -> 앨범에 접근, 근데 현재 딜레이가 좀 있음.
     // https://developer.apple.com/documentation/uikit/uiimagepickercontroller
     @IBAction func tapGalleryButton(_ sender: UIButton) {
         let imagePicker = UIImagePickerController()
@@ -475,10 +475,10 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         
-        
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
         }
+        
         
         present(imagePicker, animated: true, completion: nil)
     }
