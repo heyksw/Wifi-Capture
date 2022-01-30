@@ -493,7 +493,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             recognizeViewController.receivedImage = image
             
             dismiss(animated: true, completion: nil)
-            self.navigationController?.pushViewController(recognizeViewController, animated: true)
+            self.navigationController?.pushViewController(recognizeViewController, animated: false)
             
         }
     }

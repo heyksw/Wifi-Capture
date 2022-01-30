@@ -42,6 +42,7 @@ class RecognizeViewController: UIViewController {
     
     let topTextView: UITextView = {
         let view = UITextView()
+        view.autocorrectionType = .no
         return view
     }()
     
@@ -125,34 +126,17 @@ class RecognizeViewController: UIViewController {
         setNavigationBar()
         setUI()
         
-        // 키보드 이슈
+        // 키보드 등장 이슈
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: self.view.window)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: self.view.window)
         
-        textRecognizeDispatchQueue.async {
-            
-            guard let receivedImage = self.receivedImage else {
-                return
-            }
+        recognizeReceivedImage()
 
-            print("받은 이미지 width , height = \(receivedImage.size.width) , \(receivedImage.size.height)")
-            
-            let vImage = VisionImage(image: receivedImage)
-            vImage.orientation = receivedImage.imageOrientation
-            
-            self.textRecognize.recognizeText(uiImage: receivedImage) { [weak self] result in
-                guard let result = result else { return }
-
-                    self?.mainDispatchQueue.async {
-                        self?.drawAllElement(result: result)
-                        self?.topTextView.text += result.text
-                }
-            }
-        }
-        
-        
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
         view.addGestureRecognizer(tapGetPosition)
+        
+        bottomLeftButton.addTarget(self, action: #selector(tapBottomLeftButton), for: .touchDown)
+        bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -300,6 +284,23 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         return self.imageView
     }
     
+    func recognizeReceivedImage() {
+        textRecognizeDispatchQueue.async {
+            guard let receivedImage = self.receivedImage else {
+                return
+            }
+            let vImage = VisionImage(image: receivedImage)
+            vImage.orientation = receivedImage.imageOrientation
+            self.textRecognize.recognizeText(uiImage: receivedImage) { [weak self] result in
+                guard let result = result else { return }
+                    self?.mainDispatchQueue.async {
+                        self?.drawAllElement(result: result)
+                        self?.topTextView.text += result.text
+                }
+            }
+        }
+    }
+    
     
     func drawAllElement(result: Text?) {
         print("---- drawAllElement 호출 ----")
@@ -376,33 +377,36 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
 
 
 extension RecognizeViewController {
+    
     // 키보드가 올라올 때 footer view 도 같이 올라가도록
     @objc
     func keyboardWillShow(_ sender: Notification) {
-        print("===== keyboardWillShow =====")
         
         if let keyboardFrame: NSValue = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keybaordRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keybaordRectangle.height
             
-            bottomSuperView.frame.origin.y -= keyboardHeight
-            
-            print("keyboardHeight = \(keyboardHeight)")
+            if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 {
+                bottomSuperView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
+            }
           }
+        
     }
     
     // 키보드가 내려갈 때 footer view 도 다시 같이 내려감
     @objc
     func keyboardWillHide(_ sender: Notification) {
-        print("====keyboardWillHide====")
-        
+
         if let keyboardFrame: NSValue = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keybaordRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keybaordRectangle.height
-            bottomSuperView.frame.origin.y += keyboardHeight
             
-            print("keyboardHeight = \(keyboardHeight)")
+            if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 - (keyboardHeight - view.safeAreaInsets.bottom) {
+                bottomSuperView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
+            }
+            
           }
+        
     }
     
     // 탭 했을때 호출되는 함수
@@ -422,4 +426,24 @@ extension RecognizeViewController {
         }
         //view.endEditing(true)
     }
+    
+    // 다시찍기 버튼
+    @IBAction func tapBottomLeftButton(_ sender: UIButton) {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    // 전화걸기 버튼
+    // 0 하고 O 를 헷갈려한다.
+    // getTELNumber() 를 잘 완성해야 할 듯.
+    // 그리고 알림 버튼 안뜨고 바로 그냥 전화걸릴 순 없나?
+    // https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/PhoneLinks/PhoneLinks.html#//apple_ref/doc/uid/TP40007899-CH6-SW1 이거 읽어보니까 안되는듯.
+    @IBAction func tapBottomRightButton(_ sender: UIButton) {
+        // let number = getTELNumber()
+        let number = topTextView.text
+        guard let number = number else { return }
+        if let url = NSURL(string: "tel:\(number)"), UIApplication.shared.canOpenURL(url as URL) {
+            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+        }
+    }
+    
 }
