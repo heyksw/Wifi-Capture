@@ -3,18 +3,23 @@ import Foundation
 import UIKit
 import AVFoundation
 import Photos
-
+// MLkit
 import MLKitTextRecognitionKorean
 import MLKitVision
+// Indicator View
+import NVActivityIndicatorView
 
 
 class MainViewController: UIViewController {
+    var didCall = false
+    var imageToDeliver: UIImage?
+    var phoneNumber: String? = nil
     // CIContext 를 만드는건 코스트가 많이 들어서 처음에 선언하고 재사용 하는 것이 좋다.
     let ciContext = CIContext()
     var testCount = 1
     
     let elementBoxDrawing = ElementBoxDrawing()
-    let textRecognize = TextRecognize()
+    let textRecognize = TextRecognizing()
     
     
     enum UserStates {
@@ -31,6 +36,7 @@ class MainViewController: UIViewController {
     var photoOutput: AVCapturePhotoOutput?
     var setting: AVCapturePhotoSettings?
     var previewLayer: AVCaptureVideoPreviewLayer?
+    
     let mainDispatchQueue = DispatchQueue.main
     let globalDispatchQueue = DispatchQueue.global()
     
@@ -129,16 +135,13 @@ class MainViewController: UIViewController {
         }
     }
     
-    
-    
-    
-    var lastTimeStamp = CMTime()
-    var fps = 15
-    
+    lazy var cameraViewCenterX: CGFloat = cameraView.frame.width / 2
+    lazy var cameraViewCenterY: CGFloat = cameraView.frame.height / 2
+    lazy var loadingIndicator = NVActivityIndicatorView(frame: CGRect(x: cameraViewCenterX, y: cameraViewCenterY, width: 50, height: 50), type: .ballScaleMultiple, color: .black, padding: 0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // 상단 네비게이션 바 세팅
         self.setNavigationBar()
         
@@ -158,6 +161,8 @@ class MainViewController: UIViewController {
         
         cameraShootButton.addTarget(self, action: #selector(tapCameraShootButton(_:)), for: .touchDown)
         galleryButton.addTarget(self, action: #selector(tapGalleryButton), for: .touchDown)
+        
+//        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     
@@ -310,6 +315,9 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         footerCenterView.addSubview(cameraShootButton)
         footerRightView.addSubview(turnButton)
         
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        cameraView.addSubview(self.loadingIndicator)
+        
         view.setNeedsUpdateConstraints()
     }
     
@@ -416,16 +424,17 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         guard let imageData = photo.fileDataRepresentation() else {
             print("imageData Error")
             return}
+        
         let outputImage = UIImage(data: imageData)
+        guard let outputImage = outputImage else { return }
+        self.imageToDeliver = outputImage
         
         // globalQueue 에서 Session stop
         globalDispatchQueue.async {
-            guard let session = self.captureSession else {
-                print("session error at photoOut func")
-                return
-            }
-            session.stopRunning()
+            self.captureSession?.stopRunning()
         }
+        
+        self.elementBoxDrawing.removeFrames(layer: self.frameSublayer)
         
         // mainQueue 쓰레드에서 UI 작업
         mainDispatchQueue.async {
@@ -443,17 +452,65 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         userState = .afterTakePictures
         
+        
+        
+        // 전화번호를 인식했으면 전화를 건다.
+        globalDispatchQueue.async {
+            self.textRecognize.recognizeText(uiImage: outputImage) { [weak self] result in
+                guard let result = result else { return }
+                self?.phoneNumber = self?.textRecognize.getPhoneNumber(result)
+                
+                self?.mainDispatchQueue.async {
+                    print("=================== 주목 =====================")
+                    // 여기에 화면 블러처리도 넣으면 좋을듯
+                    
+                    
+                    // 전화번호를 인식했으면
+                    if let number = self?.phoneNumber {
+                        // call 에 completion handler로 pushToNextPage 를 넣었음
+                        self?.call(phoneNumber: number, outputImage: outputImage)
+                        self?.pushToNextPage()
+                    }
+                    else {
+                        // 인식한 전화번호가 없습니다.
+                        print("인식한 전화번호가 없습니다.")
+                        let alert = UIAlertController(title:"인식 에러", message: "인식한 전화번호가 없습니다.", preferredStyle: .alert)
+                        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
+                            self?.dismiss(animated: true, completion: nil)
+                            self?.pushToNextPage()
+                        }
+                        alert.addAction(okButton)
+                        self?.present(alert, animated: true, completion: nil)
+                    }
+
+                }
+            }
+        }
+        
+        
+        //pushToNextPage(outputImage)
+ 
+    }
+    
+    // 촬영한 이미지를 가지고 다음 페이지로 넘기는 함수
+    func pushToNextPage() {
+        guard let outputImage = self.imageToDeliver else {
+            return
+        }
         // 넘어가기
         let recognizeViewController = RecognizeViewController()
-        
-        print("다음 페이지로 넘길 때 height, width \(outputImage?.size.height) , \(outputImage?.size.width)")
-        
-        elementBoxDrawing.removeFrames(layer: frameSublayer)
-        
+        print("다음 페이지로 넘길 때 height, width \(outputImage.size.height) , \(outputImage.size.width)")
+
         recognizeViewController.receivedImage = outputImage
         self.navigationController?.pushViewController(recognizeViewController, animated: true)
-        
     }
+    
+    // 전화를 마치고 다음 페이지로 넘기기 위한 함수
+    // 앱이 background 상태로 넘어갔을 때 실행
+//    @objc
+//    func didEnterBackground() {
+//        if didCall { pushToNextPage() }
+//    }
 
     // 촬영 버튼 클릭 이벤트
     @IBAction func tapCameraShootButton(_ sender: UIButton) {
@@ -466,11 +523,12 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     // https://developer.apple.com/documentation/uikit/uiimagepickercontroller
     @IBAction func tapGalleryButton(_ sender: UIButton) {
         let imagePicker = UIImagePickerController()
-        
+
         guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
-            print("can't use photo library")
+            showUnknownErrorAlert()
             return
         }
+
         
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
@@ -478,7 +536,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
         }
-        
         
         present(imagePicker, animated: true, completion: nil)
     }
@@ -715,4 +772,11 @@ extension MainViewController {
         }
     }
     
+    func call(phoneNumber: String, outputImage: UIImage) {
+        if let url = NSURL(string: "tel:\(phoneNumber)"), UIApplication.shared.canOpenURL(url as URL) {
+            // completion handler 가 전화가 종료된 다음 호출되는게 아니다. url 을 찾았을 때 호출됨.
+            // didEnterBackground 활용
+            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+        }
+    }
 }

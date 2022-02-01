@@ -19,8 +19,8 @@ struct ExtractedResult {
 
 class RecognizeViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
-    let textRecognize = TextRecognize()
-    
+    let textRecognize = TextRecognizing()
+    var recognizedResultText: Text? = nil
     
     let mainDispatchQueue = DispatchQueue.main
     // 와이파이 연결을 처리할 global Queue. attribute 를 주지 않으면 serial Queue 가 됨.
@@ -133,7 +133,7 @@ class RecognizeViewController: UIViewController {
         recognizeReceivedImage()
 
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
-        view.addGestureRecognizer(tapGetPosition)
+        self.view.addGestureRecognizer(tapGetPosition)
         
         bottomLeftButton.addTarget(self, action: #selector(tapBottomLeftButton), for: .touchDown)
         bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
@@ -200,6 +200,7 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         scrollView.addSubview(imageView)
         imageView.layer.addSublayer(frameSublayer)
 
+        imageView.contentMode = .scaleAspectFit
         imageView.image = receivedImage
         
         scrollView.delegate = self 
@@ -293,10 +294,13 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             vImage.orientation = receivedImage.imageOrientation
             self.textRecognize.recognizeText(uiImage: receivedImage) { [weak self] result in
                 guard let result = result else { return }
-                    self?.mainDispatchQueue.async {
-                        self?.drawAllElement(result: result)
-                        self?.topTextView.text += result.text
+                self?.recognizedResultText = result
+                
+                self?.mainDispatchQueue.async {
+                    self?.drawAllElement(result: result)
+                    self?.topTextView.text += result.text
                 }
+                
             }
         }
     }
@@ -432,18 +436,45 @@ extension RecognizeViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
+
     // 전화걸기 버튼
-    // 0 하고 O 를 헷갈려한다.
-    // getTELNumber() 를 잘 완성해야 할 듯.
-    // 그리고 알림 버튼 안뜨고 바로 그냥 전화걸릴 순 없나?
-    // https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/PhoneLinks/PhoneLinks.html#//apple_ref/doc/uid/TP40007899-CH6-SW1 이거 읽어보니까 안되는듯.
+    //https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/PhoneLinks/PhoneLinks.html#//apple_ref/doc/uid/TP40007899-CH6-SW1 이거 읽어보니까 안되는듯.
     @IBAction func tapBottomRightButton(_ sender: UIButton) {
-        // let number = getTELNumber()
-        let number = topTextView.text
-        guard let number = number else { return }
-        if let url = NSURL(string: "tel:\(number)"), UIApplication.shared.canOpenURL(url as URL) {
-            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+        guard let resultText = self.recognizedResultText else {
+            showThereIsNoPhoneNumberAlert()
+            return
+        }
+        if let number = textRecognize.getPhoneNumber(resultText) {
+            if let url = NSURL(string: "tel:\(number)"), UIApplication.shared.canOpenURL(url as URL) {
+                UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+            }
+            else {
+                showUnknownErrorAlert()
+            }
+        }
+        else {
+            showThereIsNoPhoneNumberAlert()
         }
     }
+    
+//    // 인식한 전화번호가 없을 때
+//    func showThereIsNoPhoneNumberAlert() {
+//        let alert = UIAlertController(title:"인식 에러", message: "인식한 전화번호가 없습니다.", preferredStyle: .alert)
+//        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
+//            self.dismiss(animated: true, completion: nil)
+//        }
+//        alert.addAction(okButton)
+//        self.present(alert, animated: true, completion: nil)
+//    }
+    
+//    // 알 수 없는 에러 처리
+//    func showUnknownErrorAlert() {
+//        let alert = UIAlertController(title:"죄송합니다", message: "알 수 없는 에러가 발생했습니다.", preferredStyle: .alert)
+//        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
+//            self.dismiss(animated: true, completion: nil)
+//        }
+//        alert.addAction(okButton)
+//        self.present(alert, animated: true, completion: nil)
+//    }
     
 }

@@ -67,17 +67,10 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
                                        y: featurePointYScaled,
                                        width: featureWidthScaled,
                                        height: featureHeightScaled)
-                
+        
+        //print("convert frame origin = \(featureRectScaled.origin.x), \(featureRectScaled.origin.y) ")
         drawElementFrame(featureRectScaled, layer)
     }
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     // 추가한 Frame 을 Layer 위에 그려주는 함수

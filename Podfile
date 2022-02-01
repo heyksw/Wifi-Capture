@@ -10,5 +10,6 @@ target 'Wifi-Capture' do
   pod 'SnapKit', '~> 5.0.0'
   pod 'GoogleMLKit/TextRecognition', '2.5.0'
   pod 'GoogleMLKit/TextRecognitionKorean', '2.5.0'
+  pod 'NVActivityIndicatorView'
 
 end
