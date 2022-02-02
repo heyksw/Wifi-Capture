@@ -154,7 +154,7 @@ class MainViewController: UIViewController {
         self.getPhotoLibraryAuthorization()
         
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinch(_:)))
-        let tapFocus = UITapGestureRecognizer(target: self, action: #selector(self.tapFocus(_:)))
+        let tapFocus = UITapGestureRecognizer(target: self, action: #selector(self.tapCameraFocusing(_:)))
         
         view.addGestureRecognizer(pinch)
         view.addGestureRecognizer(tapFocus)
@@ -374,6 +374,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
 
     }
     
+    
     // iphone 버전 별로 Camera Type 이 다르기 때문에 버전 별로 최적의 device camera 찾기
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/2361508-default
     func getDefaultCamera() -> AVCaptureDevice? {
@@ -388,15 +389,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         guard !devices.isEmpty else { fatalError("Missing capture devices.")}
         
         return devices.first(where: { device in device.position == .back })!
-        
-        
-//        if let device = AVCaptureDevice.default(.builtInDualCamera,for: AVMediaType.video,position: .back) {
-//            return device
-//        }
-//        else if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video,position: .back) {
-//            return device
-//        }
-//        else { return nil }
     }
     
     
@@ -412,18 +404,19 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
     }
     
-    // photoCapture process 가 끝날 떄 호출되는 delegate 메서드
+    
+    // 사진을 찍고나서 호출되는 delegate 메서드
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        print("photoOutput")
         
         guard error == nil else {
-            print("Photo Output Error !")
+            showUnknownErrorAlert()
             return
         }
         
         guard let imageData = photo.fileDataRepresentation() else {
-            print("imageData Error")
-            return}
+            showUnknownErrorAlert()
+            return
+        }
         
         let outputImage = UIImage(data: imageData)
         guard let outputImage = outputImage else { return }
@@ -452,8 +445,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         userState = .afterTakePictures
         
-        
-        
         // 전화번호를 인식했으면 전화를 건다.
         globalDispatchQueue.async {
             self.textRecognize.recognizeText(uiImage: outputImage) { [weak self] result in
@@ -461,9 +452,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 self?.phoneNumber = self?.textRecognize.getPhoneNumber(result)
                 
                 self?.mainDispatchQueue.async {
-                    print("=================== 주목 =====================")
                     // 여기에 화면 블러처리도 넣으면 좋을듯
-                    
                     
                     // 전화번호를 인식했으면
                     if let number = self?.phoneNumber {
@@ -471,8 +460,8 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                         self?.call(phoneNumber: number, outputImage: outputImage)
                         self?.pushToNextPage()
                     }
+                    // 전화번호를 인식 못했으면
                     else {
-                        // 인식한 전화번호가 없습니다.
                         print("인식한 전화번호가 없습니다.")
                         let alert = UIAlertController(title:"인식 에러", message: "인식한 전화번호가 없습니다.", preferredStyle: .alert)
                         let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
@@ -482,15 +471,12 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                         alert.addAction(okButton)
                         self?.present(alert, animated: true, completion: nil)
                     }
-
                 }
             }
         }
         
-        
-        //pushToNextPage(outputImage)
- 
     }
+    
     
     // 촬영한 이미지를 가지고 다음 페이지로 넘기는 함수
     func pushToNextPage() {
@@ -504,23 +490,16 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         recognizeViewController.receivedImage = outputImage
         self.navigationController?.pushViewController(recognizeViewController, animated: true)
     }
-    
-    // 전화를 마치고 다음 페이지로 넘기기 위한 함수
-    // 앱이 background 상태로 넘어갔을 때 실행
-//    @objc
-//    func didEnterBackground() {
-//        if didCall { pushToNextPage() }
-//    }
+
 
     // 촬영 버튼 클릭 이벤트
     @IBAction func tapCameraShootButton(_ sender: UIButton) {
-        guard let setting = setting else {return}
+        guard let setting = setting else { return }
         photoOutput?.capturePhoto(with: setting, delegate: self)
-        
     }
     
+    
     // 갤러리 버튼 클릭 이벤트 -> 앨범에 접근, 근데 현재 딜레이가 좀 있음.
-    // https://developer.apple.com/documentation/uikit/uiimagepickercontroller
     @IBAction func tapGalleryButton(_ sender: UIButton) {
         let imagePicker = UIImagePickerController()
 
@@ -529,7 +508,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             return
         }
 
-        
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         
@@ -540,8 +518,8 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         present(imagePicker, animated: true, completion: nil)
     }
     
+    
     // 앨범에서 사진을 선택한 뒤 실행되는 delegate 메서드
-    // https://developer.apple.com/documentation/uikit/uiimagepickercontrollerdelegate/1619126-imagepickercontroller
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             
@@ -549,10 +527,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             let recognizeViewController = RecognizeViewController()
             recognizeViewController.receivedImage = image
             
-            dismiss(animated: true, completion: nil)
+            dismiss(animated: false, completion: nil)
             self.navigationController?.pushViewController(recognizeViewController, animated: false)
             
         }
+        else { showUnknownErrorAlert() }
     }
     
     // 갤러리 픽을 취소했을때
@@ -561,23 +540,22 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             self.captureSession?.startRunning()
         }
         dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
 
     
     func drawAllElement(result: Text?, imageSize: CGSize) {
-        //print("----- drawAllElement 호출")
         guard let result = result else {
-            print("result 에러")
-            return }
+            showUnknownErrorAlert()
+            return
+        }
  
         for block in result.blocks {
             for line in block.lines {
-//                self.elementBoxDrawing.addBlockFrame(featureFrame: block.frame, imageSize: image.size, viewFrame: cameraView.frame, layer: self.frameSublayer)
                 for element in line.elements {
-                    print("1 element = \(element.text)")
-                    print("1 element Frame = \(element.frame)")
-                    self.elementBoxDrawing.addElementFrame(featureFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame, layer: self.frameSublayer)
+                    let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame)
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, frameSublayer)
                 }
             }
         }
@@ -616,14 +594,6 @@ extension UIImage {
 // About Video Image Buffer
 extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
-    // 코드 실행 시간 측정을 위한 함수. 시간을 개선시켜야겠다. -> 지금 현재가 최선인듯하다. 내 역량안에서는.
-    public func measureTime(_ closure: () -> ()) {
-        let startDate = Date()
-        closure()
-        print( Date().timeIntervalSince(startDate) )
-    }
-    
-    
     // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -643,8 +613,8 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
                 self?.drawAllElement(result: result, imageSize: uiImage.size)
             }
         }
-        
     }
+    
 }
 
 
@@ -658,8 +628,6 @@ extension MainViewController {
     // https://gist.github.com/yusuke024/3b5a89835deab5b9027efea794b80a45
     @objc
     func handlePinch(_ pinch: UIPinchGestureRecognizer) {
-        print("====== handlePinch 호출 ======")
-        
         // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
         if (self.userState == .beforeTakePictures) {
             guard let device = self.captureDevice else {return}
@@ -691,9 +659,9 @@ extension MainViewController {
             device.unlockForConfiguration()
         }
         // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
+        // 이 코드는 없애도 되지 않을까 ?
         else if (self.userState == .afterTakePictures) {
             mainDispatchQueue.async {
-
                 if (pinch.state == .began || pinch.state == .changed){
                     // 확대
                     if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
@@ -714,30 +682,28 @@ extension MainViewController {
     }
     
     
+    // 카메라 포커싱 메서드
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/1385853-focuspointofinterest
     // 이 공식문서에 따르면 이 왼쪽 위가 (0, 0) 이고 오른쪽 아래가 (1, 1) 인 좌표계를 사용한다.
     @objc
-    func tapFocus(_ sender: UITapGestureRecognizer) {
+    func tapCameraFocusing(_ sender: UITapGestureRecognizer) {
         guard let device = self.captureDevice else {
-            return }
+            showUnknownErrorAlert()
+            return
+        }
 
         if (sender.state == .ended) {
             let thisFocusPoint = sender.location(in: cameraView)
             focusAnimationAt(thisFocusPoint)
-            
-            print("========= tap location : \(thisFocusPoint) ========")
-            
+
             let focus_x = thisFocusPoint.x / cameraView.frame.size.width
             let focus_y = thisFocusPoint.y / cameraView.frame.size.height
-            
-            print("========== focus_x, focus_y = \(focus_x) , \(focus_y) =========")
             
             if (device.isFocusModeSupported(.autoFocus) && device.isFocusPointOfInterestSupported) {
                 do {
                     try device.lockForConfiguration()
                     device.focusMode = .autoFocus
                     device.focusPointOfInterest = CGPoint(x: focus_x, y: focus_y)
-                    //device.focusMode = .autoFocus
 
                     if (device.isExposureModeSupported(.autoExpose) && device.isExposurePointOfInterestSupported) {
                         device.exposureMode = .autoExpose;
@@ -746,12 +712,14 @@ extension MainViewController {
 
                     device.unlockForConfiguration()
                 } catch {
-                    print(error)
+                    showUnknownErrorAlert()
                 }
             }
         }
     }
     
+    
+    // 카메라 포커싱 애니메이션
     func focusAnimationAt(_ point: CGPoint) {
         print("focus Animation 호출")
         let focusView = UIImageView(image: UIImage(named: "aim"))
@@ -772,6 +740,8 @@ extension MainViewController {
         }
     }
     
+    
+    // 전화 걸기 메서드
     func call(phoneNumber: String, outputImage: UIImage) {
         if let url = NSURL(string: "tel:\(phoneNumber)"), UIApplication.shared.canOpenURL(url as URL) {
             // completion handler 가 전화가 종료된 다음 호출되는게 아니다. url 을 찾았을 때 호출됨.

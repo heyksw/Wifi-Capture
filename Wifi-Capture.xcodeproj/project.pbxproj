@@ -17,6 +17,7 @@
 		4936475227871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */; };
 		4936475F27873D4D003D52EE /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475E27873D4D003D52EE /* MainViewController.swift */; };
 		495F277E2799958D008427C2 /* ElementBoxDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495F277D2799958D008427C2 /* ElementBoxDrawing.swift */; };
+		4986C24927AAA9A900D14147 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4986C24827AAA9A900D14147 /* LinkedList.swift */; };
 		49D40947279031A500626A01 /* RecognizeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D40946279031A500626A01 /* RecognizeViewController.swift */; };
 		49D4094A2795653700626A01 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D409492795653700626A01 /* NetworkExtension.framework */; };
 		49D4094C2795660000626A01 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D4094B2795660000626A01 /* ExternalAccessory.framework */; };
@@ -58,6 +59,7 @@
 		4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4936475E27873D4D003D52EE /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		495F277D2799958D008427C2 /* ElementBoxDrawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementBoxDrawing.swift; sourceTree = "<group>"; };
+		4986C24827AAA9A900D14147 /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
 		49D40946279031A500626A01 /* RecognizeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeViewController.swift; sourceTree = "<group>"; };
 		49D409482795653700626A01 /* Wifi-Capture.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Wifi-Capture.entitlements"; sourceTree = "<group>"; };
 		49D409492795653700626A01 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -127,6 +129,7 @@
 				495F277D2799958D008427C2 /* ElementBoxDrawing.swift */,
 				49F02DBE279BCF8B0018C26F /* TextRecognizing.swift */,
 				49072BF327A955320032FDCE /* AlertCollection.swift */,
+				4986C24827AAA9A900D14147 /* LinkedList.swift */,
 				4936473727871DF8003D52EE /* Assets.xcassets */,
 				4936473C27871DF8003D52EE /* Info.plist */,
 				4936473927871DF8003D52EE /* LaunchScreen.storyboard */,
@@ -362,6 +365,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4986C24927AAA9A900D14147 /* LinkedList.swift in Sources */,
 				4936475F27873D4D003D52EE /* MainViewController.swift in Sources */,
 				49F02DBF279BCF8B0018C26F /* TextRecognizing.swift in Sources */,
 				495F277E2799958D008427C2 /* ElementBoxDrawing.swift in Sources */,

@@ -21,11 +21,10 @@ class RecognizeViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
     var recognizedResultText: Text? = nil
+    var elementBoxesInfo: [ElementBoxInfo] = []
+    let textLinkedList = LinkedList()
     
     let mainDispatchQueue = DispatchQueue.main
-    // 와이파이 연결을 처리할 global Queue. attribute 를 주지 않으면 serial Queue 가 됨.
-    let wifiDispatchQueue = DispatchQueue(label: "WiFi")
-    
     let textRecognizeDispatchQueue = DispatchQueue.global()
     
     let safetyArea: UIView = {
@@ -47,12 +46,15 @@ class RecognizeViewController: UIViewController {
     }()
     
     var receivedImage: UIImage?
-    let scrollView = UIScrollView()
+    let imageSuperScrollView = UIScrollView()
     let imageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .scaleAspectFit
+        //view.contentMode = .scaleAspectFit
         return view
     }()
+    
+    // 인식된 글자 프레임박스들이 이 레이어 위에 그려짐
+    var imageViewLayer = CALayer()
     
     let bottomSuperView: UIView = {
         let view = UIView()
@@ -115,9 +117,7 @@ class RecognizeViewController: UIViewController {
         return button
     }()
     
-    // 인식된 글자 프레임들이 이 레이어 위에 그려짐
-    var frameSublayer = CALayer()
-    
+
     
     override func viewDidLoad() {
         print("---------- 다음 페이지로 넘어왔음 -------------")
@@ -126,23 +126,24 @@ class RecognizeViewController: UIViewController {
         setNavigationBar()
         setUI()
         
-        // 키보드 등장 이슈
+        // 키보드 등장 이슈 처리
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: self.view.window)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: self.view.window)
         
+        // 넘겨 받은 이미지 문자 인식, 박스 그리기
         recognizeReceivedImage()
 
+        // 뷰 터치 이벤트
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
         self.view.addGestureRecognizer(tapGetPosition)
         
+        // 버튼 터치 이벤트
         bottomLeftButton.addTarget(self, action: #selector(tapBottomLeftButton), for: .touchDown)
         bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        //removeFrames()
-        // removeFrames 의 layer 는 옵셔널 타입인데, 옵셔널 바인딩 안하고 왜 에러가 안나지?
-        self.elementBoxDrawing.removeFrames(layer: frameSublayer)
+        self.elementBoxDrawing.removeFrames(layer: imageViewLayer)
         
         // 메모리 해제
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -152,16 +153,18 @@ class RecognizeViewController: UIViewController {
 }
 
 
-extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelegate {
-    
+extension RecognizeViewController: UIScrollViewDelegate {
     func setNavigationBar() {
-        // https://zeddios.tistory.com/864
         self.navigationController?.navigationBar.tintColor = .white
         self.navigationController?.navigationBar.barTintColor = .black
         self.navigationController?.navigationBar.backgroundColor = .black
         self.navigationController?.navigationBar.isTranslucent = false
     }
     
+    // scrollView zoom 
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.imageView
+    }
     
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
@@ -184,7 +187,7 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         safetyArea.addSubview(topSuperView)
         topSuperView.addSubview(topTextView)
         
-        safetyArea.addSubview(scrollView)
+        safetyArea.addSubview(imageSuperScrollView)
         safetyArea.addSubview(bottomSuperView)
         
         bottomSuperView.addSubview(bottomStackView)
@@ -197,19 +200,20 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         bottomMiddleView.addSubview(bottomMiddleButton)
         bottomRightView.addSubview(bottomRightButton)
         
-        scrollView.addSubview(imageView)
-        imageView.layer.addSublayer(frameSublayer)
+        imageSuperScrollView.addSubview(imageView)
+        imageView.layer.addSublayer(imageViewLayer)
 
         imageView.contentMode = .scaleAspectFit
         imageView.image = receivedImage
         
-        scrollView.delegate = self 
-        scrollView.zoomScale = 1.0
-        scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 3.0
+        imageSuperScrollView.delegate = self 
+        imageSuperScrollView.zoomScale = 1.0
+        imageSuperScrollView.minimumZoomScale = 1.0
+        imageSuperScrollView.maximumZoomScale = 3.0
         
         view.setNeedsUpdateConstraints()
     }
+    
     
     override func updateViewConstraints() {
         topSuperView.snp.makeConstraints { (make) in
@@ -226,10 +230,9 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             
         }
         
-        scrollView.snp.makeConstraints { (make) in
+        imageSuperScrollView.snp.makeConstraints { (make) in
             make.top.equalTo(topSuperView.snp.bottom)
             make.left.right.equalTo(safetyArea)
-            //make.height.equalTo(view.frame.width * (4/3))
             make.bottom.equalTo(self.bottomStackView.snp.top)
         }
         
@@ -242,10 +245,6 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         }
         
         bottomSuperView.snp.makeConstraints { (make) in
-            //make.height.equalToSuperview()
-//            make.bottom.left.right.equalTo(safetyArea)
-//            make.top.equalTo(self.scrollView.snp.bottom)
-            
             make.left.right.bottom.equalTo(safetyArea)
             make.height.equalTo(100)
         }
@@ -280,14 +279,13 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
         
         super.updateViewConstraints()
     }
+
     
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.imageView
-    }
-    
+    // 넘겨받은 이미지 문자 인식하고, frame box 그리는 함수
     func recognizeReceivedImage() {
         textRecognizeDispatchQueue.async {
             guard let receivedImage = self.receivedImage else {
+                self.showUnknownErrorAlert()
                 return
             }
             let vImage = VisionImage(image: receivedImage)
@@ -295,85 +293,39 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
             self.textRecognize.recognizeText(uiImage: receivedImage) { [weak self] result in
                 guard let result = result else { return }
                 self?.recognizedResultText = result
-                
                 self?.mainDispatchQueue.async {
                     self?.drawAllElement(result: result)
-                    self?.topTextView.text += result.text
+//                    self?.topTextView.text += result.text
                 }
-                
             }
         }
     }
     
     
+    // element box 들을 그리면서 elementBoxesInfo 에 저장.
     func drawAllElement(result: Text?) {
-        print("---- drawAllElement 호출 ----")
+        var cnt = 0
         guard let result = result else {
-            print("--- result 에러 ----")
-            return }
-        guard let image = self.receivedImage else {
-            print("--- image 에러 ----")
+            showUnknownErrorAlert()
             return
         }
-        
-        print("RecognizeViewController draw All Element image width, height = \(image.size.width), \(image.size.height)")
+        guard let image = self.receivedImage else {
+            showUnknownErrorAlert()
+            return
+        }
         
         for block in result.blocks {
             for line in block.lines {
                 for element in line.elements {
-                    print("element = \(element.text)")
-                    print("element frame = \(element.frame)")
-                    self.elementBoxDrawing.addElementFrame(featureFrame: element.frame, imageSize: image.size, viewFrame: imageView.frame, layer: frameSublayer)
+                    let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: image.size, viewFrame: imageView.frame)
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, imageViewLayer)
+                    let elementBoxLayer = elementBoxDrawing.getElementBoxLayer()
+                    let elementBoxInfo = ElementBoxInfo(idx: cnt, layer: elementBoxLayer, text: element.text)
+                    elementBoxesInfo.append(elementBoxInfo)
+                    cnt += 1
                 }
             }
         }
-    }
- 
-    // 와이파이 연결하기
-    //https://developer.apple.com/documentation/networkextension/nehotspotconfigurationmanager/2866649-apply
-    func connectWifi() {
-        print("---- connect Wifi 함수 실행 ----")
-        let wifiConfiguration = NEHotspotConfiguration(ssid: "SK_WiFiGIGAD354_5G", passphrase: "ECI3F@6408", isWEP: false)
-        
-        // 와이파이가 연결 이슈를 끝낸 후에, 현재 와이파이 상태를 탐색해야하므로 sync 로 처리
-        // 근데 apply의 완료 해들러는 Wi-Fi의 연결 성공여부를 리턴하지 않음.
-        // error값은 Wi-Fi에 연결되지 못하더라도 성공여부 관계 없이 nil로 들어옴.
-        wifiDispatchQueue.sync {
-            NEHotspotConfigurationManager.shared.apply(wifiConfiguration) { error in
-                print("connect Wifi 의 CompletionHandler")
-                if error != nil {
-                    //
-                }
-                else {
-                    //
-                }
-            }
-        }
-        
-    }
-    
-    // 현재 연결된 와이파이 정보 찾기
-    func getCurrentWifiInfo() {
-        print("---- getCurrentWifiInfo 함수 실행 ----")
-        
-        // connectWifi 의 일이 끝나길 기다리고, 이 일을 수행하는 것이 많다.
-        wifiDispatchQueue.sync {
-            NEHotspotNetwork.fetchCurrent(completionHandler: { network in
-                if let captiveNetwork = network {
-                    print("---- 연결된 와이파이 정보 ----")
-                    print(captiveNetwork.ssid)
-                } else {
-                    print("와이파이에 연결되지 않았습니다")
-                }
-            })
-        }
-    }
-    
-    // 연결가능한 와이파이 리스트 출력
-    // 그냥 연결가능한 와이파이의 리스트를 출력할 수는 없다.
-    // *** Apple의 리퀘스트 승인을 받아야 함
-    func searchConnectiveWifi() {
-        
     }
     
 }
@@ -381,7 +333,6 @@ extension RecognizeViewController: UIScrollViewDelegate, CLLocationManagerDelega
 
 
 extension RecognizeViewController {
-    
     // 키보드가 올라올 때 footer view 도 같이 올라가도록
     @objc
     func keyboardWillShow(_ sender: Notification) {
@@ -394,7 +345,7 @@ extension RecognizeViewController {
                 bottomSuperView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
             }
           }
-        
+        else { showUnknownErrorAlert() }
     }
     
     // 키보드가 내려갈 때 footer view 도 다시 같이 내려감
@@ -408,28 +359,57 @@ extension RecognizeViewController {
             if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 - (keyboardHeight - view.safeAreaInsets.bottom) {
                 bottomSuperView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
             }
-            
           }
-        
+        else { showUnknownErrorAlert() }
     }
     
+    
     // 탭 했을때 호출되는 함수
-    // super view 에서의 좌표와 image view 에서의 좌표는 다르다. convert 해줘야 함.
     @objc
     func handleTap(gestureRecognizer: UITapGestureRecognizer){
         // 뷰를 탭하면 키보드가 내려감
         self.topTextView.resignFirstResponder()
         
-        print("---- handleTap 함수 호출 ! ----")
         if gestureRecognizer.state == UIGestureRecognizer.State.recognized
         {
+            // super view 에서의 좌표와 image view 에서의 좌표는 다르다. convert 해줘야 함.
             let location = gestureRecognizer.location(in: gestureRecognizer.view)
-            print("[location] x = \(location.x), y = \(location.y)")
-            let imageLocation = self.view.convert(location, to: imageView)
-            print("[imageLocation] x = \(imageLocation.x), y = \(imageLocation.y)")
+            let imageViewLocation = self.view.convert(location, to: imageView)
+            //print("[imageViewLocation] x = \(imageViewLocation.x), y = \(imageViewLocation.y)")
+            
+            // tap 된 박스가 없으면 리턴.
+            guard let tappedElementBox = getWhichElementBoxTapped(imageViewLocation) else { return }
+            if !tappedElementBox.tapped {
+                elementBoxDrawing.changeBoxColorToYellow(tappedElementBox.layer)
+                tappedElementBox.tapped = true
+                textLinkedList.append(elementBoxInfo: tappedElementBox)
+                self.topTextView.text = textLinkedList.getTextWithLinkedList()
+            }
+            else {
+                elementBoxDrawing.changeBoxColorToGreen(tappedElementBox.layer)
+                tappedElementBox.tapped = false
+                textLinkedList.remove(elementBoxInfo: tappedElementBox)
+                self.topTextView.text = textLinkedList.getTextWithLinkedList()
+            }
         }
-        //view.endEditing(true)
+        
     }
+    
+    
+    // 탭한 위치에 어떤 element box 가 있는지
+    func getWhichElementBoxTapped(_ tappedLocation: CGPoint) -> ElementBoxInfo? {
+        var resultBox: ElementBoxInfo?
+        for box in elementBoxesInfo {
+            if (box.layer.frame.minX <= tappedLocation.x && tappedLocation.x <= box.layer.frame.minX + box.layer.frame.width)
+                &&
+                (box.layer.frame.minY <= tappedLocation.y && tappedLocation.y <= box.layer.frame.minY + box.layer.frame.height) {
+                resultBox = box
+                break
+            }
+        }
+        return resultBox
+    }
+    
     
     // 다시찍기 버튼
     @IBAction func tapBottomLeftButton(_ sender: UIButton) {
@@ -438,7 +418,6 @@ extension RecognizeViewController {
     
 
     // 전화걸기 버튼
-    //https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/PhoneLinks/PhoneLinks.html#//apple_ref/doc/uid/TP40007899-CH6-SW1 이거 읽어보니까 안되는듯.
     @IBAction func tapBottomRightButton(_ sender: UIButton) {
         guard let resultText = self.recognizedResultText else {
             showThereIsNoPhoneNumberAlert()
@@ -448,33 +427,9 @@ extension RecognizeViewController {
             if let url = NSURL(string: "tel:\(number)"), UIApplication.shared.canOpenURL(url as URL) {
                 UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
             }
-            else {
-                showUnknownErrorAlert()
-            }
+            else { showUnknownErrorAlert() }
         }
-        else {
-            showThereIsNoPhoneNumberAlert()
-        }
+        else { showThereIsNoPhoneNumberAlert() }
     }
-    
-//    // 인식한 전화번호가 없을 때
-//    func showThereIsNoPhoneNumberAlert() {
-//        let alert = UIAlertController(title:"인식 에러", message: "인식한 전화번호가 없습니다.", preferredStyle: .alert)
-//        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
-//            self.dismiss(animated: true, completion: nil)
-//        }
-//        alert.addAction(okButton)
-//        self.present(alert, animated: true, completion: nil)
-//    }
-    
-//    // 알 수 없는 에러 처리
-//    func showUnknownErrorAlert() {
-//        let alert = UIAlertController(title:"죄송합니다", message: "알 수 없는 에러가 발생했습니다.", preferredStyle: .alert)
-//        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
-//            self.dismiss(animated: true, completion: nil)
-//        }
-//        alert.addAction(okButton)
-//        self.present(alert, animated: true, completion: nil)
-//    }
     
 }

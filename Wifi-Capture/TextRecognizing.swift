@@ -1,6 +1,8 @@
 import Foundation
 import MLKitTextRecognitionKorean
 import MLKitVision
+import QuartzCore
+
 
 class TextRecognizing {
     let textRecognizer: TextRecognizer
@@ -41,8 +43,9 @@ class TextRecognizing {
 }
 
 
+// about phone number
 extension TextRecognizing {
-    
+
     func isConsideredAsNumber(_ x: Character) -> Bool {
         if consideredAsNumber.contains(x) || x.isNumber {
             return true
@@ -112,4 +115,19 @@ extension TextRecognizing {
         return answer
     }
 
+}
+
+
+// 인식 화면에서, 인식한 element box 들을 인스턴스화 하기 위한 클래스.
+class ElementBoxInfo {
+    lazy var idx = -1
+    lazy var layer = CALayer()
+    lazy var text = String()
+    var tapped: Bool = false
+
+    init(idx: Int, layer: CALayer, text: String) {
+        self.idx = idx
+        self.layer = layer
+        self.text = text
+    }
 }
