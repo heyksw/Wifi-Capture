@@ -18,6 +18,9 @@ struct ExtractedResult {
 
 
 class RecognizeViewController: UIViewController {
+    var areButtonsFloated = false
+    var areButtonsMoving = false
+    
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
     var recognizedResultText: Text? = nil
@@ -42,6 +45,8 @@ class RecognizeViewController: UIViewController {
     let topTextView: UITextView = {
         let view = UITextView()
         view.autocorrectionType = .no
+        view.layer.borderWidth = 2.5
+        view.layer.borderColor = UIColor.lightGray.cgColor
         return view
     }()
     
@@ -53,17 +58,77 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
+    
+    // 도전 ! ! !
+    let floatingView: UIStackView  = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 10
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(white: 1, alpha: 0)
+        view.alignment = .fill
+        view.distribution = .equalSpacing
+        return view
+    }()
+    
+    
+    let floatingLeftView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 1, alpha: 0)
+        return view
+    }()
+    
+    let floatingMiddleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 1, alpha: 0)
+        return view
+    }()
+    
+    let floatingRightView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 1, alpha: 0)
+        return view
+    }()
+    
+    let copyButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("복사", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        button.alpha = 0
+        return button
+    }()
+    
+    let wifiButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("비밀번호", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        button.alpha = 0
+        return button
+    }()
+    
+    let shareButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("공유", for: .normal)
+        button.backgroundColor = .gray
+        button.layer.cornerRadius = 10
+        button.alpha = 0
+        return button
+    }()
+    
     // 인식된 글자 프레임박스들이 이 레이어 위에 그려짐
     var imageViewLayer = CALayer()
     
-    let bottomSuperView: UIView = {
+    let bottomMainSuperView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
         return view
     }()
     
+    
     // 하단 버튼들이 들어갈 footer 스택 뷰
-    let bottomStackView: UIStackView = {
+    let bottomMainStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.spacing = 10
@@ -139,7 +204,9 @@ class RecognizeViewController: UIViewController {
         
         // 버튼 터치 이벤트
         bottomLeftButton.addTarget(self, action: #selector(tapBottomLeftButton), for: .touchDown)
+        bottomMiddleButton.addTarget(self, action: #selector(tapBottomMiddleButton), for: .touchDown)
         bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -161,7 +228,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
         self.navigationController?.navigationBar.isTranslucent = false
     }
     
-    // scrollView zoom 
+    // scrollView zoom
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }
@@ -188,13 +255,13 @@ extension RecognizeViewController: UIScrollViewDelegate {
         topSuperView.addSubview(topTextView)
         
         safetyArea.addSubview(imageSuperScrollView)
-        safetyArea.addSubview(bottomSuperView)
+        safetyArea.addSubview(bottomMainSuperView)
         
-        bottomSuperView.addSubview(bottomStackView)
+        bottomMainSuperView.addSubview(bottomMainStackView)
         
-        bottomStackView.addArrangedSubview(bottomLeftView)
-        bottomStackView.addArrangedSubview(bottomMiddleView)
-        bottomStackView.addArrangedSubview(bottomRightView)
+        bottomMainStackView.addArrangedSubview(bottomLeftView)
+        bottomMainStackView.addArrangedSubview(bottomMiddleView)
+        bottomMainStackView.addArrangedSubview(bottomRightView)
         
         bottomLeftView.addSubview(bottomLeftButton)
         bottomMiddleView.addSubview(bottomMiddleButton)
@@ -202,11 +269,19 @@ extension RecognizeViewController: UIScrollViewDelegate {
         
         imageSuperScrollView.addSubview(imageView)
         imageView.layer.addSublayer(imageViewLayer)
-
         imageView.contentMode = .scaleAspectFit
         imageView.image = receivedImage
+        imageView.addSubview(floatingView)
         
-        imageSuperScrollView.delegate = self 
+        floatingView.addArrangedSubview(floatingLeftView)
+        floatingView.addArrangedSubview(floatingMiddleView)
+        floatingView.addArrangedSubview(floatingRightView)
+        
+        floatingLeftView.addSubview(copyButton)
+        floatingMiddleView.addSubview(wifiButton)
+        floatingRightView.addSubview(shareButton)
+        
+        imageSuperScrollView.delegate = self
         imageSuperScrollView.zoomScale = 1.0
         imageSuperScrollView.minimumZoomScale = 1.0
         imageSuperScrollView.maximumZoomScale = 3.0
@@ -233,7 +308,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
         imageSuperScrollView.snp.makeConstraints { (make) in
             make.top.equalTo(topSuperView.snp.bottom)
             make.left.right.equalTo(safetyArea)
-            make.bottom.equalTo(self.bottomStackView.snp.top)
+            make.bottom.equalTo(self.bottomMainStackView.snp.top)
         }
         
         
@@ -244,12 +319,42 @@ extension RecognizeViewController: UIScrollViewDelegate {
             make.height.equalToSuperview()
         }
         
-        bottomSuperView.snp.makeConstraints { (make) in
+        floatingView.snp.makeConstraints { make in
+            make.left.right.bottom.equalTo(imageSuperScrollView.frameLayoutGuide)
+            make.height.equalTo(100)
+        }
+        
+        
+        floatingLeftView.snp.makeConstraints { make in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        floatingMiddleView.snp.makeConstraints { make in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        floatingRightView.snp.makeConstraints { make in
+            make.width.equalTo(self.view).multipliedBy(0.30)
+        }
+        
+        copyButton.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        
+        wifiButton.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        
+        shareButton.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        
+        bottomMainSuperView.snp.makeConstraints { (make) in
             make.left.right.bottom.equalTo(safetyArea)
             make.height.equalTo(100)
         }
         
-        bottomStackView.snp.makeConstraints { (make) in
+        bottomMainStackView.snp.makeConstraints { (make) in
             make.top.bottom.left.right.equalToSuperview()
         }
         
@@ -341,9 +446,14 @@ extension RecognizeViewController {
             let keybaordRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keybaordRectangle.height
             
-            if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 {
-                bottomSuperView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
+            if bottomMainSuperView.frame.origin.y == safetyArea.frame.height - 100 {
+                bottomMainSuperView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
+                
+                // 도전 ! ! !
+                floatingView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
+                
             }
+            
           }
         else { showUnknownErrorAlert() }
     }
@@ -356,9 +466,15 @@ extension RecognizeViewController {
             let keybaordRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keybaordRectangle.height
             
-            if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 - (keyboardHeight - view.safeAreaInsets.bottom) {
-                bottomSuperView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
+            if bottomMainSuperView.frame.origin.y == safetyArea.frame.height - 100 - (keyboardHeight - view.safeAreaInsets.bottom) {
+                bottomMainSuperView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
+                
+                // 도전 !
+                floatingView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
+                
+                
             }
+            
           }
         else { showUnknownErrorAlert() }
     }
@@ -414,6 +530,85 @@ extension RecognizeViewController {
     // 다시찍기 버튼
     @IBAction func tapBottomLeftButton(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    
+    // 십자 플로팅 버튼
+    @IBAction func tapBottomMiddleButton(_ sender: UIButton) {
+        let gap = self.floatingLeftView.frame.width
+        
+        // 버튼들이 플로팅 되지 않은 상태이고, 움직이고 있지 않다면
+        if !areButtonsFloated && !areButtonsMoving {
+            areButtonsMoving = true
+            
+            // copyButton
+            self.copyButton.alpha = 0
+            self.copyButton.transform = CGAffineTransform(translationX: +gap, y: 0)
+            UIView.animate(withDuration: 0.1) {
+                self.copyButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
+            }
+            UIView.animate(withDuration: 0.3) {
+                self.copyButton.alpha = 1
+                self.copyButton.transform = CGAffineTransform(translationX: 0, y: 0)
+            }
+            
+            // wifiButton
+            self.wifiButton.alpha = 0
+            self.wifiButton.transform = CGAffineTransform(translationX: 0, y: +100)
+            UIView.animate(withDuration: 0.3) {
+                self.wifiButton.alpha = 1
+                self.wifiButton.transform = CGAffineTransform(translationX: 0, y: 0)
+            }
+            
+            // shareButton
+
+            self.shareButton.alpha = 0
+            self.shareButton.transform = CGAffineTransform(translationX: -gap, y: 0)
+            UIView.animate(withDuration: 0.1) {
+                self.shareButton.transform = CGAffineTransform(translationX: -(gap/2), y: 0)
+            }
+            UIView.animate(withDuration: 0.3, animations: {
+                self.shareButton.alpha = 1
+                self.shareButton.transform = CGAffineTransform(translationX: 0, y: 0)
+            }, completion: { finished in
+                self.areButtonsFloated = true
+                self.areButtonsMoving = false
+            })
+        }
+        
+        // 버튼들이 플로팅 되어있고, 움직이고 있지 않다면
+        else if areButtonsFloated && !areButtonsMoving {
+            areButtonsMoving = true
+            
+            // copyButton
+            UIView.animate(withDuration: 0.1) {
+                self.copyButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
+            }
+            UIView.animate(withDuration: 0.3) {
+                self.copyButton.alpha = 0
+                self.copyButton.transform = CGAffineTransform(translationX: +(gap), y: 0)
+            }
+            
+            // wifiButton
+            UIView.animate(withDuration: 0.3) {
+                self.wifiButton.alpha = 0
+                self.wifiButton.transform = CGAffineTransform(translationX: 0, y: +100)
+            }
+            
+            // shareButton
+            UIView.animate(withDuration: 0.1) {
+                self.shareButton.transform = CGAffineTransform(translationX: -(gap/2), y: 0)
+            }
+            UIView.animate(withDuration: 0.3, animations: {
+                self.shareButton.alpha = 0
+                self.shareButton.transform = CGAffineTransform(translationX: -(gap), y: 0)
+            }, completion: { finished in
+                self.areButtonsFloated = false
+                self.areButtonsMoving = false
+            })
+            
+        }
+        
     }
     
 

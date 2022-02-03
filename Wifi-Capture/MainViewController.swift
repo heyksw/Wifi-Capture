@@ -264,7 +264,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     
     // 네비게이션 바 세팅
     func setNavigationBar() {
-        self.navigationItem.title = "와캡"
+        self.navigationItem.title = "메인 화면"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = .black
@@ -509,7 +509,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
 
         imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary
+        imagePicker.sourceType = .savedPhotosAlbum
         
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
