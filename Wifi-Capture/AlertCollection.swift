@@ -31,4 +31,47 @@ extension UIViewController {
     func showDetailInstructions() {
         
     }
+    
+    
+    // 복사할게 없을 때의 토스트 메시지
+    func showNoCopyToast() {
+        let toastLabel = UITextView(frame: CGRect(x: self.view.frame.size.width/2 - 80, y: 175, width: 160, height: 30))
+        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.75)
+        toastLabel.textColor = UIColor.white
+        toastLabel.textAlignment = .center;
+        toastLabel.text = "복사할 텍스트가 없어요"
+        toastLabel.alpha = 1.0
+        toastLabel.layer.cornerRadius = 10;
+        toastLabel.clipsToBounds = true
+        self.view.addSubview(toastLabel)
+        UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseOut,
+                       animations: { toastLabel.alpha = 0.0 },
+                       completion: {(isCompleted) in toastLabel.removeFromSuperview() })
+    }
+    
+    
+    // 복사 토스트 메시지
+    func showCopyToastt(copiedText: String) {
+        var text = copiedText
+        if copiedText.count >= 10 {
+            let idx = copiedText.index(copiedText.startIndex, offsetBy: 9)
+            text = String(copiedText[..<idx])
+            text += "..."
+        }
+        
+        let textView = UITextView(frame: CGRect(x: self.view.frame.size.width/2 - 80, y: 175, width: 160, height: 45))
+        textView.backgroundColor = UIColor.black.withAlphaComponent(0.75)
+        textView.textColor = UIColor.white
+        textView.textAlignment = .center
+        textView.text = "\"\(text)\" \n 클립보드에 복사했어요"
+        textView.alpha = 1.0
+        textView.layer.cornerRadius = 10
+        textView.clipsToBounds = true
+        self.view.addSubview(textView)
+        UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseOut,
+                       animations: { textView.alpha = 0.0 },
+                       completion: {(isCompleted) in textView.removeFromSuperview() })
+        
+    }
+    
 }

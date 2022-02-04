@@ -419,7 +419,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
         
         let outputImage = UIImage(data: imageData)
-        guard let outputImage = outputImage else { return }
+        guard let outputImage = outputImage else {
+            showUnknownErrorAlert()
+            return
+        }
+        
         self.imageToDeliver = outputImage
         
         // globalQueue 에서 Session stop
@@ -452,7 +456,8 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 self?.phoneNumber = self?.textRecognize.getPhoneNumber(result)
                 
                 self?.mainDispatchQueue.async {
-                    // 여기에 화면 블러처리도 넣으면 좋을듯
+                    // 뷰 dim 처리
+                    //showDimView()
                     
                     // 전화번호를 인식했으면
                     if let number = self?.phoneNumber {
@@ -462,8 +467,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                     }
                     // 전화번호를 인식 못했으면
                     else {
-                        print("인식한 전화번호가 없습니다.")
-                        let alert = UIAlertController(title:"인식 에러", message: "인식한 전화번호가 없습니다.", preferredStyle: .alert)
+                        let alert = UIAlertController(title:"전화를 걸 수 없습니다", message: "인식한 전화번호가 없어요.", preferredStyle: .alert)
                         let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
                             self?.dismiss(animated: true, completion: nil)
                             self?.pushToNextPage()
@@ -540,7 +544,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             self.captureSession?.startRunning()
         }
         dismiss(animated: true, completion: nil)
-        self.navigationController?.popViewController(animated: true)
+        //self.navigationController?.popViewController(animated: true)
     }
     
 

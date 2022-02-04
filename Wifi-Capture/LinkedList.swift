@@ -64,4 +64,7 @@ class LinkedList {
         return resultText
     }
     
+    func removeAllNodes() {
+        head = nil
+    }
 }
