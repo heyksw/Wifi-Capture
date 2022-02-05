@@ -2,20 +2,25 @@ import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
+    let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     var window: UIWindow?
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else {return}
         
-        window = UIWindow(windowScene: windowScene)
+        // custom function
+        setRootViewController(windowScene)
         
-        let mainViewController = MainViewController()
-        let navigationController = UINavigationController(rootViewController: mainViewController)
         
-        window?.backgroundColor = .black
-        window?.rootViewController = navigationController
-        window?.makeKeyAndVisible()
+//        window = UIWindow(windowScene: windowScene)
+//
+//        let mainViewController = MainViewController()
+//        let navigationController = UINavigationController(rootViewController: mainViewController)
+//
+//        window?.backgroundColor = .black
+//        window?.rootViewController = navigationController
+//        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -45,7 +50,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
+    
+}
 
 
+extension SceneDelegate {
+    // 루트 뷰 컨트롤러 설정
+    private func setRootViewController(_ windowScene: UIWindowScene) {
+        window = UIWindow(windowScene: windowScene)
+        // 사용자가 앱을 처음 실행한다면 Onboarding 화면으로 이동
+        if UserInfoStorage.isUserFirstTime() {
+            let onBoardingViewController = OnboardingViewController()
+            let navigationController = UINavigationController(rootViewController: onBoardingViewController)
+            window?.backgroundColor = blueBlackBackgroundColor
+            window?.rootViewController = navigationController
+            window?.makeKeyAndVisible()
+        }
+        // 아니라면 MainViewController 로 이동
+        else {
+            window = UIWindow(windowScene: windowScene)
+            let mainViewController = MainViewController()
+            let navigationController = UINavigationController(rootViewController: mainViewController)
+            window?.backgroundColor = blueBlackBackgroundColor
+            window?.rootViewController = navigationController
+            window?.makeKeyAndVisible()
+        }
+    }
+    
+    
 }
 

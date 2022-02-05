@@ -24,7 +24,7 @@ class RecognizeViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
     var recognizedResultText: Text? = nil
-    var elementBoxesInfo: [ElementBoxInfo] = []
+    var elementBoxInfoArray: [ElementBoxInfo] = []
     let textLinkedList = LinkedList()
     
     let mainDispatchQueue = DispatchQueue.main
@@ -33,15 +33,23 @@ class RecognizeViewController: UIViewController {
     let thereIsNoText = "사진에서 아무 글자도 인식하지 못했어요."
     let clickTheBoxes = "텍스트 박스를 클릭해보세요!"
     
-    let safetyArea: UIView = {
+    let shareImage = UIImage(named: "shareImage")
+    let copyImage = UIImage(named: "copyImage")
+    let callImage = UIImage(named: "callImage")
+    let crossImage = UIImage(named: "crossImage")
+    
+    let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
+    
+    
+    lazy var safetyArea: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
-    let topSuperView: UIView = {
+    lazy var topSuperView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
@@ -58,10 +66,15 @@ class RecognizeViewController: UIViewController {
     
     var receivedImage: UIImage?
     
-    let imageSuperScrollView = UIScrollView()
+    let imageSuperScrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.backgroundColor = .black
+        return view
+    }()
     
     let imageView: UIImageView = {
         let view = UIImageView()
+        view.backgroundColor = .black
         return view
     }()
     
@@ -104,28 +117,30 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
-    let searchButton: UIButton = {
+    let selectAllButton: UIButton = {
         let button = UIButton()
-        button.setTitle("검색 버튼", for: .normal)
+        button.setTitle("전체 선택", for: .normal)
         button.backgroundColor = .gray
         button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
     
-    let copyButton: UIButton = {
+    lazy var copyButton: UIButton = {
         let button = UIButton()
-        button.setTitle("복사 버튼", for: .normal)
-        button.backgroundColor = .gray
+        //button.setTitle("복사 버튼", for: .normal)
+        button.setImage(copyImage, for: .normal)
+        button.backgroundColor = UIColor(white: 1, alpha: 0)
         button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
     
-    let shareButton: UIButton = {
+    lazy var shareButton: UIButton = {
         let button = UIButton()
-        button.setTitle("공유 버튼", for: .normal)
-        button.backgroundColor = .gray
+        //button.setTitle("공유 버튼", for: .normal)
+        button.setImage(shareImage, for: .normal)
+        button.backgroundColor = UIColor(white: 1, alpha: 0)
         button.layer.cornerRadius = 10
         button.alpha = 0
         return button
@@ -134,64 +149,66 @@ class RecognizeViewController: UIViewController {
     // 인식된 글자 프레임박스들이 이 레이어 위에 그려짐
     var imageViewLayer = CALayer()
     
-    let bottomSuperView: UIView = {
+    lazy var bottomSuperView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
     
     // 하단 버튼들이 들어갈 footer 스택 뷰
-    let bottomStackView: UIStackView = {
+    lazy var bottomStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.spacing = 10
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         view.alignment = .fill
         view.distribution = .equalSpacing
         return view
     }()
 
     
-    let bottomLeftView: UIView = {
+    lazy var bottomLeftView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
-    let bottomMiddleView: UIView = {
+    lazy var bottomMiddleView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
-    let bottomRightView: UIView = {
+    lazy var bottomRightView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
-    let bottomLeftButton: UIButton = {
+    lazy var bottomLeftButton: UIButton = {
         let button = UIButton()
         button.setTitle("갤러리", for: .normal)
-        button.backgroundColor = .gray
+        button.backgroundColor = blueBlackBackgroundColor
         button.layer.cornerRadius = 10
         return button
     }()
     
-    let bottomMiddleButton: UIButton = {
+    lazy var bottomMiddleButton: UIButton = {
         let button = UIButton()
-        button.setTitle("십자 버튼", for: .normal)
-        button.backgroundColor = .gray
+        //button.setTitle("십자 버튼", for: .normal)
+        button.setImage(crossImage, for: .normal)
+        button.backgroundColor = blueBlackBackgroundColor
         button.layer.cornerRadius = 10
         return button
     }()
     
-    let bottomRightButton: UIButton = {
+    lazy var bottomRightButton: UIButton = {
         let button = UIButton()
-        button.setTitle("전화 버튼", for: .normal)
-        button.backgroundColor = .gray
+        //button.setTitle("전화 버튼", for: .normal)
+        button.setImage(callImage, for: .normal)
+        button.backgroundColor = blueBlackBackgroundColor
         button.layer.cornerRadius = 10
         return button
     }()
@@ -213,7 +230,7 @@ class RecognizeViewController: UIViewController {
         bottomMiddleButton.addTarget(self, action: #selector(tapBottomMiddleButton), for: .touchDown)
         bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
         
-        searchButton.addTarget(self, action: #selector(tapSearchButton(_:)), for: .touchDown)
+        selectAllButton.addTarget(self, action: #selector(tapSelectAllButton(_:)), for: .touchDown)
         copyButton.addTarget(self, action: #selector(tapCopyButton(_:)), for: .touchDown)
         shareButton.addTarget(self, action: #selector(tapShareButton(_:)), for: .touchDown)
     }
@@ -242,7 +259,7 @@ class RecognizeViewController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         
         recognizedResultText = nil
-        elementBoxesInfo = []
+        elementBoxInfoArray = []
         textLinkedList.removeAllNodes()
         
         floatingButtonsDown()
@@ -256,8 +273,8 @@ extension RecognizeViewController: UIScrollViewDelegate {
     
     func setNavigationBar() {
            self.navigationController?.navigationBar.tintColor = .white
-           self.navigationController?.navigationBar.barTintColor = .black
-           self.navigationController?.navigationBar.backgroundColor = .black
+           self.navigationController?.navigationBar.barTintColor = blueBlackBackgroundColor
+           self.navigationController?.navigationBar.backgroundColor = blueBlackBackgroundColor
            self.navigationController?.navigationBar.isTranslucent = false
        }
     
@@ -325,7 +342,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
         floatingView.addArrangedSubview(floatingMiddleView)
         floatingView.addArrangedSubview(floatingRightView)
         
-        floatingLeftView.addSubview(searchButton)
+        floatingLeftView.addSubview(selectAllButton)
         floatingMiddleView.addSubview(copyButton)
         floatingRightView.addSubview(shareButton)
 
@@ -392,7 +409,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
             make.width.equalTo(self.view).multipliedBy(0.30)
         }
         
-        searchButton.snp.makeConstraints{ make in
+        selectAllButton.snp.makeConstraints{ make in
             make.center.equalToSuperview()
         }
         
@@ -487,7 +504,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
                     elementBoxDrawing.drawElementBox(scaledElementBoxSize, imageViewLayer)
                     let elementBoxLayer = elementBoxDrawing.getElementBoxLayer()
                     let elementBoxInfo = ElementBoxInfo(idx: cnt, layer: elementBoxLayer, text: element.text)
-                    elementBoxesInfo.append(elementBoxInfo)
+                    elementBoxInfoArray.append(elementBoxInfo)
                     cnt += 1
                 }
             }
@@ -568,17 +585,19 @@ extension RecognizeViewController {
                 // 어느 박스가 클릭되었는지
                 guard let tappedElementBox = getWhichElementBoxTapped(imageViewLocation) else { return }
                 if !tappedElementBox.tapped {
-                    elementBoxDrawing.changeBoxColorToYellow(tappedElementBox.layer)
-                    tappedElementBox.tapped = true
-                    textLinkedList.append(elementBoxInfo: tappedElementBox)
-                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
-                    self.topTextView.textColor = .black
+                    selectElementBox(tappedElementBox)
+//                    elementBoxDrawing.changeBoxColorToYellow(tappedElementBox.layer)
+//                    tappedElementBox.tapped = true
+//                    textLinkedList.append(elementBoxInfo: tappedElementBox)
+//                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
+//                    self.topTextView.textColor = .black
                 }
                 else {
-                    elementBoxDrawing.changeBoxColorToGreen(tappedElementBox.layer)
-                    tappedElementBox.tapped = false
-                    textLinkedList.remove(elementBoxInfo: tappedElementBox)
-                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
+                    unselectElementBox(tappedElementBox)
+//                    elementBoxDrawing.changeBoxColorToGreen(tappedElementBox.layer)
+//                    tappedElementBox.tapped = false
+//                    textLinkedList.remove(elementBoxInfo: tappedElementBox)
+//                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
                 }
             }
         }
@@ -588,7 +607,7 @@ extension RecognizeViewController {
     // 탭한 위치에 어떤 element box 가 있는지
     func getWhichElementBoxTapped(_ tappedLocation: CGPoint) -> ElementBoxInfo? {
         var resultBox: ElementBoxInfo?
-        for box in elementBoxesInfo {
+        for box in elementBoxInfoArray {
             if (box.layer.frame.minX <= tappedLocation.x && tappedLocation.x <= box.layer.frame.minX + box.layer.frame.width)
                 &&
                 (box.layer.frame.minY <= tappedLocation.y && tappedLocation.y <= box.layer.frame.minY + box.layer.frame.height) {
@@ -597,6 +616,25 @@ extension RecognizeViewController {
             }
         }
         return resultBox
+    }
+    
+    
+    // 박스를 선택하는 함수
+    func selectElementBox(_ tappedBox: ElementBoxInfo) {
+        elementBoxDrawing.changeBoxColorToYellow(tappedBox.layer)
+        tappedBox.tapped = true
+        textLinkedList.append(elementBoxInfo: tappedBox)
+        self.topTextView.text = textLinkedList.getTextWithLinkedList()
+        self.topTextView.textColor = .black
+    }
+    
+    
+    // 박스를 선택 해제하는 함수
+    func unselectElementBox(_ tappedBox: ElementBoxInfo) {
+        elementBoxDrawing.changeBoxColorToGreen(tappedBox.layer)
+        tappedBox.tapped = false
+        textLinkedList.remove(elementBoxInfo: tappedBox)
+        self.topTextView.text = textLinkedList.getTextWithLinkedList()
     }
     
     
@@ -622,14 +660,14 @@ extension RecognizeViewController {
         areButtonsMoving = true
         
         // copyButton
-        self.searchButton.alpha = 0
-        self.searchButton.transform = CGAffineTransform(translationX: +gap, y: 0)
+        self.selectAllButton.alpha = 0
+        self.selectAllButton.transform = CGAffineTransform(translationX: +gap, y: 0)
         UIView.animate(withDuration: 0.1) {
-            self.searchButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
+            self.selectAllButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
         }
         UIView.animate(withDuration: 0.3) {
-            self.searchButton.alpha = 1
-            self.searchButton.transform = CGAffineTransform(translationX: 0, y: 0)
+            self.selectAllButton.alpha = 1
+            self.selectAllButton.transform = CGAffineTransform(translationX: 0, y: 0)
         }
         
         // wifiButton
@@ -663,11 +701,11 @@ extension RecognizeViewController {
         
         // searchButton
         UIView.animate(withDuration: 0.1) {
-            self.searchButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
+            self.selectAllButton.transform = CGAffineTransform(translationX: +(gap/2), y: 0)
         }
         UIView.animate(withDuration: 0.3) {
-            self.searchButton.alpha = 0
-            self.searchButton.transform = CGAffineTransform(translationX: +(gap), y: 0)
+            self.selectAllButton.alpha = 0
+            self.selectAllButton.transform = CGAffineTransform(translationX: +(gap), y: 0)
         }
         
         // copyButton
@@ -788,24 +826,24 @@ extension RecognizeViewController: UITextViewDelegate {
 // about floating buttons
 extension RecognizeViewController {
     
-    // 검색 버튼
-    @IBAction func tapSearchButton(_ sender: UIButton) {
-        guard let text = topTextView.text else {
-            showUnknownErrorAlert()
-            return
-        }
-        if let url = URL() {
-            UIApplication.shared.open(url, options: [:])
+    // 전체 선택 버튼
+    @IBAction func tapSelectAllButton(_ sender: UIButton) {
+        if elementBoxInfoArray.count == 0 {
+            showNoSelectToast()
         }
         else {
-            showUnknownErrorAlert()
+            showSelectAllToast()
+            textLinkedList.removeAllNodes()
+            for elementBoxInfo in elementBoxInfoArray {
+                selectElementBox(elementBoxInfo)
+            }
         }
     }
     
     
     // 복사 버튼
     @IBAction func tapCopyButton(_ sender: UIButton) {
-        if topTextView.textColor == UIColor.lightGray || topTextView.text == "" {
+        if (topTextView.textColor == UIColor.lightGray) || (topTextView.text == "") {
             showNoCopyToast()
         }
         else {

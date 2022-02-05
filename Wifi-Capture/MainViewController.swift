@@ -21,6 +21,8 @@ class MainViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
     
+    let cameraShootImage = UIImage(named: "cameraShootImage")
+    let changeModeImage = UIImage(named: "changeMode")
     
     enum UserStates {
         case beforeTakePictures
@@ -49,12 +51,14 @@ class MainViewController: UIViewController {
     var recognizedPhotoScale: CGFloat = 1.0
     let maxPhotoScale: CGFloat = 3.0
     let minPhotoScale: CGFloat = 1.0
+    
+    let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
      
     
     // safe area
-    let safetyArea: UIView = {
+    lazy var safetyArea: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
 
@@ -67,33 +71,33 @@ class MainViewController: UIViewController {
     }()
     
     // 하단 버튼들이 들어갈 footer 스택 뷰
-    let footerView: UIStackView = {
+    lazy var footerView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.spacing = 10
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         view.alignment = .fill
         view.distribution = .equalSpacing
         return view
     }()
     
     // footer 에 왼쪽, 중간, 오른쪽 뷰
-    let footerLeftView: UIView = {
+    lazy var footerLeftView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
 
-    let footerCenterView: UIView = {
+    lazy var footerCenterView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
     
-    let footerRightView: UIView = {
+    lazy var footerRightView: UIView = {
         let view = UIView()
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         return view
     }()
 
@@ -107,21 +111,23 @@ class MainViewController: UIViewController {
         return button
     }()
 
-    let cameraShootButton: UIButton = {
+    lazy var cameraShootButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("촬영", for: .normal)
+        //button.setTitle("촬영", for: .normal)
+        button.setImage(cameraShootImage, for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.backgroundColor = .gray
+        button.backgroundColor = blueBlackBackgroundColor
         button.setTitleColor(.white, for: .normal)
         return button
     }()
     
-    let turnButton: UIButton = {
+    lazy var changeModeButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("화면 전환", for: .normal)
-        button.backgroundColor = .gray
+        //button.setTitle("화면 전환", for: .normal)
+        button.setImage(changeModeImage, for: .normal)
+        button.backgroundColor = blueBlackBackgroundColor
         button.setTitleColor(.white, for: .normal)
         return button
     }()
@@ -139,9 +145,14 @@ class MainViewController: UIViewController {
     lazy var cameraViewCenterY: CGFloat = cameraView.frame.height / 2
     lazy var loadingIndicator = NVActivityIndicatorView(frame: CGRect(x: cameraViewCenterX, y: cameraViewCenterY, width: 50, height: 50), type: .ballScaleMultiple, color: .black, padding: 0)
     
+    // 상태바 색상 변경
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // 상단 네비게이션 바 세팅
         self.setNavigationBar()
         
@@ -171,6 +182,7 @@ class MainViewController: UIViewController {
     func setCamera() {
         print("setting Camera")
         guard let captureDevice = getDefaultCamera() else {
+            
             return
         }
         
@@ -225,6 +237,7 @@ class MainViewController: UIViewController {
             }
             
         } catch {
+            showAccessAuthorization()
             print("setting Camera Error")
         }
         
@@ -256,18 +269,20 @@ class MainViewController: UIViewController {
         return mainViewController
     }
 
+    
 }
 
 
 // 익스텐션
 extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
     
     // 네비게이션 바 세팅
     func setNavigationBar() {
         self.navigationItem.title = "메인 화면"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
-        view.backgroundColor = .black
+        view.backgroundColor = blueBlackBackgroundColor
         
         let settingButton = UIBarButtonItem(image: UIImage(systemName: "gearshape"),
             style: .plain,
@@ -313,7 +328,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         
         footerLeftView.addSubview(galleryButton)
         footerCenterView.addSubview(cameraShootButton)
-        footerRightView.addSubview(turnButton)
+        footerRightView.addSubview(changeModeButton)
         
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         cameraView.addSubview(self.loadingIndicator)
@@ -358,7 +373,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 make.center.equalToSuperview()
             }
             
-            turnButton.snp.makeConstraints { make in
+            changeModeButton.snp.makeConstraints { make in
                 make.center.equalToSuperview()
             }
         
@@ -399,6 +414,9 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             guard status == .authorized else {
                 print("not authorized error")
                 // 나중에 "앱을 다시 시작해보세요" 같은 에러 처리 구현해줘야겠다.
+                self.mainDispatchQueue.async {
+                    self.showAccessAuthorization()
+                }
                 return
             }
         }
@@ -506,6 +524,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     // 갤러리 버튼 클릭 이벤트 -> 앨범에 접근, 근데 현재 딜레이가 좀 있음.
     @IBAction func tapGalleryButton(_ sender: UIButton) {
         let imagePicker = UIImagePickerController()
+        imagePicker.modalPresentationStyle = .fullScreen
 
         guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
             showUnknownErrorAlert()
@@ -730,11 +749,11 @@ extension MainViewController {
         focusView.center = point
         cameraView.addSubview(focusView)
 
-        focusView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+        focusView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
 
         UIView.animate(withDuration: 0.4, delay: 0.0, options: .curveEaseInOut, animations: {
 //            focusView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-            focusView.transform = CGAffineTransform(scaleX: 0.3, y: 0.3)
+            focusView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
         }) { (success) in
             UIView.animate(withDuration: 0.15, delay: 0.0, options: .curveEaseInOut, animations: {
                 focusView.alpha = 0.0
