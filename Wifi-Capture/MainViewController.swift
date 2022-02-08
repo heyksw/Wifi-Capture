@@ -10,6 +10,13 @@ import MLKitVision
 import NVActivityIndicatorView
 
 
+// 전화 모드, 기본 모드
+enum AppMode {
+    case callingMode
+    case normalMode
+}
+
+
 class MainViewController: UIViewController {
     var didCall = false
     var imageToDeliver: UIImage?
@@ -21,15 +28,16 @@ class MainViewController: UIViewController {
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
     
-    let cameraShootImage = UIImage(named: "cameraShootImage")
-    let changeModeImage = UIImage(named: "changeMode")
+    let cameraShootImage = UIImage(named: "cameraShootImage2")
+    let changeModeImage = UIImage(named: "changeMode3")
+    //lazy var newImage = changeModeImage?.resize(newWidth: 80)
     
-    enum UserStates {
-        case beforeTakePictures
-        case afterTakePictures
-    }
+//    enum UserStates {
+//        case beforeTakePictures
+//        case afterTakePictures
+//    }
     
-    var userState: UserStates?
+//    var userState: UserStates?
     var didSetupConstraints = false
     
     var captureDevice: AVCaptureDevice?
@@ -42,11 +50,9 @@ class MainViewController: UIViewController {
     let mainDispatchQueue = DispatchQueue.main
     let globalDispatchQueue = DispatchQueue.global()
     
-    
     var videoOutput: AVCaptureVideoDataOutput?
     var orientation: AVCaptureVideoOrientation = .portrait
     let videoQueue = DispatchQueue(label: "Video Camera Queue")
-    
     
     var recognizedPhotoScale: CGFloat = 1.0
     let maxPhotoScale: CGFloat = 3.0
@@ -62,14 +68,39 @@ class MainViewController: UIViewController {
         return view
     }()
 
+    let cameraSuperScrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.backgroundColor = .black
+        //view.backgroundColor = UIColor(white: 1, alpha: 0)
+        return view
+    }()
+
     // 카메라 들어갈 뷰
     let cameraView: UIImageView = {
         let view = UIImageView()
-        //view.image = UIImage(named: "cute_cat")
-        
+        view.backgroundColor = .black
         return view
     }()
-    
+
+    let boxOnOffView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 1, alpha: 0)
+        //view.backgroundColor = .blue
+        return view
+    }()
+
+    let boxOnImage = UIImage(named: "boxOnImage")
+    let boxOffImage = UIImage(named: "boxOffImage")
+
+    lazy var boxOnOffButton: UIButton = {
+       let button = UIButton()
+        button.setImage(boxOffImage, for: .normal)
+        button.alpha = 0.8
+        return button
+    }()
+
+    var currentBoxOnOff: Bool = false
+
     // 하단 버튼들이 들어갈 footer 스택 뷰
     lazy var footerView: UIStackView = {
         let view = UIStackView()
@@ -127,40 +158,32 @@ class MainViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         //button.setTitle("화면 전환", for: .normal)
         button.setImage(changeModeImage, for: .normal)
+
+        
         button.backgroundColor = blueBlackBackgroundColor
         button.setTitleColor(.white, for: .normal)
         return button
     }()
     
-
-    var frameSublayer = CALayer()
-
-    var recognizeResult: Text? {
-        didSet {
-            frameSublayer.setNeedsDisplay()
-        }
-    }
+    var currentAppMode: AppMode = .callingMode
+    var framePreviewSubLayer = CALayer()
+    var recognizeResult: Text?
     
-    lazy var cameraViewCenterX: CGFloat = cameraView.frame.width / 2
-    lazy var cameraViewCenterY: CGFloat = cameraView.frame.height / 2
-    lazy var loadingIndicator = NVActivityIndicatorView(frame: CGRect(x: cameraViewCenterX, y: cameraViewCenterY, width: 50, height: 50), type: .ballScaleMultiple, color: .black, padding: 0)
     
-    // 상태바 색상 변경
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //self.navigationController?.navigationBar.barStyle = .black
+        overrideUserInterfaceStyle = .dark
+        currentBoxOnOff = false
+        currentAppMode = .callingMode
         
         // 상단 네비게이션 바 세팅
         self.setNavigationBar()
         
         // UI 세팅
         self.setUI()
-        
-        //self.cameraView.drawRect(imageView: self.cameraView)
-        
+   
         // 앨범에 접근할 권한 요청
         self.getPhotoLibraryAuthorization()
         
@@ -172,10 +195,9 @@ class MainViewController: UIViewController {
         
         cameraShootButton.addTarget(self, action: #selector(tapCameraShootButton(_:)), for: .touchDown)
         galleryButton.addTarget(self, action: #selector(tapGalleryButton), for: .touchDown)
-        
-//        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        changeModeButton.addTarget(self, action: #selector(tapChangeModeButton), for: .touchDown)
+        boxOnOffButton.addTarget(self, action: #selector(tapBoxOnOffButton), for: .touchDown)
     }
-    
     
     
     // AVFoundation camera setting
@@ -198,6 +220,7 @@ class MainViewController: UIViewController {
             // video 추가
             videoOutput = AVCaptureVideoDataOutput()
             videoOutput?.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String : Int(kCVPixelFormatType_32BGRA)]
+            
 
             // 공식문서를 읽고 추가한 코드
             videoOutput?.alwaysDiscardsLateVideoFrames = true
@@ -218,11 +241,11 @@ class MainViewController: UIViewController {
             
             previewLayer = AVCaptureVideoPreviewLayer(session: session)
             guard let previewLayer = previewLayer else {
+                print("preview layer error")
                 return
             }
             
-            // 이렇게 하는게 맞나 ..?
-            previewLayer.addSublayer(frameSublayer)
+            previewLayer.addSublayer(framePreviewSubLayer)
             
             // startRunning 은 UI 쓰레드를 방해할 수 있기 때문에 다른 쓰레드에 담아줌
             globalDispatchQueue.async {
@@ -233,7 +256,6 @@ class MainViewController: UIViewController {
             mainDispatchQueue.async {
                 previewLayer.frame = self.cameraView.frame
                 self.cameraView.layer.addSublayer(previewLayer)
-                
             }
             
         } catch {
@@ -247,14 +269,16 @@ class MainViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // user state 세팅
-        self.userState = .beforeTakePictures
+        //self.userState = .beforeTakePictures
         // 카메라 불러오기
         self.setCamera()
-
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        print("view will disappear")
         super.viewWillDisappear(animated)
+        overrideUserInterfaceStyle = .dark
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
         }
@@ -276,10 +300,11 @@ class MainViewController: UIViewController {
 // 익스텐션
 extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-    
     // 네비게이션 바 세팅
     func setNavigationBar() {
-        self.navigationItem.title = "메인 화면"
+        self.navigationController?.navigationBar.barStyle = .black
+        //self.navigationItem.title = "메인 화면"
+        self.navigationController?.navigationBar.topItem?.title = "전화 모드"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = blueBlackBackgroundColor
@@ -287,22 +312,34 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         let settingButton = UIBarButtonItem(image: UIImage(systemName: "gearshape"),
             style: .plain,
             target: self,
-            action: nil)
+            action: #selector(tapSettingButton))
         let informationButton = UIBarButtonItem(image: UIImage(systemName: "info.circle"),
             style: .plain,
             target: self,
-            action: nil)
+            action: #selector(tapInformationButton))
         
         navigationItem.rightBarButtonItem = settingButton
         navigationItem.leftBarButtonItem = informationButton
+        
     }
+    
+    
+    @objc func tapSettingButton(_ sender: UIButton) {
+        
+    }
+    
+    
+    @objc func tapInformationButton(_ sender: UIButton) {
+        
+    }
+    
         
     // UI 배치, StackView 배치
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(safetyArea)
+        view.backgroundColor = blueBlackBackgroundColor
         
-        cameraView.layer.addSublayer(frameSublayer)
         
         if #available(iOS 11, *) {
             let guide = view.safeAreaLayoutGuide
@@ -319,8 +356,19 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         }
         
 
-        safetyArea.addSubview(cameraView)
+        
+        safetyArea.addSubview(cameraSuperScrollView)
         safetyArea.addSubview(footerView)
+        
+        
+        
+        cameraSuperScrollView.addSubview(cameraView)
+        cameraSuperScrollView.addSubview(boxOnOffView)
+        
+        
+        boxOnOffView.addSubview(boxOnOffButton)
+        
+        
         
         footerView.addArrangedSubview(footerLeftView)
         footerView.addArrangedSubview(footerCenterView)
@@ -330,8 +378,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         footerCenterView.addSubview(cameraShootButton)
         footerRightView.addSubview(changeModeButton)
         
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        cameraView.addSubview(self.loadingIndicator)
         
         view.setNeedsUpdateConstraints()
     }
@@ -339,14 +385,30 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     // SnapKit 으로 Constraint 설정
     override func updateViewConstraints() {
         if (!didSetupConstraints) {
-            cameraView.snp.makeConstraints { (make) in
-                make.top.equalTo(safetyArea)
+            
+            cameraSuperScrollView.snp.makeConstraints{ make in
                 make.top.left.right.equalTo(safetyArea)
-                //print("value = \(view.frame.width * 4/3)")
                 make.height.equalTo(view.frame.width * 4/3)
                 make.bottom.equalTo(self.footerView.snp.top)
             }
+            
+            cameraView.snp.makeConstraints { (make) in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview()
+                make.width.equalToSuperview()
+                make.height.equalToSuperview()
+            }
 
+            boxOnOffView.snp.makeConstraints { make in
+                make.bottom.left.right.equalTo(cameraSuperScrollView.frameLayoutGuide)
+                make.height.equalTo(100)
+            }
+            
+            boxOnOffButton.snp.makeConstraints { make in
+                make.centerY.equalToSuperview()
+                make.right.equalToSuperview().offset(-10)
+            }
+            
             footerView.snp.makeConstraints { (make) in
                 //make.height.equalTo(200)
                 make.bottom.left.right.equalTo(safetyArea)
@@ -449,7 +511,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             self.captureSession?.stopRunning()
         }
         
-        self.elementBoxDrawing.removeFrames(layer: self.frameSublayer)
+        self.elementBoxDrawing.removeFrames(layer: self.framePreviewSubLayer)
         
         // mainQueue 쓰레드에서 UI 작업
         mainDispatchQueue.async {
@@ -465,43 +527,52 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             creationRequest.addResource(with: .photo, data: imageData, options: nil)
         }, completionHandler: nil)
         
-        userState = .afterTakePictures
+        //userState = .afterTakePictures
         
-        // 전화번호를 인식했으면 전화를 건다.
-        globalDispatchQueue.async {
-            self.textRecognize.recognizeText(uiImage: outputImage) { [weak self] result in
-                guard let result = result else { return }
-                self?.phoneNumber = self?.textRecognize.getPhoneNumber(result)
-                
-                self?.mainDispatchQueue.async {
-                    // 뷰 dim 처리
-                    //showDimView()
+        
+        // 전화 모드 일때
+        if currentAppMode == .callingMode {
+            // 전화번호를 인식했으면 전화를 건다.
+            globalDispatchQueue.async {
+                self.textRecognize.recognizeText(uiImage: outputImage) { [weak self] result in
+                    guard let result = result else { return }
+                    self?.phoneNumber = self?.textRecognize.getPhoneNumber(result)
                     
-                    // 전화번호를 인식했으면
-                    if let number = self?.phoneNumber {
-                        // call 에 completion handler로 pushToNextPage 를 넣었음
-                        self?.call(phoneNumber: number, outputImage: outputImage)
-                        self?.pushToNextPage()
-                    }
-                    // 전화번호를 인식 못했으면
-                    else {
-                        let alert = UIAlertController(title:"전화를 걸 수 없습니다", message: "인식한 전화번호가 없어요.", preferredStyle: .alert)
-                        let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
-                            self?.dismiss(animated: true, completion: nil)
-                            self?.pushToNextPage()
+                    self?.mainDispatchQueue.async {
+                        // 뷰 dim 처리
+                        //showDimView()
+                        
+                        // 전화번호를 인식했으면
+                        if let number = self?.phoneNumber {
+                            // call 에 completion handler로 pushToNextPage 를 넣었음
+                            self?.call(phoneNumber: number, outputImage: outputImage)
+                            self?.pushToNextPageWithOutputImage()
                         }
-                        alert.addAction(okButton)
-                        self?.present(alert, animated: true, completion: nil)
+                        // 전화번호를 인식 못했으면
+                        else {
+                            let alert = UIAlertController(title:"전화를 걸 수 없습니다", message: "인식한 전화번호가 없어요.", preferredStyle: .alert)
+                            let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
+                                self?.dismiss(animated: true, completion: nil)
+                                self?.pushToNextPageWithOutputImage()
+                            }
+                            alert.addAction(okButton)
+                            self?.present(alert, animated: true, completion: nil)
+                        }
                     }
                 }
             }
         }
+        // 기본 모드 일때
+        else {
+            self.pushToNextPageWithOutputImage()
+        }
+        
         
     }
     
     
     // 촬영한 이미지를 가지고 다음 페이지로 넘기는 함수
-    func pushToNextPage() {
+    func pushToNextPageWithOutputImage() {
         guard let outputImage = self.imageToDeliver else {
             return
         }
@@ -578,7 +649,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             for line in block.lines {
                 for element in line.elements {
                     let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame)
-                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, frameSublayer)
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, framePreviewSubLayer)
                 }
             }
         }
@@ -619,24 +690,49 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
-        guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
-        var uiImage: UIImage = UIImage(cgImage: cgImage)
-        // 이미지 회전 에러가 났다면 제대로 다시 돌려줌.
-        if uiImage.size.width > uiImage.size.height {
-            guard let newImage = uiImage.rotateImage(radians: .pi/2) else { return }
-            uiImage = newImage
-        }
+        connection.videoOrientation = .portrait
+//        lazy var sampleSizes: Int = -1
+//        lazy var totalSampleSizes: Int = -1
+//        do {
+//            try sampleSizes = sampleBuffer.sampleSizes().first ?? -1
+//
+//        } catch { print("captureOutputError") }
+//
+//        totalSampleSizes = sampleBuffer.totalSampleSize
+//
+//        // 이게 왜 -1, 0 이 나올까?
+//        print("sampleSizes() ", sampleSizes)
+//        print("totalSampleSizes() ", totalSampleSizes)
+//        print()
         
-        textRecognize.recognizeText(uiImage: uiImage) { [weak self] result in
-            guard let result = result else { return }
-            self?.mainDispatchQueue.async {
-                self?.elementBoxDrawing.removeFrames(layer: self?.frameSublayer)
-                self?.drawAllElement(result: result, imageSize: uiImage.size)
+        // 박스 On 일때
+        if currentBoxOnOff {
+            guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+            let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
+            guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
+            var uiImage: UIImage = UIImage(cgImage: cgImage)
+//            // 이미지 회전 에러가 났다면 제대로 다시 돌려줌.
+//            if uiImage.size.width > uiImage.size.height {
+//                guard let newImage = uiImage.rotateImage(radians: .pi/2) else { return }
+//                uiImage = newImage
+//            }
+            
+            textRecognize.recognizeText(uiImage: uiImage) { [weak self] result in
+                guard let result = result else { return }
+                self?.mainDispatchQueue.async {
+                    self?.elementBoxDrawing.removeFrames(layer: self?.framePreviewSubLayer)
+                    self?.drawAllElement(result: result, imageSize: uiImage.size)
+                }
+            }
+        }
+        // box Off 일때
+        else {
+            self.mainDispatchQueue.async {
+                self.elementBoxDrawing.removeFrames(layer: self.framePreviewSubLayer)
             }
         }
     }
+    
     
 }
 
@@ -649,58 +745,61 @@ extension MainViewController {
     // device.videoZoomFactor 에 접근하려면 lock / unlock 과정이 필요함
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice
     // https://gist.github.com/yusuke024/3b5a89835deab5b9027efea794b80a45
-    @objc
-    func handlePinch(_ pinch: UIPinchGestureRecognizer) {
-        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
-        if (self.userState == .beforeTakePictures) {
-            guard let device = self.captureDevice else {return}
-            
-            var initialScale: CGFloat = device.videoZoomFactor
-            let minAvailableZoomScale = 1.0
-            let maxAvailableZoomScale = device.maxAvailableVideoZoomFactor
-            
-            do {
-                try device.lockForConfiguration()
-                if(pinch.state == UIPinchGestureRecognizer.State.began){
-                    initialScale = device.videoZoomFactor
+    @objc func handlePinch(_ pinch: UIPinchGestureRecognizer) {
+        // [코드 1]
+        guard let device = self.captureDevice else {return}
+        
+        var initialScale: CGFloat = device.videoZoomFactor
+        let minAvailableZoomScale = 1.0
+        let maxAvailableZoomScale = device.maxAvailableVideoZoomFactor
+        
+        do {
+            try device.lockForConfiguration()
+            if(pinch.state == UIPinchGestureRecognizer.State.began){
+                initialScale = device.videoZoomFactor
+            }
+            else {
+                if(initialScale*(pinch.scale) < minAvailableZoomScale){
+                    device.videoZoomFactor = minAvailableZoomScale
+                }
+                else if(initialScale*(pinch.scale) > maxAvailableZoomScale){
+                    device.videoZoomFactor = maxAvailableZoomScale
                 }
                 else {
-                    if(initialScale*(pinch.scale) < minAvailableZoomScale){
-                        device.videoZoomFactor = minAvailableZoomScale
-                    }
-                    else if(initialScale*(pinch.scale) > maxAvailableZoomScale){
-                        device.videoZoomFactor = maxAvailableZoomScale
-                    }
-                    else {
-                        device.videoZoomFactor = initialScale * (pinch.scale)
-                    }
+                    device.videoZoomFactor = initialScale * (pinch.scale)
                 }
-                pinch.scale = 1.0
-            } catch {
-                return
             }
-            device.unlockForConfiguration()
+            pinch.scale = 1.0
+        } catch {
+            return
         }
-        // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
-        // 이 코드는 없애도 되지 않을까 ?
-        else if (self.userState == .afterTakePictures) {
-            mainDispatchQueue.async {
-                if (pinch.state == .began || pinch.state == .changed){
-                    // 확대
-                    if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
-                        self.cameraView.transform = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-                        self.recognizedPhotoScale *= pinch.scale
-                    }
-                    // 축소
-                    else if (self.recognizedPhotoScale > self.minPhotoScale && pinch.scale < 1.0) {
-                        self.cameraView.transform  = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-                        self.recognizedPhotoScale *= pinch.scale
-                    }
-                }
-                pinch.scale = 1.0
-                print(self.recognizedPhotoScale)
-            }
-        }
+        device.unlockForConfiguration()
+        
+        
+//        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
+//        if (self.userState == .beforeTakePictures) {
+//            // [코드 1] 이 있던 자리
+//        }
+//        // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
+//        // 이 코드는 없애도 되지 않을까 ?
+//        else if (self.userState == .afterTakePictures) {
+//            mainDispatchQueue.async {
+//                if (pinch.state == .began || pinch.state == .changed){
+//                    // 확대
+//                    if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
+//                        self.cameraView.transform = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
+//                        self.recognizedPhotoScale *= pinch.scale
+//                    }
+//                    // 축소
+//                    else if (self.recognizedPhotoScale > self.minPhotoScale && pinch.scale < 1.0) {
+//                        self.cameraView.transform  = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
+//                        self.recognizedPhotoScale *= pinch.scale
+//                    }
+//                }
+//                pinch.scale = 1.0
+//                print(self.recognizedPhotoScale)
+//            }
+//        }
 
     }
     
@@ -708,8 +807,7 @@ extension MainViewController {
     // 카메라 포커싱 메서드
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/1385853-focuspointofinterest
     // 이 공식문서에 따르면 이 왼쪽 위가 (0, 0) 이고 오른쪽 아래가 (1, 1) 인 좌표계를 사용한다.
-    @objc
-    func tapCameraFocusing(_ sender: UITapGestureRecognizer) {
+    @objc func tapCameraFocusing(_ sender: UITapGestureRecognizer) {
         guard let device = self.captureDevice else {
             showUnknownErrorAlert()
             return
@@ -764,6 +862,36 @@ extension MainViewController {
     }
     
     
+    @objc func tapBoxOnOffButton(_ sender: UIButton) {
+        // 버튼 이미지 바뀌는 코드도 추가해야 함
+        if currentBoxOnOff {
+            currentBoxOnOff = false
+            self.boxOnOffButton.setImage(boxOffImage, for: .normal)
+        }
+        else {
+            currentBoxOnOff = true
+            self.boxOnOffButton.setImage(boxOnImage, for: .normal)
+        }
+    }
+    
+    
+    @objc func tapChangeModeButton(_ sender: UIButton) {
+        if currentAppMode == .callingMode {
+            currentAppMode = .normalMode
+            mainDispatchQueue.async {
+                self.navigationController?.navigationBar.topItem?.title = "기본 모드"
+            }
+            
+        }
+        else {
+            currentAppMode = .callingMode
+            mainDispatchQueue.async {
+                self.navigationController?.navigationBar.topItem?.title = "전화 모드"
+            }
+            
+        }
+    }
+    
     // 전화 걸기 메서드
     func call(phoneNumber: String, outputImage: UIImage) {
         if let url = NSURL(string: "tel:\(phoneNumber)"), UIApplication.shared.canOpenURL(url as URL) {
@@ -773,3 +901,15 @@ extension MainViewController {
         }
     }
 }
+
+extension UINavigationController {
+    open override var childForStatusBarHidden: UIViewController? {
+        return visibleViewController
+    }
+    open override var childForStatusBarStyle: UIViewController? {
+        return visibleViewController
+    }
+}
+
+
+

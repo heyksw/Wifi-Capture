@@ -64,6 +64,7 @@ extension SceneDelegate {
             let navigationController = UINavigationController(rootViewController: onBoardingViewController)
             window?.backgroundColor = blueBlackBackgroundColor
             window?.rootViewController = navigationController
+            window?.overrideUserInterfaceStyle = .dark
             window?.makeKeyAndVisible()
         }
         // 아니라면 MainViewController 로 이동
@@ -72,6 +73,7 @@ extension SceneDelegate {
             let mainViewController = MainViewController()
             let navigationController = UINavigationController(rootViewController: mainViewController)
             window?.backgroundColor = blueBlackBackgroundColor
+            window?.overrideUserInterfaceStyle = .dark
             window?.rootViewController = navigationController
             window?.makeKeyAndVisible()
         }

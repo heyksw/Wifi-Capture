@@ -60,7 +60,7 @@ extension UIViewController {
     
     // 토스트 메시지 생성
     func makeToast(_ message: String) {
-        let toastLabel = UITextView(frame: CGRect(x: self.view.frame.size.width/2 - 80, y: 175, width: 160, height: 30))
+        let toastLabel = UITextView(frame: CGRect(x: self.view.frame.size.width/2 - 85, y: 175, width: 170, height: 30))
         toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.75)
         toastLabel.textColor = UIColor.white
         toastLabel.textAlignment = .center;
@@ -77,7 +77,7 @@ extension UIViewController {
     
     // 선택할게 없을 때 토스트 메시지
     func showNoSelectToast() {
-        makeToast("사진에서 글자를 인식하지 못했습니다")
+        makeToast("사진에서 글자를 찾지 못했습니다")
     }
     
     
@@ -87,11 +87,15 @@ extension UIViewController {
     }
     
     
+    func showUnSelectAllToast() {
+        makeToast("텍스트 박스를 모두 해제합니다")
+    }
+    
+    
     // 복사할게 없을 때 토스트 메시지
     func showNoCopyToast() {
         makeToast("복사할 텍스트가 없습니다")
     }
-    
     
     // 복사했을 때 토스트 메시지
     func showCopyToastt(copiedText: String) {
@@ -115,6 +119,11 @@ extension UIViewController {
                        animations: { textView.alpha = 0.0 },
                        completion: {(isCompleted) in textView.removeFromSuperview() })
         
+    }
+    
+    // 공유할게 없을 때 토스트 메시지
+    func showNoShareToast() {
+        makeToast("공유할 텍스트가 없습니다")
     }
     
 }

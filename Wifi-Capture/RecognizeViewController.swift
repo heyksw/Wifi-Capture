@@ -33,10 +33,12 @@ class RecognizeViewController: UIViewController {
     let thereIsNoText = "사진에서 아무 글자도 인식하지 못했어요."
     let clickTheBoxes = "텍스트 박스를 클릭해보세요!"
     
-    let shareImage = UIImage(named: "shareImage")
-    let copyImage = UIImage(named: "copyImage")
-    let callImage = UIImage(named: "callImage")
-    let crossImage = UIImage(named: "crossImage")
+    let shareImage = UIImage(named: "shareImage3")
+    let copyImage = UIImage(named: "copyImage2")
+    let callImage = UIImage(named: "callImage3")
+    let crossImage = UIImage(named: "crossImage2")
+    let selectAllImage = UIImage(named: "selectAllImage")
+    let unselectAllImage = UIImage(named: "unselectAllImage")
     
     let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     
@@ -61,6 +63,7 @@ class RecognizeViewController: UIViewController {
         view.layer.cornerRadius = 5
         view.font = .systemFont(ofSize: 15)
         view.delegate = self
+        view.backgroundColor = .black
         return view
     }()
     
@@ -117,21 +120,24 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
-    let selectAllButton: UIButton = {
+    lazy var selectAllButton: UIButton = {
         let button = UIButton()
-        button.setTitle("전체 선택", for: .normal)
-        button.backgroundColor = .gray
-        button.layer.cornerRadius = 10
+        button.setImage(selectAllImage, for: .normal)
+        //button.backgroundColor = UIColor(white: 1, alpha: 0)
+        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
+    
+    // 전체 선택 - 해제 변경을 위한 불값
+    var selectAll: Bool = true
     
     lazy var copyButton: UIButton = {
         let button = UIButton()
         //button.setTitle("복사 버튼", for: .normal)
         button.setImage(copyImage, for: .normal)
-        button.backgroundColor = UIColor(white: 1, alpha: 0)
-        button.layer.cornerRadius = 10
+//        button.backgroundColor = UIColor(white: 1, alpha: 0)
+        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
@@ -141,7 +147,7 @@ class RecognizeViewController: UIViewController {
         //button.setTitle("공유 버튼", for: .normal)
         button.setImage(shareImage, for: .normal)
         button.backgroundColor = UIColor(white: 1, alpha: 0)
-        button.layer.cornerRadius = 10
+        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
@@ -213,13 +219,18 @@ class RecognizeViewController: UIViewController {
         return button
     }()
     
+    
+    // 상태바 색상 변경
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
 
     
     override func viewDidLoad() {
         print("---------- 다음 페이지로 넘어왔음 -------------")
         
         super.viewDidLoad()
-        
+        overrideUserInterfaceStyle = .dark
 
         // 뷰 터치 이벤트
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
@@ -238,6 +249,7 @@ class RecognizeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         print("viewWillAppear")
         super.viewWillAppear(animated)
+        overrideUserInterfaceStyle = .dark
         
         setNavigationBar()
          
@@ -286,6 +298,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
 
     
     func showNavigationBar() {
+        self.navigationController?.navigationBar.barStyle = .black
         self.navigationController?.setNavigationBarHidden(false, animated: false)
         
     }
@@ -625,7 +638,7 @@ extension RecognizeViewController {
         tappedBox.tapped = true
         textLinkedList.append(elementBoxInfo: tappedBox)
         self.topTextView.text = textLinkedList.getTextWithLinkedList()
-        self.topTextView.textColor = .black
+        self.topTextView.textColor = .white
     }
     
     
@@ -801,7 +814,7 @@ extension RecognizeViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == UIColor.lightGray {
             textView.text = nil
-            textView.textColor = UIColor.black
+            textView.textColor = UIColor.white
         }
     }
 
@@ -826,16 +839,42 @@ extension RecognizeViewController: UITextViewDelegate {
 // about floating buttons
 extension RecognizeViewController {
     
+    // 플로팅 버튼 눌렀을 때 통 튀게 하는 메서드
+    func bounceButton(_ button: UIButton) {
+        UIView.animate(withDuration: 0.2) {
+            button.transform = CGAffineTransform(translationX: 0, y: +15)
+        }
+        UIView.animate(withDuration: 0.1) {
+            button.transform = CGAffineTransform(translationX: 0, y: 0)
+        }
+    }
+    
     // 전체 선택 버튼
     @IBAction func tapSelectAllButton(_ sender: UIButton) {
+        bounceButton(sender)
+        
         if elementBoxInfoArray.count == 0 {
             showNoSelectToast()
         }
         else {
-            showSelectAllToast()
-            textLinkedList.removeAllNodes()
-            for elementBoxInfo in elementBoxInfoArray {
-                selectElementBox(elementBoxInfo)
+            if selectAll {
+                showSelectAllToast()
+                textLinkedList.removeAllNodes()
+                for elementBoxInfo in elementBoxInfoArray {
+                    selectElementBox(elementBoxInfo)
+                }
+                selectAllButton.setImage(unselectAllImage, for: .normal)
+                selectAll = false
+            }
+            else {
+                showUnSelectAllToast()
+                for elementBoxInfo in elementBoxInfoArray {
+                    if elementBoxInfo.tapped {
+                        unselectElementBox(elementBoxInfo)
+                    }
+                }
+                selectAllButton.setImage(selectAllImage, for: .normal)
+                selectAll = true
             }
         }
     }
@@ -843,6 +882,8 @@ extension RecognizeViewController {
     
     // 복사 버튼
     @IBAction func tapCopyButton(_ sender: UIButton) {
+        bounceButton(sender)
+        
         if (topTextView.textColor == UIColor.lightGray) || (topTextView.text == "") {
             showNoCopyToast()
         }
@@ -855,12 +896,19 @@ extension RecognizeViewController {
     
     // 공유 버튼
     @IBAction func tapShareButton(_ sender: UIButton) {
-        var shareObject = [Any]()
-        shareObject.append(topTextView.text ?? "")
+        bounceButton(sender)
         
-        let activityViewController = UIActivityViewController(activityItems: shareObject, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.view
-        self.present(activityViewController, animated: true, completion: nil)
+        if (topTextView.textColor == UIColor.lightGray) || (topTextView.text == "") {
+            showNoShareToast()
+        }
+        else {
+            var shareObject = [Any]()
+            shareObject.append(topTextView.text ?? "")
+            
+            let activityViewController = UIActivityViewController(activityItems: shareObject, applicationActivities: nil)
+            activityViewController.popoverPresentationController?.sourceView = self.view
+            self.present(activityViewController, animated: true, completion: nil)
+        }
     }
  
 }

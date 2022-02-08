@@ -556,6 +556,10 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save the pictures you took in the photo album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -585,6 +589,10 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save the pictures you took in the photo album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
