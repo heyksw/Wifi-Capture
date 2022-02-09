@@ -41,7 +41,9 @@ class RecognizeViewController: UIViewController {
     let unselectAllImage = UIImage(named: "unselectAllImage")
     
     let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
+    var isSharingActivityPresented = false
     
+    lazy var safetyAreaBottomInsets = view.safeAreaInsets.bottom
     
     lazy var safetyArea: UIView = {
         let view = UIView()
@@ -407,7 +409,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
         
         floatingView.snp.makeConstraints { make in
             make.left.right.bottom.equalTo(imageSuperScrollView.frameLayoutGuide)
-            make.height.equalTo(100)
+            make.height.equalTo(110)
         }
         
         floatingLeftView.snp.makeConstraints { make in
@@ -533,16 +535,20 @@ extension RecognizeViewController {
     @objc
     func keyboardWillShow(_ sender: Notification) {
         
+        // share 에서 message 를 클릭했을 때 발견한 버그를 방지하는 코드
+        if bottomSuperView.frame.origin.y != safetyArea.frame.height - 100 {
+            bottomSuperView.frame.origin.y = safetyArea.frame.height - 100
+            floatingView.frame.origin.y = imageSuperScrollView.frame.height - 110
+        }
+        
         if let keyboardFrame: NSValue = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keybaordRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keybaordRectangle.height
             
             if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 {
-                bottomSuperView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
-                
-                // 도전 ! ! !
-                floatingView.frame.origin.y -= (keyboardHeight - view.safeAreaInsets.bottom)
-                
+                print("view.safeAreaInsets.bottom", view.safeAreaInsets.bottom)
+                bottomSuperView.frame.origin.y -= (keyboardHeight - safetyAreaBottomInsets)
+                floatingView.frame.origin.y -= (keyboardHeight - safetyAreaBottomInsets)
             }
             
           }
@@ -558,12 +564,8 @@ extension RecognizeViewController {
             let keyboardHeight = keybaordRectangle.height
             
             if bottomSuperView.frame.origin.y == safetyArea.frame.height - 100 - (keyboardHeight - view.safeAreaInsets.bottom) {
-                bottomSuperView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
-                
-                // 도전 !
-                floatingView.frame.origin.y += (keyboardHeight - view.safeAreaInsets.bottom)
-                
-                
+                bottomSuperView.frame.origin.y += (keyboardHeight - safetyAreaBottomInsets)
+                floatingView.frame.origin.y += (keyboardHeight - safetyAreaBottomInsets)
             }
             
           }
@@ -634,7 +636,7 @@ extension RecognizeViewController {
     
     // 박스를 선택하는 함수
     func selectElementBox(_ tappedBox: ElementBoxInfo) {
-        elementBoxDrawing.changeBoxColorToYellow(tappedBox.layer)
+        elementBoxDrawing.changeBoxColor_Select(tappedBox.layer)
         tappedBox.tapped = true
         textLinkedList.append(elementBoxInfo: tappedBox)
         self.topTextView.text = textLinkedList.getTextWithLinkedList()
@@ -644,7 +646,7 @@ extension RecognizeViewController {
     
     // 박스를 선택 해제하는 함수
     func unselectElementBox(_ tappedBox: ElementBoxInfo) {
-        elementBoxDrawing.changeBoxColorToGreen(tappedBox.layer)
+        elementBoxDrawing.changeBoxColor_Unselect(tappedBox.layer)
         tappedBox.tapped = false
         textLinkedList.remove(elementBoxInfo: tappedBox)
         self.topTextView.text = textLinkedList.getTextWithLinkedList()
@@ -889,7 +891,7 @@ extension RecognizeViewController {
         }
         else {
             UIPasteboard.general.string = topTextView.text
-            showCopyToastt(copiedText: topTextView.text)
+            showCopyToast(copiedText: topTextView.text)
         }
     }
     
@@ -907,6 +909,7 @@ extension RecognizeViewController {
             
             let activityViewController = UIActivityViewController(activityItems: shareObject, applicationActivities: nil)
             activityViewController.popoverPresentationController?.sourceView = self.view
+            
             self.present(activityViewController, animated: true, completion: nil)
         }
     }

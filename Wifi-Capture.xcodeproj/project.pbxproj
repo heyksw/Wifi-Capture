@@ -20,6 +20,7 @@
 		4939F9FC27AE741B00EAC3E6 /* UserInfoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4939F9FB27AE741B00EAC3E6 /* UserInfoStorage.swift */; };
 		495F277E2799958D008427C2 /* ElementBoxDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495F277D2799958D008427C2 /* ElementBoxDrawing.swift */; };
 		4986C24927AAA9A900D14147 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4986C24827AAA9A900D14147 /* LinkedList.swift */; };
+		49C57DDE27B3AB15006C6A07 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C57DDD27B3AB15006C6A07 /* SettingViewController.swift */; };
 		49D40947279031A500626A01 /* RecognizeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D40946279031A500626A01 /* RecognizeViewController.swift */; };
 		49D4094A2795653700626A01 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D409492795653700626A01 /* NetworkExtension.framework */; };
 		49D4094C2795660000626A01 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D4094B2795660000626A01 /* ExternalAccessory.framework */; };
@@ -64,6 +65,7 @@
 		4939F9FB27AE741B00EAC3E6 /* UserInfoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfoStorage.swift; sourceTree = "<group>"; };
 		495F277D2799958D008427C2 /* ElementBoxDrawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementBoxDrawing.swift; sourceTree = "<group>"; };
 		4986C24827AAA9A900D14147 /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
+		49C57DDD27B3AB15006C6A07 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		49D40946279031A500626A01 /* RecognizeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeViewController.swift; sourceTree = "<group>"; };
 		49D409482795653700626A01 /* Wifi-Capture.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Wifi-Capture.entitlements"; sourceTree = "<group>"; };
 		49D409492795653700626A01 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -139,6 +141,7 @@
 				4936473727871DF8003D52EE /* Assets.xcassets */,
 				4936473C27871DF8003D52EE /* Info.plist */,
 				4936473927871DF8003D52EE /* LaunchScreen.storyboard */,
+				49C57DDD27B3AB15006C6A07 /* SettingViewController.swift */,
 			);
 			path = "Wifi-Capture";
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4939F9FC27AE741B00EAC3E6 /* UserInfoStorage.swift in Sources */,
+				49C57DDE27B3AB15006C6A07 /* SettingViewController.swift in Sources */,
 				4986C24927AAA9A900D14147 /* LinkedList.swift in Sources */,
 				4936475F27873D4D003D52EE /* MainViewController.swift in Sources */,
 				49F02DBF279BCF8B0018C26F /* TextRecognizing.swift in Sources */,

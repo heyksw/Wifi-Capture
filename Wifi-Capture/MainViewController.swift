@@ -59,7 +59,9 @@ class MainViewController: UIViewController {
     let minPhotoScale: CGFloat = 1.0
     
     let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
-     
+    
+    lazy var callingModeImageView = UIImageView(image: boxOnImage)
+    lazy var normalModeImageView = UIImageView(image: boxOffImage)
     
     // safe area
     lazy var safetyArea: UIView = {
@@ -68,6 +70,7 @@ class MainViewController: UIViewController {
         return view
     }()
 
+    
     let cameraSuperScrollView: UIScrollView = {
         let view = UIScrollView()
         view.backgroundColor = .black
@@ -173,19 +176,18 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //self.navigationController?.navigationBar.barStyle = .black
         overrideUserInterfaceStyle = .dark
-        currentBoxOnOff = false
-        currentAppMode = .callingMode
+        // 유저 앱 기본 설정
+        setUserDefaults()
         
         // 상단 네비게이션 바 세팅
-        self.setNavigationBar()
+        setNavigationBar()
         
         // UI 세팅
-        self.setUI()
-   
+        setUI()
+
         // 앨범에 접근할 권한 요청
-        self.getPhotoLibraryAuthorization()
+        getPhotoLibraryAuthorization()
         
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinch(_:)))
         let tapFocus = UITapGestureRecognizer(target: self, action: #selector(self.tapCameraFocusing(_:)))
@@ -204,7 +206,7 @@ class MainViewController: UIViewController {
     func setCamera() {
         print("setting Camera")
         guard let captureDevice = getDefaultCamera() else {
-            
+            showUnknownErrorAlert()
             return
         }
         
@@ -268,20 +270,21 @@ class MainViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // user state 세팅
-        //self.userState = .beforeTakePictures
         // 카메라 불러오기
         self.setCamera()
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         print("view will disappear")
         super.viewWillDisappear(animated)
         overrideUserInterfaceStyle = .dark
+        mainDispatchQueue.async {
+            self.elementBoxDrawing.removeFrames(layer: self.framePreviewSubLayer)
+        }
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
         }
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -294,6 +297,25 @@ class MainViewController: UIViewController {
     }
 
     
+    // 유저 앱 기본 설정
+    func setUserDefaults() {
+        let defaults = UserDefaults.standard
+        // 전화모드로 앱 시작
+        if defaults.bool(forKey: "startWithCallingMode") {
+            self.currentAppMode = .callingMode
+        }
+        else {
+            self.currentAppMode = .normalMode
+        }
+        // 글자 감지 박스 ON 으로 앱 시작
+        self.currentBoxOnOff = defaults.bool(forKey: "startWithBoxON")
+        if currentBoxOnOff {
+            self.boxOnOffButton.setImage(boxOnImage, for: .normal)
+        }
+        else {
+            self.boxOnOffButton.setImage(boxOffImage, for: .normal)
+        }
+    }
 }
 
 
@@ -304,7 +326,13 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     func setNavigationBar() {
         self.navigationController?.navigationBar.barStyle = .black
         //self.navigationItem.title = "메인 화면"
-        self.navigationController?.navigationBar.topItem?.title = "전화 모드"
+        if currentAppMode == .callingMode {
+            self.navigationController?.navigationBar.topItem?.titleView = callingModeImageView
+        }
+        else {
+            self.navigationController?.navigationBar.topItem?.titleView = normalModeImageView
+        }
+        
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         self.navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = blueBlackBackgroundColor
@@ -325,7 +353,9 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     
     
     @objc func tapSettingButton(_ sender: UIButton) {
-        
+        //
+        let settingViewController = SettingViewController()
+        self.navigationController?.pushViewController(settingViewController, animated: true)
     }
     
     
@@ -361,14 +391,11 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
         safetyArea.addSubview(footerView)
         
         
-        
         cameraSuperScrollView.addSubview(cameraView)
         cameraSuperScrollView.addSubview(boxOnOffView)
         
-        
         boxOnOffView.addSubview(boxOnOffButton)
-        
-        
+
         
         footerView.addArrangedSubview(footerLeftView)
         footerView.addArrangedSubview(footerCenterView)
@@ -398,6 +425,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 make.width.equalToSuperview()
                 make.height.equalToSuperview()
             }
+            
 
             boxOnOffView.snp.makeConstraints { make in
                 make.bottom.left.right.equalTo(cameraSuperScrollView.frameLayoutGuide)
@@ -451,7 +479,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
 
     }
     
-    
+
     // iphone 버전 별로 Camera Type 이 다르기 때문에 버전 별로 최적의 device camera 찾기
     // https://developer.apple.com/documentation/avfoundation/avcapturedevice/2361508-default
     func getDefaultCamera() -> AVCaptureDevice? {
@@ -710,7 +738,7 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
             let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
             guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
-            var uiImage: UIImage = UIImage(cgImage: cgImage)
+            let uiImage: UIImage = UIImage(cgImage: cgImage)
 //            // 이미지 회전 에러가 났다면 제대로 다시 돌려줌.
 //            if uiImage.size.width > uiImage.size.height {
 //                guard let newImage = uiImage.rotateImage(radians: .pi/2) else { return }
@@ -863,14 +891,15 @@ extension MainViewController {
     
     
     @objc func tapBoxOnOffButton(_ sender: UIButton) {
-        // 버튼 이미지 바뀌는 코드도 추가해야 함
         if currentBoxOnOff {
             currentBoxOnOff = false
             self.boxOnOffButton.setImage(boxOffImage, for: .normal)
+            showBoxOffToast()
         }
         else {
             currentBoxOnOff = true
             self.boxOnOffButton.setImage(boxOnImage, for: .normal)
+            showBoxOnToast()
         }
     }
     
@@ -879,16 +908,16 @@ extension MainViewController {
         if currentAppMode == .callingMode {
             currentAppMode = .normalMode
             mainDispatchQueue.async {
-                self.navigationController?.navigationBar.topItem?.title = "기본 모드"
+                self.navigationController?.navigationBar.topItem?.titleView = self.normalModeImageView
+                self.showNormalModeToast()
             }
-            
         }
         else {
             currentAppMode = .callingMode
             mainDispatchQueue.async {
-                self.navigationController?.navigationBar.topItem?.title = "전화 모드"
+                self.navigationController?.navigationBar.topItem?.titleView = self.callingModeImageView
+                self.showCallingModeToast()
             }
-            
         }
     }
     

@@ -75,6 +75,29 @@ extension UIViewController {
     }
     
     
+    // 기본 모드로 변경할 때
+    func showNormalModeToast() {
+        makeToast("기본 모드로 변경합니다")
+    }
+    
+    // 전화 모드로 변경할 때
+    func showCallingModeToast() {
+        makeToast("전화 모드로 변경합니다")
+    }
+    
+    
+    // 감지 박스 ON
+    func showBoxOnToast() {
+        makeToast("글자 감지 박스 ON")
+    }
+    
+    
+    // 감지 박스 OFF
+    func showBoxOffToast() {
+        makeToast("글자 감지 박스 OFF")
+    }
+    
+    
     // 선택할게 없을 때 토스트 메시지
     func showNoSelectToast() {
         makeToast("사진에서 글자를 찾지 못했습니다")
@@ -98,7 +121,7 @@ extension UIViewController {
     }
     
     // 복사했을 때 토스트 메시지
-    func showCopyToastt(copiedText: String) {
+    func showCopyToast(copiedText: String) {
         var text = copiedText
         if copiedText.count >= 10 {
             let idx = copiedText.index(copiedText.startIndex, offsetBy: 9)

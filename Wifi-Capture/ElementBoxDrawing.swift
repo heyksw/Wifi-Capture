@@ -73,15 +73,18 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
     }
     
     // 박스가 선택됐을 때 색상을 변경하는 함수
-    func changeBoxColorToYellow(_ frameBoxLayer: CALayer) {
-        frameBoxLayer.borderColor = Constants.yellowLineColor
-        frameBoxLayer.backgroundColor = Constants.yellowFillColor
+    func changeBoxColor_Select(_ frameBoxLayer: CALayer) {
+//        frameBoxLayer.borderColor = Constants.yellowLineColor
+//        frameBoxLayer.backgroundColor = Constants.yellowFillColor
+        frameBoxLayer.borderColor = Constants.yellowLineColor2
+        frameBoxLayer.backgroundColor = Constants.yellowFillColor2
     }
     
-    func changeBoxColorToGreen(_ frameBoxLayer: CALayer) {
-        print("Change to Green !!")
+    func changeBoxColor_Unselect(_ frameBoxLayer: CALayer) {
         frameBoxLayer.borderColor = Constants.greenLineColor
         frameBoxLayer.backgroundColor = Constants.greenFillColor
+//        frameBoxLayer.borderColor = Constants.blueBlackLineColor
+//        frameBoxLayer.backgroundColor = Constants.blueBlackFillColor
     }
     
 }
@@ -89,6 +92,9 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
 
 
 enum Constants {
+    static let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
+    static let deepDarkGrayColor = UIColor(red: 28/255, green: 28/255, blue: 30/255, alpha: 1.0)
+    
     static let labelConfidenceThreshold: Float = 0.75
     static let lineWidth: CGFloat = 2
     
@@ -100,6 +106,16 @@ enum Constants {
     static let greenFillColor = UIColor(red: 0, green: 1, blue: 0.4471, alpha: 0.3).cgColor
     
     
+    // 바꾼 색상
+    
+    static let skyblueLineColor = UIColor(red: 0.3882, green: 0.698, blue: 0.9412, alpha: 0.4).cgColor
+    static let skyblueFillColor = UIColor(red: 0.3882, green: 0.698, blue: 0.9412, alpha: 0.3).cgColor
+    
+    static let blueBlackLineColor = UIColor(red: 34/255, green: 96/255, blue: 167/255, alpha: 0.4).cgColor
+    static let blueBlackFillColor = UIColor(red: 34/255, green: 96/255, blue: 167/255, alpha: 0.3).cgColor
+    
+    static let yellowLineColor2 = UIColor(red: 255/255, green: 251/255, blue: 53/255, alpha: 0.6).cgColor
+    static let yellowFillColor2 = UIColor(red: 255/255, green: 251/255, blue: 53/255, alpha: 0.4).cgColor
 //    static let lineColor = UIColor(red: 0.3647, green: 0.9569, blue: 0.3922, alpha: 0.45).cgColor
 //    static let fillColor = UIColor(red: 0.3647, green: 0.9569, blue: 0.3922, alpha: 0.3).cgColor
     
