@@ -286,11 +286,17 @@ class RecognizeViewController: UIViewController {
 extension RecognizeViewController: UIScrollViewDelegate {
     
     func setNavigationBar() {
-           self.navigationController?.navigationBar.tintColor = .white
-           self.navigationController?.navigationBar.barTintColor = blueBlackBackgroundColor
-           self.navigationController?.navigationBar.backgroundColor = blueBlackBackgroundColor
-           self.navigationController?.navigationBar.isTranslucent = false
-       }
+        self.navigationController?.navigationBar.tintColor = .white
+        self.navigationController?.navigationBar.barTintColor = blueBlackBackgroundColor
+        self.navigationController?.navigationBar.backgroundColor = blueBlackBackgroundColor
+        self.navigationController?.navigationBar.isTranslucent = false
+        
+        let settingButton = UIBarButtonItem(image: UIImage(systemName: "gearshape"),
+            style: .plain,
+            target: self,
+            action: #selector(tapSettingButton))
+        navigationItem.rightBarButtonItem = settingButton
+    }
     
     
     func hideNavigationBar() {
@@ -516,7 +522,7 @@ extension RecognizeViewController: UIScrollViewDelegate {
             for line in block.lines {
                 for element in line.elements {
                     let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: image.size, viewFrame: imageView.frame)
-                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, imageViewLayer)
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, imageViewLayer, Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "unselectBox_colorType_index")])
                     let elementBoxLayer = elementBoxDrawing.getElementBoxLayer()
                     let elementBoxInfo = ElementBoxInfo(idx: cnt, layer: elementBoxLayer, text: element.text)
                     elementBoxInfoArray.append(elementBoxInfo)
@@ -636,7 +642,7 @@ extension RecognizeViewController {
     
     // 박스를 선택하는 함수
     func selectElementBox(_ tappedBox: ElementBoxInfo) {
-        elementBoxDrawing.changeBoxColor_Select(tappedBox.layer)
+        elementBoxDrawing.changeBoxColor_Select(tappedBox.layer, Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "selectBox_colorType_index")])
         tappedBox.tapped = true
         textLinkedList.append(elementBoxInfo: tappedBox)
         self.topTextView.text = textLinkedList.getTextWithLinkedList()
@@ -646,7 +652,7 @@ extension RecognizeViewController {
     
     // 박스를 선택 해제하는 함수
     func unselectElementBox(_ tappedBox: ElementBoxInfo) {
-        elementBoxDrawing.changeBoxColor_Unselect(tappedBox.layer)
+        elementBoxDrawing.changeBoxColor_Unselect(tappedBox.layer, Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "unselectBox_colorType_index")])
         tappedBox.tapped = false
         textLinkedList.remove(elementBoxInfo: tappedBox)
         self.topTextView.text = textLinkedList.getTextWithLinkedList()
@@ -914,4 +920,12 @@ extension RecognizeViewController {
         }
     }
  
+    
+    // 우측 상단 세팅 버튼
+    @objc func tapSettingButton(_ sender: UIButton) {
+        //
+        let subSettingViewController = SubSettingViewController()
+        self.navigationController?.pushViewController(subSettingViewController, animated: true)
+    }
+    
 }

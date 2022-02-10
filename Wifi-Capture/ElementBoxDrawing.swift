@@ -44,11 +44,11 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
     
     
     // 추가한 Frame 을 Layer 위에 그려주는 함수
-    func drawElementBox(_ frameBoxRect: CGRect, _ layer: CALayer) {
+    func drawElementBox(_ frameBoxRect: CGRect, _ layer: CALayer, _ colorType: ColorType) {
         let newFrameBoxSublayer = CALayer()
         newFrameBoxSublayer.frame = frameBoxRect
-        newFrameBoxSublayer.borderColor = Constants.greenLineColor
-        newFrameBoxSublayer.backgroundColor = Constants.greenFillColor
+        newFrameBoxSublayer.borderColor = colorType.lineColor
+        newFrameBoxSublayer.backgroundColor = colorType.fillColor
         newFrameBoxSublayer.borderWidth = Constants.lineWidth
         self.layer = newFrameBoxSublayer
         
@@ -73,18 +73,14 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
     }
     
     // 박스가 선택됐을 때 색상을 변경하는 함수
-    func changeBoxColor_Select(_ frameBoxLayer: CALayer) {
-//        frameBoxLayer.borderColor = Constants.yellowLineColor
-//        frameBoxLayer.backgroundColor = Constants.yellowFillColor
-        frameBoxLayer.borderColor = Constants.yellowLineColor2
-        frameBoxLayer.backgroundColor = Constants.yellowFillColor2
+    func changeBoxColor_Select(_ frameBoxLayer: CALayer, _ colorType: ColorType) {
+        frameBoxLayer.borderColor = colorType.lineColor
+        frameBoxLayer.backgroundColor = colorType.fillColor
     }
     
-    func changeBoxColor_Unselect(_ frameBoxLayer: CALayer) {
-        frameBoxLayer.borderColor = Constants.greenLineColor
-        frameBoxLayer.backgroundColor = Constants.greenFillColor
-//        frameBoxLayer.borderColor = Constants.blueBlackLineColor
-//        frameBoxLayer.backgroundColor = Constants.blueBlackFillColor
+    func changeBoxColor_Unselect(_ frameBoxLayer: CALayer, _ colorType: ColorType) {
+        frameBoxLayer.borderColor = colorType.lineColor
+        frameBoxLayer.backgroundColor = colorType.fillColor
     }
     
 }
@@ -92,6 +88,8 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
 
 
 enum Constants {
+    static let colorTypeArray: [ColorType] = [ColorTypes.green, ColorTypes.yellow, ColorTypes.skyBlue, ColorTypes.purple]
+    
     static let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     static let deepDarkGrayColor = UIColor(red: 28/255, green: 28/255, blue: 30/255, alpha: 1.0)
     
@@ -105,9 +103,6 @@ enum Constants {
     static let greenLineColor = UIColor(red: 0, green: 1, blue: 0.4471, alpha: 0.45).cgColor
     static let greenFillColor = UIColor(red: 0, green: 1, blue: 0.4471, alpha: 0.3).cgColor
     
-    
-    // 바꾼 색상
-    
     static let skyblueLineColor = UIColor(red: 0.3882, green: 0.698, blue: 0.9412, alpha: 0.4).cgColor
     static let skyblueFillColor = UIColor(red: 0.3882, green: 0.698, blue: 0.9412, alpha: 0.3).cgColor
     
@@ -120,7 +115,21 @@ enum Constants {
 //    static let fillColor = UIColor(red: 0.3647, green: 0.9569, blue: 0.3922, alpha: 0.3).cgColor
     
 //    // 보라
-    
-//    static let lineColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.45).cgColor
-//    static let fillColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.35).cgColor
+    static let purpleLineColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.45).cgColor
+    static let purpleFillColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.35).cgColor
 }
+
+
+struct ColorType {
+    let lineColor: CGColor
+    let fillColor: CGColor
+}
+
+enum ColorTypes {
+    static let green = ColorType(lineColor: Constants.greenLineColor, fillColor: Constants.greenFillColor)
+    static let yellow = ColorType(lineColor: Constants.yellowLineColor, fillColor: Constants.yellowFillColor)
+    static let skyBlue = ColorType(lineColor: Constants.skyblueLineColor, fillColor: Constants.skyblueFillColor)
+    static let purple = ColorType(lineColor: Constants.purpleLineColor, fillColor: Constants.purpleFillColor)
+}
+
+

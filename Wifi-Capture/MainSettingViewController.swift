@@ -1,7 +1,9 @@
 import UIKit
 import Foundation
 
-class SettingViewController: UIViewController {
+class MainSettingViewController: UIViewController {
+    var colorTypeArray_Index: Int = UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")
+    lazy var boxColorType: ColorType? = nil
     
     lazy var safetyArea: UIView = {
         let view = UIView()
@@ -66,13 +68,13 @@ class SettingViewController: UIViewController {
     let label1: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "사진 저장"
+        label.text = "찍은 사진 저장"
         return label
     }()
     
     let switch1: UISwitch = {
         let swtch = UISwitch()
-        //swtch.addTarget(self, action: #selector(tapSwitch1), for: .valueChanged)
+        swtch.addTarget(self, action: #selector(tapSwitch1), for: .valueChanged)
         return swtch
     }()
     
@@ -136,17 +138,30 @@ class SettingViewController: UIViewController {
         return swtch
     }()
     
+    let colorTypeButton: UIButton = {
+        let button = UIButton()
+        button.layer.cornerRadius = 10
+        button.layer.borderWidth = Constants.lineWidth
+        return button
+    }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
         setUserDefaults()
+        colorTypeButton.addTarget(self, action: #selector(tapColorTypeButton(_:)), for: .touchDown)
     }
     
+    
     func setUserDefaults() {
+        switch1.isOn = UserDefaults.standard.bool(forKey: "doPhotoSave")
         switch2.isOn = UserDefaults.standard.bool(forKey: "startWithCallingMode")
         switch3.isOn = UserDefaults.standard.bool(forKey: "startWithBoxON")
+        
+        colorTypeArray_Index = UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")
+        colorTypeButton.layer.borderColor = Constants.colorTypeArray[colorTypeArray_Index].lineColor
+        colorTypeButton.layer.backgroundColor = Constants.colorTypeArray[colorTypeArray_Index].fillColor
     }
  
     func setUI() {
@@ -246,7 +261,7 @@ class SettingViewController: UIViewController {
         view3.addSubview(label3)
         view3.addSubview(switch3)
         view4.addSubview(label4)
-        view4.addSubview(switch4)
+        view4.addSubview(colorTypeButton)
         
         label1.snp.makeConstraints{ make in
             make.centerY.equalToSuperview()
@@ -283,11 +298,17 @@ class SettingViewController: UIViewController {
             make.right.equalToSuperview().offset(-10)
         }
         
-        switch4.snp.makeConstraints{ make in
+        colorTypeButton.snp.makeConstraints{ make in
             make.centerY.equalToSuperview()
             make.right.equalToSuperview().offset(-10)
+            make.height.equalTo(30)
+            make.width.equalTo(50)
         }
         
+    }
+    
+    @objc func tapSwitch1(_ sender: UISwitch) {
+        UserDefaults.standard.set(sender.isOn, forKey: "doPhotoSave")
     }
     
     @objc func tapSwitch2(_ sender: UISwitch) {
@@ -298,5 +319,11 @@ class SettingViewController: UIViewController {
         UserDefaults.standard.set(sender.isOn, forKey: "startWithBoxON")
     }
     
+    @objc func tapColorTypeButton(_ sender: UIButton) {
+        colorTypeArray_Index = (colorTypeArray_Index + 1) % 4
+        self.colorTypeButton.layer.borderColor = Constants.colorTypeArray[colorTypeArray_Index].lineColor
+        self.colorTypeButton.layer.backgroundColor = Constants.colorTypeArray[colorTypeArray_Index].fillColor
+        UserDefaults.standard.set(colorTypeArray_Index, forKey: "camera_recognizeBox_colorType_index")
+    }
 }
 

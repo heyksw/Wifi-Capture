@@ -98,7 +98,7 @@ class MainViewController: UIViewController {
     lazy var boxOnOffButton: UIButton = {
        let button = UIButton()
         button.setImage(boxOffImage, for: .normal)
-        button.alpha = 0.8
+        button.alpha = 0.9
         return button
     }()
 
@@ -199,6 +199,10 @@ class MainViewController: UIViewController {
         galleryButton.addTarget(self, action: #selector(tapGalleryButton), for: .touchDown)
         changeModeButton.addTarget(self, action: #selector(tapChangeModeButton), for: .touchDown)
         boxOnOffButton.addTarget(self, action: #selector(tapBoxOnOffButton), for: .touchDown)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+
     }
     
     
@@ -319,6 +323,22 @@ class MainViewController: UIViewController {
 }
 
 
+extension MainViewController {
+    // 앱이 백그라운드 상태로 들어가면 카메라 중단
+    @objc func didEnterBackground() {
+        print("did enter background")
+        globalDispatchQueue.async {
+            self.captureSession?.stopRunning()
+        }
+    }
+    // 다시 포어그라운드로 오면 카메라 실행
+    @objc func willEnterForeground() {
+        print("will enter foreground")
+        self.setCamera()
+    }
+}
+
+
 // 익스텐션
 extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
@@ -353,17 +373,17 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     
     
     @objc func tapSettingButton(_ sender: UIButton) {
-        //
-        let settingViewController = SettingViewController()
-        self.navigationController?.pushViewController(settingViewController, animated: true)
+        let mainSettingViewController = MainSettingViewController()
+        self.navigationController?.pushViewController(mainSettingViewController, animated: true)
     }
     
     
     @objc func tapInformationButton(_ sender: UIButton) {
-        
+        let infoViewController = InfoViewController()
+        self.navigationController?.pushViewController(infoViewController, animated: true)
     }
     
-        
+    
     // UI 배치, StackView 배치
     func setUI() {
         safetyArea.translatesAutoresizingMaskIntoConstraints = false
@@ -548,15 +568,15 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             self.recognizedPhotoScale = 1.0
         }
         
-        // 사진을 찍으면 자동으로 저장
-        // Asynchronously runs a block that requests changes to the photo library.
-        PHPhotoLibrary.shared().performChanges({
-            let creationRequest = PHAssetCreationRequest.forAsset()
-            creationRequest.addResource(with: .photo, data: imageData, options: nil)
-        }, completionHandler: nil)
-        
-        //userState = .afterTakePictures
-        
+        // 유저 설정이 저장이면 사진 저장수행
+        if UserDefaults.standard.bool(forKey: "doPhotoSave") {
+            // 사진을 찍으면 저장
+            // Asynchronously runs a block that requests changes to the photo library.
+            PHPhotoLibrary.shared().performChanges({
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo, data: imageData, options: nil)
+            }, completionHandler: nil)
+        }
         
         // 전화 모드 일때
         if currentAppMode == .callingMode {
@@ -677,7 +697,8 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             for line in block.lines {
                 for element in line.elements {
                     let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame)
-                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, framePreviewSubLayer)
+                    let colorType = Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")]
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, framePreviewSubLayer, colorType)
                 }
             }
         }
@@ -803,32 +824,6 @@ extension MainViewController {
         }
         device.unlockForConfiguration()
         
-        
-//        // 사진을 찍기 전, 카메라가 실시간으로 보이고 있는 상황에서의 zoom 구현
-//        if (self.userState == .beforeTakePictures) {
-//            // [코드 1] 이 있던 자리
-//        }
-//        // 사진을 찍은 후, 그러니까 사진의 결과가 카메라 뷰에 올라왔을 때의 zoom 구현
-//        // 이 코드는 없애도 되지 않을까 ?
-//        else if (self.userState == .afterTakePictures) {
-//            mainDispatchQueue.async {
-//                if (pinch.state == .began || pinch.state == .changed){
-//                    // 확대
-//                    if(self.recognizedPhotoScale < self.maxPhotoScale && pinch.scale > 1.0){
-//                        self.cameraView.transform = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-//                        self.recognizedPhotoScale *= pinch.scale
-//                    }
-//                    // 축소
-//                    else if (self.recognizedPhotoScale > self.minPhotoScale && pinch.scale < 1.0) {
-//                        self.cameraView.transform  = self.cameraView.transform.scaledBy(x: pinch.scale, y: pinch.scale)
-//                        self.recognizedPhotoScale *= pinch.scale
-//                    }
-//                }
-//                pinch.scale = 1.0
-//                print(self.recognizedPhotoScale)
-//            }
-//        }
-
     }
     
     
