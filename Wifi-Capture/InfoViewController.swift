@@ -173,7 +173,8 @@ class InfoViewController: UIViewController {
     }
     
     @IBAction func tapButton3(_ sender: UIButton) {
-        
+        let helpInfoViewController = HelpInfoViewController()
+        self.navigationController?.pushViewController(helpInfoViewController, animated: true)
     }
     
 }
