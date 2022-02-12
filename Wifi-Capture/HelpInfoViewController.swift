@@ -63,7 +63,7 @@ class HelpInfoViewController: UIViewController {
     let view2: UIView = {
         let view = UIView()
         //view.backgroundColor = Constants.deepDarkGrayColor
-        view.backgroundColor = .orange
+        view.backgroundColor = Constants.deepDarkGrayColor
         view.layer.cornerRadius = 10
         return view
     }()
@@ -71,20 +71,23 @@ class HelpInfoViewController: UIViewController {
     let titleLabel2: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "2. 전화번호를 제대로 인식하지 않아요"
+        label.text = "2. \"전화번호를 제대로 인식하지 않아요\""
+        label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
     
-    let contentLabel2: UILabel = {
+    lazy var contentLabel2: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.numberOfLines = 0
-        label.text = """
+        label.font = UIFont.systemFont(ofSize: 14)
+        let text = """
         위의 3가지 유의사항을 지켰음에도, 전화번호를 인식하지 않는다면 제가 짠 전화번호 탐색 알고리즘의 문제입니다. \
         찍은 사진에 숫자가 너무 많이 등장하는 경우에는 정확하게 전화번호만 뽑아내기 힘들 수 있습니다. 그리고, 사진에 \
         전화번호가 2개 이상일 경우에는 제일 첫번째로 인식한 전화번호로 전화를 겁니다. '안심콜'에 초점을 맞췄기 때문에 \
         그렇게 설계했는데, 필요한 경우엔 업데이트 하겠습니다.
         """
+        label.attributedText = getAttributedText(text: text)
         return label
     }()
     
@@ -203,22 +206,22 @@ class HelpInfoViewController: UIViewController {
         
         view2.snp.makeConstraints{ make in
             make.left.right.equalToSuperview()
-            make.height.equalTo(100)
+            make.height.equalTo(220)
         }
         
         view3.snp.makeConstraints{ make in
             make.left.right.equalToSuperview()
-            make.height.equalTo(100)
+            make.height.equalTo(50)
         }
         
         view4.snp.makeConstraints{ make in
             make.left.right.equalToSuperview()
-            make.height.equalTo(100)
+            make.height.equalTo(50)
         }
         
         titleLabel1.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(14)
-            make.top.equalToSuperview().offset(12)
+            make.top.equalToSuperview().offset(14)
         }
         
         contentLabel1.snp.makeConstraints { make in
@@ -228,15 +231,14 @@ class HelpInfoViewController: UIViewController {
         }
         
         titleLabel2.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(10)
+            make.left.equalToSuperview().offset(14)
+            make.top.equalToSuperview().offset(14)
         }
         
         contentLabel2.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(20)
+            make.left.equalToSuperview().offset(12)
+            make.right.equalToSuperview().offset(-12)
+            make.top.equalTo(titleLabel2.snp.bottom).offset(16)
         }
         
         titleLabel3.snp.makeConstraints { make in
