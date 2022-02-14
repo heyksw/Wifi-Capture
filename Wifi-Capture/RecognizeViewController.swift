@@ -1,6 +1,7 @@
 // 문자인식을 담당하는 뷰 컨트롤러
 import UIKit
 import Foundation
+import PhotosUI
 
 import MLKitTextRecognitionKorean
 import MLKitVision
@@ -39,9 +40,13 @@ class RecognizeViewController: UIViewController {
     let crossImage = UIImage(named: "crossImage2")
     let selectAllImage = UIImage(named: "selectAllImage")
     let unselectAllImage = UIImage(named: "unselectAllImage")
+    let galleryImage = UIImage(named: "galleryImage")
     
     let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     var isSharingActivityPresented = false
+    
+    lazy var phPickerConfiguration = PHPickerConfiguration()
+    lazy var picker = PHPickerViewController(configuration: phPickerConfiguration)
     
     lazy var safetyAreaBottomInsets = view.safeAreaInsets.bottom
     
@@ -131,7 +136,7 @@ class RecognizeViewController: UIViewController {
         return button
     }()
     
-    // 전체 선택 - 해제 변경을 위한 불값
+    // 전체 선택, 전체 해제 변경을 위한 불값
     var selectAll: Bool = true
     
     lazy var copyButton: UIButton = {
@@ -195,15 +200,13 @@ class RecognizeViewController: UIViewController {
         return view
     }()
     
-    lazy var bottomLeftButton: UIButton = {
+    lazy var galleryButton: UIButton = {
         let button = UIButton()
-        button.setTitle("갤러리", for: .normal)
-        button.backgroundColor = blueBlackBackgroundColor
-        button.layer.cornerRadius = 10
+        button.setImage(galleryImage, for: .normal)
         return button
     }()
     
-    lazy var bottomMiddleButton: UIButton = {
+    lazy var crossButton: UIButton = {
         let button = UIButton()
         //button.setTitle("십자 버튼", for: .normal)
         button.setImage(crossImage, for: .normal)
@@ -212,9 +215,8 @@ class RecognizeViewController: UIViewController {
         return button
     }()
     
-    lazy var bottomRightButton: UIButton = {
+    lazy var callButton: UIButton = {
         let button = UIButton()
-        //button.setTitle("전화 버튼", for: .normal)
         button.setImage(callImage, for: .normal)
         button.backgroundColor = blueBlackBackgroundColor
         button.layer.cornerRadius = 10
@@ -229,19 +231,19 @@ class RecognizeViewController: UIViewController {
 
     
     override func viewDidLoad() {
-        print("---------- 다음 페이지로 넘어왔음 -------------")
-        
         super.viewDidLoad()
         overrideUserInterfaceStyle = .dark
-
+        
+        setPHPicker()
+        
         // 뷰 터치 이벤트
         let tapGetPosition = UITapGestureRecognizer(target: self, action: #selector(handleTap(gestureRecognizer:)))
         self.view.addGestureRecognizer(tapGetPosition)
         
         // 버튼 터치 이벤트
-        bottomLeftButton.addTarget(self, action: #selector(tapBottomLeftButton), for: .touchDown)
-        bottomMiddleButton.addTarget(self, action: #selector(tapBottomMiddleButton), for: .touchDown)
-        bottomRightButton.addTarget(self, action: #selector(tapBottomRightButton), for: .touchDown)
+        galleryButton.addTarget(self, action: #selector(tapGalleryButton), for: .touchDown)
+        crossButton.addTarget(self, action: #selector(tapCrossButton), for: .touchDown)
+        callButton.addTarget(self, action: #selector(tapCallButton), for: .touchDown)
         
         selectAllButton.addTarget(self, action: #selector(tapSelectAllButton(_:)), for: .touchDown)
         copyButton.addTarget(self, action: #selector(tapCopyButton(_:)), for: .touchDown)
@@ -249,12 +251,11 @@ class RecognizeViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        print("viewWillAppear")
         super.viewWillAppear(animated)
         overrideUserInterfaceStyle = .dark
         
         setNavigationBar()
-         
+        
         setUI()
         
         // 키보드 등장 이슈 처리
@@ -278,6 +279,7 @@ class RecognizeViewController: UIViewController {
         
         floatingButtonsDown()
         hideDimView()
+        rotateBackCrossButton()
     }
     
 }
@@ -366,6 +368,9 @@ extension RecognizeViewController: UIScrollViewDelegate {
         floatingLeftView.addSubview(selectAllButton)
         floatingMiddleView.addSubview(copyButton)
         floatingRightView.addSubview(shareButton)
+        
+        selectAllButton.setImage(selectAllImage, for: .normal)
+        selectAll = true
 
         // bottomSuperView
         bottomSuperView.addSubview(bottomStackView)
@@ -374,9 +379,9 @@ extension RecognizeViewController: UIScrollViewDelegate {
         bottomStackView.addArrangedSubview(bottomMiddleView)
         bottomStackView.addArrangedSubview(bottomRightView)
         
-        bottomLeftView.addSubview(bottomLeftButton)
-        bottomMiddleView.addSubview(bottomMiddleButton)
-        bottomRightView.addSubview(bottomRightButton)
+        bottomLeftView.addSubview(galleryButton)
+        bottomMiddleView.addSubview(crossButton)
+        bottomRightView.addSubview(callButton)
         
         view.setNeedsUpdateConstraints()
     }
@@ -463,15 +468,15 @@ extension RecognizeViewController: UIScrollViewDelegate {
             make.width.equalTo(self.view).multipliedBy(0.30)
         }
         
-        bottomLeftButton.snp.makeConstraints { (make) in
+        galleryButton.snp.makeConstraints { (make) in
             make.center.equalToSuperview()
         }
         
-        bottomMiddleButton.snp.makeConstraints { (make) in
+        crossButton.snp.makeConstraints { (make) in
             make.center.equalToSuperview()
         }
         
-        bottomRightButton.snp.makeConstraints { (make) in
+        callButton.snp.makeConstraints { (make) in
             make.center.equalToSuperview()
         }
         
@@ -596,6 +601,7 @@ extension RecognizeViewController {
             if areButtonsFloated && !areButtonsMoving {
                 floatingButtonsDown()
                 hideDimView()
+                rotateBackCrossButton()
             }
             
             // 플로팅 버튼이 띄워져 있지 않다면 박스를 클릭 가능하게 함
@@ -659,18 +665,35 @@ extension RecognizeViewController {
     }
     
     
+    func rotateCrossButton() {
+        UIView.animate(withDuration: 0.2) {
+            let rotate = CGAffineTransform(rotationAngle: .pi/4 * (-1))
+            self.crossButton.transform = rotate
+        }
+    }
+    
+    func rotateBackCrossButton() {
+        UIView.animate(withDuration: 0.2) {
+            let rotate = CGAffineTransform(rotationAngle: 0)
+            self.crossButton.transform = rotate
+        }
+    }
+    
+    
     // 십자 플로팅 버튼
-    @IBAction func tapBottomMiddleButton(_ sender: UIButton) {
+    @IBAction func tapCrossButton(_ sender: UIButton) {
         // 버튼들이 플로팅 되지 않은 상태이고, 움직이고 있지 않다면
         if !areButtonsFloated && !areButtonsMoving {
             floatingButtonsUp()
             showDimView()
+            rotateCrossButton()
         }
         
         // 버튼들이 플로팅 되어있고, 움직이고 있지 않다면
         else if areButtonsFloated && !areButtonsMoving {
             floatingButtonsDown()
             hideDimView()
+            rotateBackCrossButton()
         }
     }
     
@@ -762,8 +785,8 @@ extension RecognizeViewController {
         self.dimView.isHidden = true
     }
 
-    // 복사 버튼
-    @IBAction func tapBottomRightButton(_ sender: UIButton) {
+    // 전화 버튼
+    @IBAction func tapCallButton(_ sender: UIButton) {
         guard let resultText = self.recognizedResultText else {
             showThereIsNoPhoneNumberAlert()
             return
@@ -784,19 +807,23 @@ extension RecognizeViewController {
 extension RecognizeViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // 갤러리 버튼
-    @IBAction func tapBottomLeftButton(_ sender: UIButton) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.modalPresentationStyle = .fullScreen
-
-        guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
-            showUnknownErrorAlert()
-            return
-        }
-
-        imagePicker.delegate = self
-        imagePicker.sourceType = .savedPhotosAlbum
+    @IBAction func tapGalleryButton(_ sender: UIButton) {
+//        let imagePicker = UIImagePickerController()
+//        imagePicker.modalPresentationStyle = .fullScreen
+//
+//        guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
+//            showUnknownErrorAlert()
+//            return
+//        }
+//
+//        imagePicker.delegate = self
+//        imagePicker.sourceType = .savedPhotosAlbum
+//
+//
+//        present(imagePicker, animated: true, completion: nil)
+        self.picker.modalPresentationStyle = .fullScreen
+        present(picker, animated: true, completion: nil)
         
-        present(imagePicker, animated: true, completion: nil)
     }
     
     
@@ -929,3 +956,35 @@ extension RecognizeViewController {
     }
     
 }
+
+extension RecognizeViewController: PHPickerViewControllerDelegate {
+    
+    func setPHPicker() {
+        self.phPickerConfiguration.selectionLimit = 1
+        self.phPickerConfiguration.filter = .images
+        self.picker.delegate = self
+    }
+    
+    // 갤러리에서 이미지 선택이 끝났을 때
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        let itemProvider = results.first?.itemProvider
+        // 이미지를 선택했을 때
+        if let itemProvider = itemProvider,
+           itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
+                self.mainDispatchQueue.async {
+                    self.receivedImage = image as? UIImage
+                    picker.dismiss(animated: true, completion: nil)
+                }
+            }
+            
+        }
+        // 이미지를 선택하지 않았거나, 오류가 났을 때
+        else {
+            picker.dismiss(animated: true, completion: nil)
+        }
+    }
+    
+}
+
+

@@ -3,6 +3,7 @@ import Foundation
 import UIKit
 import AVFoundation
 import Photos
+import PhotosUI
 // MLkit
 import MLKitTextRecognitionKorean
 import MLKitVision
@@ -30,14 +31,10 @@ class MainViewController: UIViewController {
     
     let cameraShootImage = UIImage(named: "cameraShootImage2")
     let changeModeImage = UIImage(named: "changeMode3")
-    //lazy var newImage = changeModeImage?.resize(newWidth: 80)
-    
-//    enum UserStates {
-//        case beforeTakePictures
-//        case afterTakePictures
-//    }
-    
-//    var userState: UserStates?
+    let galleryImage = UIImage(named: "galleryImage")
+    let callingModeImage = UIImage(named: "callingModeImage")
+    let normalModeImage = UIImage(named: "normalModeImage")
+
     var didSetupConstraints = false
     
     var captureDevice: AVCaptureDevice?
@@ -54,14 +51,17 @@ class MainViewController: UIViewController {
     var orientation: AVCaptureVideoOrientation = .portrait
     let videoQueue = DispatchQueue(label: "Video Camera Queue")
     
+    lazy var phPickerConfiguration = PHPickerConfiguration()
+    lazy var picker = PHPickerViewController(configuration: phPickerConfiguration)
+    
     var recognizedPhotoScale: CGFloat = 1.0
     let maxPhotoScale: CGFloat = 3.0
     let minPhotoScale: CGFloat = 1.0
     
     let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     
-    lazy var callingModeImageView = UIImageView(image: boxOnImage)
-    lazy var normalModeImageView = UIImageView(image: boxOffImage)
+    lazy var callingModeImageView = UIImageView(image: callingModeImage)
+    lazy var normalModeImageView = UIImageView(image: normalModeImage)
     
     // safe area
     lazy var safetyArea: UIView = {
@@ -136,12 +136,10 @@ class MainViewController: UIViewController {
     }()
 
     // footer 에 들어갈 전면, 후면 반전 버튼
-    let galleryButton: UIButton = {
+    lazy var galleryButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("갤러리", for: .normal)
-        button.backgroundColor = .gray
-        button.setTitleColor(.white, for: .normal)
+        button.setImage(galleryImage, for: .normal)
         return button
     }()
 
@@ -178,15 +176,17 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .dark
         // 유저 앱 기본 설정
-        setUserDefaults()
+        //setUserDefaults()
         
         // 상단 네비게이션 바 세팅
         setNavigationBar()
         
         // UI 세팅
         setUI()
+        
+        setPHPicker()
 
-        // 앨범에 접근할 권한 요청
+        // 앨범에 접근할 권한 요청 - 이거는 PHPicker 를 사용했을 땐 안해도 되는걸로 암.
         getPhotoLibraryAuthorization()
         
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinch(_:)))
@@ -252,6 +252,8 @@ class MainViewController: UIViewController {
             }
             
             previewLayer.addSublayer(framePreviewSubLayer)
+            // 버그 수정을 위한 세션설정
+            previewLayer.session = captureSession
             
             // startRunning 은 UI 쓰레드를 방해할 수 있기 때문에 다른 쓰레드에 담아줌
             globalDispatchQueue.async {
@@ -275,6 +277,7 @@ class MainViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // 카메라 불러오기
+        self.setUserDefaults()
         self.setCamera()
     }
     
@@ -642,22 +645,31 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
     
     // 갤러리 버튼 클릭 이벤트 -> 앨범에 접근, 근데 현재 딜레이가 좀 있음.
     @IBAction func tapGalleryButton(_ sender: UIButton) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.modalPresentationStyle = .fullScreen
-
-        guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
-            showUnknownErrorAlert()
-            return
-        }
-
-        imagePicker.delegate = self
-        imagePicker.sourceType = .savedPhotosAlbum
+//        let imagePicker = UIImagePickerController()
+//        imagePicker.modalPresentationStyle = .fullScreen
+//
+//        guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
+//            showUnknownErrorAlert()
+//            return
+//        }
+//
+//        imagePicker.delegate = self
+//        imagePicker.sourceType = .savedPhotosAlbum
+//
+//        globalDispatchQueue.async {
+//            self.captureSession?.stopRunning()
+//        }
+//
+//        present(imagePicker, animated: true, completion: nil)
         
+       
         globalDispatchQueue.async {
             self.captureSession?.stopRunning()
         }
         
-        present(imagePicker, animated: true, completion: nil)
+        self.picker.modalPresentationStyle = .fullScreen
+        present(picker, animated: true, completion: nil)
+        
     }
     
     
@@ -740,20 +752,7 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Methods for receiving sample buffers from, and monitoring the status of, a video data output.
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         connection.videoOrientation = .portrait
-//        lazy var sampleSizes: Int = -1
-//        lazy var totalSampleSizes: Int = -1
-//        do {
-//            try sampleSizes = sampleBuffer.sampleSizes().first ?? -1
-//
-//        } catch { print("captureOutputError") }
-//
-//        totalSampleSizes = sampleBuffer.totalSampleSize
-//
-//        // 이게 왜 -1, 0 이 나올까?
-//        print("sampleSizes() ", sampleSizes)
-//        print("totalSampleSizes() ", totalSampleSizes)
-//        print()
-        
+
         // 박스 On 일때
         if currentBoxOnOff {
             guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -920,7 +919,6 @@ extension MainViewController {
     func call(phoneNumber: String, outputImage: UIImage) {
         if let url = NSURL(string: "tel:\(phoneNumber)"), UIApplication.shared.canOpenURL(url as URL) {
             // completion handler 가 전화가 종료된 다음 호출되는게 아니다. url 을 찾았을 때 호출됨.
-            // didEnterBackground 활용
             UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
         }
     }
@@ -936,4 +934,46 @@ extension UINavigationController {
 }
 
 
-
+extension MainViewController: PHPickerViewControllerDelegate {
+    
+    func setPHPicker() {
+        self.phPickerConfiguration.selectionLimit = 1
+        self.phPickerConfiguration.filter = .images
+        self.picker.delegate = self
+    }
+    
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+//        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+//
+//            // 문자 인식 페이지로 넘어감
+//            let recognizeViewController = RecognizeViewController()
+//            recognizeViewController.receivedImage = image
+//
+//            dismiss(animated: false, completion: nil)
+//            self.navigationController?.pushViewController(recognizeViewController, animated: false)
+//
+//        }
+//        else { showUnknownErrorAlert() }
+        
+        let itemProvider = results.first?.itemProvider
+        // 이미지를 선택했을 때
+        if let itemProvider = itemProvider,
+           itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
+                self.mainDispatchQueue.async {
+                    // 문자 인식 페이지로 넘어감
+                    let recognizeViewController = RecognizeViewController()
+                    recognizeViewController.receivedImage = image as? UIImage
+                    picker.dismiss(animated: true, completion: nil)
+                    self.navigationController?.pushViewController(recognizeViewController, animated: false)
+                }
+            }
+            
+        }
+        // 이미지를 선택하지 않았거나, 오류가 났을 때
+        else {
+            picker.dismiss(animated: true, completion: nil)
+        }
+    }
+}

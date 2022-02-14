@@ -1,5 +1,6 @@
 import UIKit
 import Foundation
+import GoogleMobileAds
 
 class MainSettingViewController: UIViewController {
     var colorTypeArray_Index: Int = UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")
@@ -145,14 +146,29 @@ class MainSettingViewController: UIViewController {
         return button
     }()
     
+    let adSize = GADAdSizeFromCGSize(CGSize(width: 320, height: 50))
+    lazy var bannerView = GADBannerView(adSize: adSize)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
         setUserDefaults()
         colorTypeButton.addTarget(self, action: #selector(tapColorTypeButton(_:)), for: .touchDown)
+        
+        // 광고 코드
+        //addBannerViewToView(bannerView, parentView: mainSuperView)
+        
+        // 밥먹고 와서 : 공식문서에서 "GADBannerView 속성 구성" 부터 하면됨.
+        // 테스트 광고 단위 ID. 앱을 등록한뒤엔 변경을 해야 함. 구글 애드몹 홈페이지에서 '스토어 추가'
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.rootViewController = self
+        bannerView.load(GADRequest())
+        bannerView.delegate = self
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
     
     func setUserDefaults() {
         switch1.isOn = UserDefaults.standard.bool(forKey: "doPhotoSave")
@@ -327,3 +343,21 @@ class MainSettingViewController: UIViewController {
     }
 }
 
+extension MainSettingViewController: GADBannerViewDelegate {
+    func addBannerViewToView(_ bannerView: GADBannerView, parentView: UIView) {
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        parentView.addSubview(bannerView)
+        
+        bannerView.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(4)
+            make.centerX.equalToSuperview()
+            //make.width.equalToSuperview()
+        }
+    }
+    
+    // 광고가 수신되었을 때
+    func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
+        print("bannerViewDidReceivedAd")
+        addBannerViewToView(self.bannerView, parentView: self.mainSuperView)
+    }
+}

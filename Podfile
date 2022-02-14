@@ -11,5 +11,6 @@ target 'Wifi-Capture' do
   pod 'GoogleMLKit/TextRecognition', '2.5.0'
   pod 'GoogleMLKit/TextRecognitionKorean', '2.5.0'
   pod 'NVActivityIndicatorView'
+  pod 'Google-Mobile-Ads-SDK'
 
 end

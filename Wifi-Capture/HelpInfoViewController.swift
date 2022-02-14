@@ -15,15 +15,21 @@ class HelpInfoViewController: UIViewController {
         return view
     }()
     
+    let scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.backgroundColor = .black
+        return view
+    }()
+    
     let stackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 4
+        view.spacing = 6
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .black
+        view.backgroundColor = .darkGray
         view.alignment = .fill
         view.distribution = .equalSpacing
-        view.layer.cornerRadius = 10
+        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -31,7 +37,7 @@ class HelpInfoViewController: UIViewController {
         let view = UIView()
         //view.backgroundColor = Constants.deepDarkGrayColor
         view.backgroundColor = Constants.deepDarkGrayColor
-        view.layer.cornerRadius = 10
+        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -64,7 +70,7 @@ class HelpInfoViewController: UIViewController {
         let view = UIView()
         //view.backgroundColor = Constants.deepDarkGrayColor
         view.backgroundColor = Constants.deepDarkGrayColor
-        view.layer.cornerRadius = 10
+        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -94,15 +100,16 @@ class HelpInfoViewController: UIViewController {
     let view3: UIView = {
         let view = UIView()
         //view.backgroundColor = Constants.deepDarkGrayColor
-        view.layer.cornerRadius = 10
-        view.backgroundColor = .yellow
+        //view.layer.cornerRadius = 10
+        view.backgroundColor = Constants.deepDarkGrayColor
         return view
     }()
     
     let titleLabel3: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "3. 카메라가 켜지지 않아요"
+        label.text = "3. \"카메라가 켜지지 않아요\""
+        label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
     
@@ -110,6 +117,7 @@ class HelpInfoViewController: UIViewController {
         let label = UILabel()
         label.textColor = .white
         label.numberOfLines = 0
+        label.font = UIFont.systemFont(ofSize: 14)
         label.text = """
         찍콜은 사진, 카메라의 앱 접근 권한을 허용했을 때 정상 실행할 수 있습니다. \n
         아이폰 기본 설정 -> 찍콜 -> 사진, 카메라 접근을 허용해주세요.
@@ -120,14 +128,15 @@ class HelpInfoViewController: UIViewController {
     let view4: UIView = {
         let view = UIView()
         view.backgroundColor = Constants.deepDarkGrayColor
-        view.layer.cornerRadius = 10
+        //view.layer.cornerRadius = 10
         return view
     }()
     
     let titleLabel4: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "4. 그 외 피드백이나 문의사항은 개발자 메일로 연락바랍니다."
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.text = "4. 피드백, 문의사항"
         return label
     }()
     
@@ -135,7 +144,9 @@ class HelpInfoViewController: UIViewController {
         let label = UILabel()
         label.textColor = .white
         label.numberOfLines = 0
+        label.font = UIFont.systemFont(ofSize: 14)
         label.text = """
+        피드백이나 문의사항은 아래 메일로 연락 부탁드립니다.
         heyksw0208@gmail.com (김상우)
         """
         return label
@@ -167,18 +178,29 @@ class HelpInfoViewController: UIViewController {
         
         
         safetyArea.addSubview(mainSuperView)
-        
         mainSuperView.snp.makeConstraints{ make in
             make.top.bottom.left.right.equalToSuperview()
         }
                 
-        mainSuperView.addSubview(stackView)
-        
-        stackView.snp.makeConstraints{ make in
+        mainSuperView.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.snp.makeConstraints{ make in
             make.top.equalToSuperview().offset(50)
+            make.bottom.equalToSuperview().offset(-50)
             make.left.equalToSuperview().offset(20)
             make.right.equalToSuperview().offset(-20)
-            make.height.equalTo(600)    // 100 * 4 + 4 * 3
+        }
+        
+        scrollView.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.snp.makeConstraints{ make in
+//            make.top.equalToSuperview().offset(50)
+//            make.left.equalToSuperview().offset(20)
+//            make.right.equalToSuperview().offset(-20)
+//            make.height.equalTo(600)    // 100 * 4 + 4 * 3
+            make.top.bottom.left.right.equalToSuperview()
+            make.width.equalToSuperview()
+            make.height.equalTo(978) // 240 * 4 + 6 * 3
         }
         
         stackView.addArrangedSubview(view1)
@@ -201,22 +223,29 @@ class HelpInfoViewController: UIViewController {
         view1.snp.makeConstraints{ make in
             make.top.equalToSuperview()
             make.left.right.equalToSuperview()
+            make.width.equalToSuperview()
             make.height.equalTo(240)
         }
         
         view2.snp.makeConstraints{ make in
+            make.top.equalTo(view1.snp.bottom).offset(6)
             make.left.right.equalToSuperview()
-            make.height.equalTo(220)
+            make.width.equalToSuperview()
+            make.height.equalTo(240)
         }
         
         view3.snp.makeConstraints{ make in
+            make.top.equalTo(view2.snp.bottom).offset(6)
             make.left.right.equalToSuperview()
-            make.height.equalTo(50)
+            make.width.equalToSuperview()
+            make.height.equalTo(240)
         }
         
         view4.snp.makeConstraints{ make in
+            make.top.equalTo(view3.snp.bottom).offset(6)
             make.left.right.equalToSuperview()
-            make.height.equalTo(50)
+            make.width.equalToSuperview()
+            make.height.equalTo(240)
         }
         
         titleLabel1.snp.makeConstraints { make in
@@ -227,7 +256,7 @@ class HelpInfoViewController: UIViewController {
         contentLabel1.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(12)
             make.right.equalToSuperview().offset(-12)
-            make.top.equalTo(titleLabel1.snp.bottom).offset(16)
+            make.top.equalTo(titleLabel1.snp.bottom).offset(18)
         }
         
         titleLabel2.snp.makeConstraints { make in
@@ -238,31 +267,31 @@ class HelpInfoViewController: UIViewController {
         contentLabel2.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(12)
             make.right.equalToSuperview().offset(-12)
-            make.top.equalTo(titleLabel2.snp.bottom).offset(16)
+            make.top.equalTo(titleLabel2.snp.bottom).offset(18)
         }
         
         titleLabel3.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(10)
+            make.left.equalToSuperview().offset(12)
+            make.right.equalToSuperview().offset(-12)
+            make.top.equalToSuperview().offset(14)
         }
         
         contentLabel3.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(20)
+            make.left.equalToSuperview().offset(12)
+            make.right.equalToSuperview().offset(-12)
+            make.top.equalTo(titleLabel3.snp.bottom).offset(18)
         }
         
         titleLabel4.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(10)
+            make.left.equalToSuperview().offset(12)
+            make.right.equalToSuperview().offset(-12)
+            make.top.equalToSuperview().offset(14)
         }
         
         contentLabel4.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(20)
+            make.left.equalToSuperview().offset(12)
+            make.right.equalToSuperview().offset(-12)
+            make.top.equalTo(titleLabel4.snp.bottom).offset(18)
         }
     }
     
