@@ -1,6 +1,8 @@
 import UIKit
 import Foundation
 
+
+// info 에서 개발자 정보를 클릭 했을 때의 페이지
 class DeveloperInfoViewController: UIViewController {
     
     lazy var safetyArea: UIView = {

@@ -1,6 +1,9 @@
 import UIKit
 import Foundation
+import GoogleMobileAds
 
+
+// 메인에서 info 를 눌렀을 때의 페이지
 class InfoViewController: UIViewController {
     
     lazy var safetyArea: UIView = {
@@ -75,6 +78,8 @@ class InfoViewController: UIViewController {
         return label
     }()
     
+    let adSize = GADAdSizeFromCGSize(CGSize(width: 320, height: 50))
+    lazy var bannerView = GADBannerView(adSize: adSize)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,6 +87,11 @@ class InfoViewController: UIViewController {
         
         button2.addTarget(self, action: #selector(tapButton2(_:)), for: .touchDown)
         button3.addTarget(self, action: #selector(tapButton3(_:)), for: .touchDown)
+        
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.rootViewController = self
+        bannerView.load(GADRequest())
+        bannerView.delegate = self
     }
     
     
@@ -179,3 +189,21 @@ class InfoViewController: UIViewController {
     
 }
 
+extension InfoViewController: GADBannerViewDelegate {
+    func addBannerViewToView(_ bannerView: GADBannerView, parentView: UIView) {
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        parentView.addSubview(bannerView)
+        
+        bannerView.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(4)
+            make.centerX.equalToSuperview()
+            //make.width.equalToSuperview()
+        }
+    }
+    
+    // 광고가 수신되었을 때
+    func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
+        print("bannerViewDidReceivedAd")
+        addBannerViewToView(self.bannerView, parentView: self.mainSuperView)
+    }
+}

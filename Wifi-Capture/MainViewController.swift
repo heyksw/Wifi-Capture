@@ -176,7 +176,7 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .dark
         // 유저 앱 기본 설정
-        //setUserDefaults()
+        setUserDefaults()
         
         // 상단 네비게이션 바 세팅
         setNavigationBar()
@@ -211,6 +211,7 @@ class MainViewController: UIViewController {
         print("setting Camera")
         guard let captureDevice = getDefaultCamera() else {
             showUnknownErrorAlert()
+            print("captureDevice Error")
             return
         }
         
@@ -233,17 +234,24 @@ class MainViewController: UIViewController {
             
             // Sets the sample buffer delegate and the queue for invoking callbacks.
             videoOutput?.setSampleBufferDelegate(self, queue: videoQueue)
-            guard let videoOutput = videoOutput else { return }
+            guard let videoOutput = videoOutput else {
+                print("videoOutput Error")
+                return }
             
             captureSession?.addOutput(videoOutput)
             
             
-            guard let input = deviceInput, let output = photoOutput else {return}
+            guard let input = deviceInput, let output = photoOutput else {
+                print("input, output Error")
+                return
+            }
             
             captureSession?.addInput(input)
             captureSession?.addOutput(output)
             
-            guard let session = captureSession else {return}
+            guard let session = captureSession else {
+                print("session Error")
+                return}
             
             previewLayer = AVCaptureVideoPreviewLayer(session: session)
             guard let previewLayer = previewLayer else {
@@ -251,6 +259,7 @@ class MainViewController: UIViewController {
                 return
             }
             
+            framePreviewSubLayer.frame = self.cameraView.frame
             previewLayer.addSublayer(framePreviewSubLayer)
             // 버그 수정을 위한 세션설정
             previewLayer.session = captureSession
@@ -264,6 +273,7 @@ class MainViewController: UIViewController {
             mainDispatchQueue.async {
                 previewLayer.frame = self.cameraView.frame
                 self.cameraView.layer.addSublayer(previewLayer)
+                //self.cameraView.layer.insertSublayer(previewLayer, at: 0)
             }
             
         } catch {
@@ -347,9 +357,10 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
 
     // 네비게이션 바 세팅
     func setNavigationBar() {
+        print("setNavigationBar")
         self.navigationController?.navigationBar.barStyle = .black
-        //self.navigationItem.title = "메인 화면"
         if currentAppMode == .callingMode {
+            print("calling Mode")
             self.navigationController?.navigationBar.topItem?.titleView = callingModeImageView
         }
         else {
@@ -439,7 +450,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             cameraSuperScrollView.snp.makeConstraints{ make in
                 make.top.left.right.equalTo(safetyArea)
                 make.height.equalTo(view.frame.width * 4/3)
-                make.bottom.equalTo(self.footerView.snp.top)
+                //make.bottom.equalTo(self.footerView.snp.top)
             }
             
             cameraView.snp.makeConstraints { (make) in
@@ -447,9 +458,9 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
                 make.top.equalToSuperview()
                 make.width.equalToSuperview()
                 make.height.equalToSuperview()
+                //make.top.bottom.left.right.equalToSuperview()
             }
             
-
             boxOnOffView.snp.makeConstraints { make in
                 make.bottom.left.right.equalTo(cameraSuperScrollView.frameLayoutGuide)
                 make.height.equalTo(100)
@@ -463,7 +474,7 @@ extension MainViewController: AVCapturePhotoCaptureDelegate, UIImagePickerContro
             footerView.snp.makeConstraints { (make) in
                 //make.height.equalTo(200)
                 make.bottom.left.right.equalTo(safetyArea)
-                make.top.equalTo(self.cameraView.snp.bottom)
+                make.top.equalTo(self.cameraSuperScrollView.snp.bottom)
             }
             
             footerLeftView.snp.makeConstraints { make in
@@ -759,11 +770,6 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             let ciImage: CIImage = CIImage(cvImageBuffer: imageBuffer)
             guard let cgImage: CGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
             let uiImage: UIImage = UIImage(cgImage: cgImage)
-//            // 이미지 회전 에러가 났다면 제대로 다시 돌려줌.
-//            if uiImage.size.width > uiImage.size.height {
-//                guard let newImage = uiImage.rotateImage(radians: .pi/2) else { return }
-//                uiImage = newImage
-//            }
             
             textRecognize.recognizeText(uiImage: uiImage) { [weak self] result in
                 guard let result = result else { return }
@@ -872,7 +878,6 @@ extension MainViewController {
         focusView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
 
         UIView.animate(withDuration: 0.4, delay: 0.0, options: .curveEaseInOut, animations: {
-//            focusView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
             focusView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
         }) { (success) in
             UIView.animate(withDuration: 0.15, delay: 0.0, options: .curveEaseInOut, animations: {

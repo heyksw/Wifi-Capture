@@ -18,6 +18,7 @@ struct ExtractedResult {
 }
 
 
+// 사진 인식 페이지
 class RecognizeViewController: UIViewController {
     var areButtonsFloated = false
     var areButtonsMoving = false

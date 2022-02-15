@@ -1,6 +1,8 @@
 import UIKit
 import Foundation
 
+
+// info 에서 도움말을 클릭했을 때의 페이지
 class HelpInfoViewController: UIViewController {
     
     lazy var safetyArea: UIView = {

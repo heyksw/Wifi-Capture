@@ -1,5 +1,6 @@
 import UIKit
 
+// 사진에서 인식한 텍스트 박스 그리기
 class ElementBoxDrawing: NSObject, CALayerDelegate {
     lazy var layer = CALayer()
 
@@ -89,6 +90,8 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
 
 enum Constants {
     static let colorTypeArray: [ColorType] = [ColorTypes.green, ColorTypes.yellow, ColorTypes.skyBlue, ColorTypes.purple]
+    
+    static let onBoardingBackgroundColor = UIColor(red: 0.1333, green: 0.5059, blue: 0.7961, alpha: 1.0)
     
     static let blueBlackBackgroundColor = UIColor(red: 7/255, green: 13/255, blue: 56/255, alpha: 1.0)
     static let deepDarkGrayColor = UIColor(red: 28/255, green: 28/255, blue: 30/255, alpha: 1.0)

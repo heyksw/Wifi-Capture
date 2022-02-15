@@ -4,13 +4,17 @@ import UIKit
 import Foundation
 
 class OnboardingViewController: UIViewController {
-    // 상단 네비뷰
-    lazy var navigationView: UIView = {
-           let view = UIView()
-           view.backgroundColor = .black
-
-           return view
-       }()
+    lazy var vc1illust = UIImageView(image: UIImage(named: "vc1illust"))
+    lazy var vc2illust = UIImageView(image: UIImage(named: "vc2illust"))
+    lazy var vc3illust = UIImageView(image: UIImage(named: "vc3illust"))
+    lazy var vc4illust = UIImageView(image: UIImage(named: "vc4illust"))
+    lazy var vc5illust = UIImageView(image: UIImage(named: "vc5illust"))
+    
+    lazy var vc1indicator = UIImageView(image: UIImage(named: "vc1indicator"))
+    lazy var vc2indicator = UIImageView(image: UIImage(named: "vc2indicator"))
+    lazy var vc3indicator = UIImageView(image: UIImage(named: "vc3indicator"))
+    lazy var vc4indicator = UIImageView(image: UIImage(named: "vc4indicator"))
+    lazy var vc5indicator = UIImageView(image: UIImage(named: "vc5indicator"))
     
     // 페이지를 넘길 pageViewController
     lazy var pageViewController: UIPageViewController = {
@@ -28,41 +32,54 @@ class OnboardingViewController: UIViewController {
     // 페이지 2
     lazy var vc2: UIViewController = {
         let vc = UIViewController()
-        vc.view.backgroundColor = .lightGray
+        vc.view.backgroundColor = .white
         return vc
     }()
     
     // 페이지 3
     lazy var vc3: UIViewController = {
         let vc = UIViewController()
-        vc.view.backgroundColor = .darkGray
+        vc.view.backgroundColor = .white
         return vc
     }()
     
     // 페이지 4
     lazy var vc4: UIViewController = {
         let vc = UIViewController()
-        vc.view.backgroundColor = .black
+        vc.view.backgroundColor = .white
+        return vc
+    }()
+    
+    lazy var vc5: UIViewController = {
+        let vc = UIViewController()
+        vc.view.backgroundColor = .white
         return vc
     }()
     
     let startButton: UIButton = {
         let button = UIButton()
-        button.setTitle("시작 하기", for: .normal)
-        button.backgroundColor = .lightGray
+        button.setTitle("  시작하기  ", for: .normal)
+        button.backgroundColor = Constants.onBoardingBackgroundColor
         button.layer.cornerRadius = 10
         return button
     }()
     
     // 페이지 배열
     lazy var vcArray: [UIViewController] = {
-        return [vc1, vc2, vc3, vc4]
+        return [vc1, vc2, vc3, vc4, vc5]
     }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
+        
+        print("height")
+        print(vc1illust.frame.height)
+        print(vc2illust.frame.height)
+        print(vc3illust.frame.height)
+        print(vc4illust.frame.height)
+        print(vc5illust.frame.height)
         
         if let firstVC = vcArray.first {
             pageViewController.setViewControllers([firstVC], direction: .forward, animated: true, completion: nil)
@@ -72,9 +89,19 @@ class OnboardingViewController: UIViewController {
         startButton.addTarget(self, action: #selector(tapStartButton(_:)), for: .touchDown)
     }
     
+    
+    // 시작 버튼을 누르면 rootViewController 변경
     @IBAction func tapStartButton(_ sender: UIButton) {
+        UserDefaults.standard.set("No", forKey: "isUserFirstTime")
         let mainViewController = MainViewController()
-        present(mainViewController, animated: false, completion: nil)
+        let navigationController = UINavigationController(rootViewController: mainViewController)
+        let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate
+        guard let delegate = sceneDelegate else {
+            showUnknownErrorAlert()
+            return
+        }
+        delegate.window?.rootViewController = navigationController
+        //self.navigationController?.pushViewController(mainViewController, animated: true)
     }
 }
 
@@ -82,21 +109,68 @@ class OnboardingViewController: UIViewController {
 extension OnboardingViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     // UI 세팅
     func setUI() {
-        view.addSubview(navigationView)
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
-        vc4.view.addSubview(startButton)
+        view.backgroundColor = .white
         
-        navigationView.snp.makeConstraints { make in
-                    make.width.top.equalToSuperview()
-                    make.height.equalTo(100)
-                }
+        vc1.view.addSubview(vc1illust)
+        vc1.view.addSubview(vc1indicator)
+        vc2.view.addSubview(vc2illust)
+        vc2.view.addSubview(vc2indicator)
+        vc3.view.addSubview(vc3illust)
+        vc3.view.addSubview(vc3indicator)
+        vc4.view.addSubview(vc4illust)
+        vc4.view.addSubview(vc4indicator)
+        vc5.view.addSubview(vc5illust)
+        vc5.view.addSubview(vc5indicator)
+        
+        vc5.view.addSubview(startButton)
+
         pageViewController.view.snp.makeConstraints{ make in
-            make.top.equalTo(navigationView.snp.bottom)
-            make.bottom.left.right.equalToSuperview()
+            make.top.bottom.left.right.equalToSuperview()
         }
-        startButton.snp.makeConstraints{ make in
+        
+        vc1illust.snp.makeConstraints{ make in
             make.center.equalToSuperview()
+        }
+        vc2illust.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        vc3illust.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        vc4illust.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        vc5illust.snp.makeConstraints{ make in
+            make.center.equalToSuperview()
+        }
+        
+        vc1indicator.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        vc2indicator.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            //make.top.equalTo(vc2illust.snp.bottom).offset(20)
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        vc3indicator.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        vc4indicator.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        vc5indicator.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        
+        startButton.snp.makeConstraints{ make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(vc5illust.snp.bottom).offset(20)
         }
         pageViewController.didMove(toParent: self)
     }

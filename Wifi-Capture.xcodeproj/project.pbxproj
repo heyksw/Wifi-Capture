@@ -149,11 +149,11 @@
 				49C57DDD27B3AB15006C6A07 /* MainSettingViewController.swift */,
 				492A136F27B4E2C600AFE01A /* SubSettingViewcontroller.swift */,
 				492A137127B4F5A900AFE01A /* InfoViewController.swift */,
+				492A137327B4FB9500AFE01A /* DeveloperInfoViewController.swift */,
+				49CD1A5127B6480300299237 /* HelpInfoViewController.swift */,
 				4936473727871DF8003D52EE /* Assets.xcassets */,
 				4936473C27871DF8003D52EE /* Info.plist */,
 				4936473927871DF8003D52EE /* LaunchScreen.storyboard */,
-				492A137327B4FB9500AFE01A /* DeveloperInfoViewController.swift */,
-				49CD1A5127B6480300299237 /* HelpInfoViewController.swift */,
 			);
 			path = "Wifi-Capture";
 			sourceTree = "<group>";
@@ -576,6 +576,7 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
@@ -609,6 +610,7 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";

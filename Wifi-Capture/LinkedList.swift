@@ -1,5 +1,6 @@
 import Foundation
 
+// RecognizeViewController 의 topTextView 에 작성할 텍스트를 위한 Linked List
 class Node {
     var elementBoxInfo: ElementBoxInfo
     var next: Node?

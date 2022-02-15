@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+// 알림 모음
 extension UIViewController {
 
     // 알 수 없는 에러 처리

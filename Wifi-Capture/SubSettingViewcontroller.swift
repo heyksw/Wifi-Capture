@@ -1,6 +1,9 @@
 import UIKit
 import Foundation
+import GoogleMobileAds
 
+
+// RecognizeViewController 에서 설정을 눌렀을 때의 페이지
 class SubSettingViewController: UIViewController {
     var selectbox_colorType_index: Int = UserDefaults.standard.integer(forKey: "selectBox_colorType_index")
     var unselectbox_colorType_index: Int = UserDefaults.standard.integer(forKey: "unselectBox_colorType_index")
@@ -71,6 +74,8 @@ class SubSettingViewController: UIViewController {
         return button
     }()
     
+    let adSize = GADAdSizeFromCGSize(CGSize(width: 320, height: 50))
+    lazy var bannerView = GADBannerView(adSize: adSize)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,6 +83,11 @@ class SubSettingViewController: UIViewController {
         setUserDefaults()
         colorTypeButton1.addTarget(self, action: #selector(tapColorTypeButton1(_:)), for: .touchDown)
         colorTypeButton2.addTarget(self, action: #selector(tapColorTypeButton2(_:)), for: .touchDown)
+        
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.rootViewController = self
+        bannerView.load(GADRequest())
+        bannerView.delegate = self
     }
     
     
@@ -187,3 +197,21 @@ class SubSettingViewController: UIViewController {
     }
 }
 
+extension SubSettingViewController: GADBannerViewDelegate {
+    func addBannerViewToView(_ bannerView: GADBannerView, parentView: UIView) {
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        parentView.addSubview(bannerView)
+        
+        bannerView.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(4)
+            make.centerX.equalToSuperview()
+            //make.width.equalToSuperview()
+        }
+    }
+    
+    // 광고가 수신되었을 때
+    func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
+        print("bannerViewDidReceivedAd")
+        addBannerViewToView(self.bannerView, parentView: self.mainSuperView)
+    }
+}

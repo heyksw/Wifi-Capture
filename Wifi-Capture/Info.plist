@@ -6,8 +6,6 @@
 	<string>ca-app-pub-5182976255138770~1989515737</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
-		<key>User Interface Style</key>
-		<string>Dark</string>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>
@@ -22,6 +20,8 @@
 				</dict>
 			</array>
 		</dict>
+		<key>User Interface Style</key>
+		<string>Dark</string>
 	</dict>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
