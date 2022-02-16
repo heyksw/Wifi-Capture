@@ -31,15 +31,12 @@ class HelpInfoViewController: UIViewController {
         view.backgroundColor = .darkGray
         view.alignment = .fill
         view.distribution = .equalSpacing
-        //view.layer.cornerRadius = 10
         return view
     }()
     
     let view1: UIView = {
         let view = UIView()
-        //view.backgroundColor = Constants.deepDarkGrayColor
         view.backgroundColor = Constants.deepDarkGrayColor
-        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -70,9 +67,7 @@ class HelpInfoViewController: UIViewController {
     
     let view2: UIView = {
         let view = UIView()
-        //view.backgroundColor = Constants.deepDarkGrayColor
         view.backgroundColor = Constants.deepDarkGrayColor
-        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -101,8 +96,6 @@ class HelpInfoViewController: UIViewController {
     
     let view3: UIView = {
         let view = UIView()
-        //view.backgroundColor = Constants.deepDarkGrayColor
-        //view.layer.cornerRadius = 10
         view.backgroundColor = Constants.deepDarkGrayColor
         return view
     }()
@@ -130,7 +123,6 @@ class HelpInfoViewController: UIViewController {
     let view4: UIView = {
         let view = UIView()
         view.backgroundColor = Constants.deepDarkGrayColor
-        //view.layer.cornerRadius = 10
         return view
     }()
     
@@ -196,10 +188,6 @@ class HelpInfoViewController: UIViewController {
         scrollView.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.snp.makeConstraints{ make in
-//            make.top.equalToSuperview().offset(50)
-//            make.left.equalToSuperview().offset(20)
-//            make.right.equalToSuperview().offset(-20)
-//            make.height.equalTo(600)    // 100 * 4 + 4 * 3
             make.top.bottom.left.right.equalToSuperview()
             make.width.equalToSuperview()
             make.height.equalTo(978) // 240 * 4 + 6 * 3

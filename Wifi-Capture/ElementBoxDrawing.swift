@@ -40,7 +40,6 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
                                        height: scaledElementHeight)
         
         return scaledElementFrameBox
-//        drawElementFrameBox(scaledElementFrameBox, layer)
     }
     
     
@@ -54,7 +53,6 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
         self.layer = newFrameBoxSublayer
         
         layer.addSublayer(newFrameBoxSublayer)
-        //return newFrameBoxSublayer
     }
     
     
@@ -102,7 +100,6 @@ enum Constants {
     static let yellowLineColor = UIColor(red: 1, green: 0.9804, blue: 0, alpha: 0.4).cgColor
     static let yellowFillColor = UIColor(red: 1, green: 0.9882, blue: 0.6784, alpha: 0.3).cgColor
 
-    // 연두로 선택하기로 했음 선택지 1
     static let greenLineColor = UIColor(red: 0, green: 1, blue: 0.4471, alpha: 0.45).cgColor
     static let greenFillColor = UIColor(red: 0, green: 1, blue: 0.4471, alpha: 0.3).cgColor
     
@@ -114,10 +111,7 @@ enum Constants {
     
     static let yellowLineColor2 = UIColor(red: 255/255, green: 251/255, blue: 53/255, alpha: 0.6).cgColor
     static let yellowFillColor2 = UIColor(red: 255/255, green: 251/255, blue: 53/255, alpha: 0.4).cgColor
-//    static let lineColor = UIColor(red: 0.3647, green: 0.9569, blue: 0.3922, alpha: 0.45).cgColor
-//    static let fillColor = UIColor(red: 0.3647, green: 0.9569, blue: 0.3922, alpha: 0.3).cgColor
     
-//    // 보라
     static let purpleLineColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.45).cgColor
     static let purpleFillColor = UIColor(red: 1, green: 0, blue: 0.9647, alpha: 0.35).cgColor
 }
@@ -127,6 +121,7 @@ struct ColorType {
     let lineColor: CGColor
     let fillColor: CGColor
 }
+
 
 enum ColorTypes {
     static let green = ColorType(lineColor: Constants.greenLineColor, fillColor: Constants.greenFillColor)

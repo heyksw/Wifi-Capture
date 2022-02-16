@@ -4,6 +4,7 @@ import MLKitVision
 import QuartzCore
 
 
+// MARK: - TextRecognizing
 class TextRecognizing {
     let textRecognizer: TextRecognizer
     let koreanOptions = KoreanTextRecognizerOptions()
@@ -26,7 +27,6 @@ class TextRecognizing {
     }
     
     
-    // mlkit doc: https://developers.google.com/ml-kit/vision/text-recognition/v2/ios
     // 문자 인식. process의 completion Handler 안에 escaping closure 코드 적용
     func recognizeText(uiImage: UIImage, completion: @escaping (Text?) -> Void) {
         let fixedImage = fixOrientation(img: uiImage)
@@ -36,16 +36,14 @@ class TextRecognizing {
             resultText = try textRecognizer.results(in: vImage)
             completion(resultText)
         } catch {
-            print("문자 인식 과정에서 에러가 났습니다.")
             return completion(nil)
         }
     }
 }
 
 
-// about phone number
+// MARK: - about get phone number
 extension TextRecognizing {
-
     func isConsideredAsNumber(_ x: Character) -> Bool {
         if consideredAsNumber.contains(x) || x.isNumber {
             return true
@@ -95,7 +93,7 @@ extension TextRecognizing {
     // 결과적으로 전화번호를 리턴하는 함수.
     func getPhoneNumber(_ result: Text?) -> String? {
         guard let elements = textToStringArray(result) else { return nil }
-        print("======== getPhoneNumber 호출 ========")
+
         var answer: String = ""
         for elem in elements {
             if elemIsNumber(elem) {

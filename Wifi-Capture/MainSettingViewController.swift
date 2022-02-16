@@ -137,7 +137,6 @@ class MainSettingViewController: UIViewController {
     
     let switch4: UISwitch = {
         let swtch = UISwitch()
-        //swtch.addTarget(self, action: #selector(tapSwitch1), for: .valueChanged)
         return swtch
     }()
     
@@ -157,10 +156,6 @@ class MainSettingViewController: UIViewController {
         setUserDefaults()
         colorTypeButton.addTarget(self, action: #selector(tapColorTypeButton(_:)), for: .touchDown)
         
-        // 광고 코드
-        //addBannerViewToView(bannerView, parentView: mainSuperView)
-        
-        // 밥먹고 와서 : 공식문서에서 "GADBannerView 속성 구성" 부터 하면됨.
         // 테스트 광고 단위 ID. 앱을 등록한뒤엔 변경을 해야 함. 구글 애드몹 홈페이지에서 '스토어 추가'
         bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
         bannerView.rootViewController = self
@@ -199,7 +194,6 @@ class MainSettingViewController: UIViewController {
             safetyArea.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
             safetyArea.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
-        
         
         safetyArea.addSubview(mainSuperView)
         
@@ -353,13 +347,11 @@ extension MainSettingViewController: GADBannerViewDelegate {
         bannerView.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(4)
             make.centerX.equalToSuperview()
-            //make.width.equalToSuperview()
         }
     }
     
     // 광고가 수신되었을 때
     func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-        print("bannerViewDidReceivedAd")
         addBannerViewToView(self.bannerView, parentView: self.mainSuperView)
     }
 }

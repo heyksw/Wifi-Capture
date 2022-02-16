@@ -3,7 +3,6 @@ import UIKit
 
 // 알림 모음
 extension UIViewController {
-
     // 알 수 없는 에러 처리
     func showUnknownErrorAlert() {
         let alert = UIAlertController(title:"죄송합니다", message: "알 수 없는 에러가 발생했어요.", preferredStyle: .alert)

@@ -11,16 +11,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // custom function
         setRootViewController(windowScene)
-        
-        
-//        window = UIWindow(windowScene: windowScene)
-//
-//        let mainViewController = MainViewController()
-//        let navigationController = UINavigationController(rootViewController: mainViewController)
-//
-//        window?.backgroundColor = .black
-//        window?.rootViewController = navigationController
-//        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

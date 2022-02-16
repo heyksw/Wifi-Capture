@@ -197,7 +197,6 @@ extension InfoViewController: GADBannerViewDelegate {
         bannerView.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(4)
             make.centerX.equalToSuperview()
-            //make.width.equalToSuperview()
         }
     }
     

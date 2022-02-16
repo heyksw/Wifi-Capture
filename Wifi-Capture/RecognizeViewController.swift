@@ -18,7 +18,7 @@ struct ExtractedResult {
 }
 
 
-// 사진 인식 페이지
+// MARK: - RecognizeViewController
 class RecognizeViewController: UIViewController {
     var areButtonsFloated = false
     var areButtonsMoving = false
@@ -35,10 +35,10 @@ class RecognizeViewController: UIViewController {
     let thereIsNoText = "사진에서 아무 글자도 인식하지 못했어요."
     let clickTheBoxes = "텍스트 박스를 클릭해보세요!"
     
-    let shareImage = UIImage(named: "shareImage3")
-    let copyImage = UIImage(named: "copyImage2")
-    let callImage = UIImage(named: "callImage3")
-    let crossImage = UIImage(named: "crossImage2")
+    let shareImage = UIImage(named: "shareImage")
+    let copyImage = UIImage(named: "copyImage")
+    let callImage = UIImage(named: "callImage")
+    let crossImage = UIImage(named: "crossImage")
     let selectAllImage = UIImage(named: "selectAllImage")
     let unselectAllImage = UIImage(named: "unselectAllImage")
     let galleryImage = UIImage(named: "galleryImage")
@@ -131,8 +131,6 @@ class RecognizeViewController: UIViewController {
     lazy var selectAllButton: UIButton = {
         let button = UIButton()
         button.setImage(selectAllImage, for: .normal)
-        //button.backgroundColor = UIColor(white: 1, alpha: 0)
-        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
@@ -142,20 +140,15 @@ class RecognizeViewController: UIViewController {
     
     lazy var copyButton: UIButton = {
         let button = UIButton()
-        //button.setTitle("복사 버튼", for: .normal)
         button.setImage(copyImage, for: .normal)
-//        button.backgroundColor = UIColor(white: 1, alpha: 0)
-        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
     
     lazy var shareButton: UIButton = {
         let button = UIButton()
-        //button.setTitle("공유 버튼", for: .normal)
         button.setImage(shareImage, for: .normal)
         button.backgroundColor = UIColor(white: 1, alpha: 0)
-        //button.layer.cornerRadius = 10
         button.alpha = 0
         return button
     }()
@@ -182,7 +175,6 @@ class RecognizeViewController: UIViewController {
         return view
     }()
 
-    
     lazy var bottomLeftView: UIView = {
         let view = UIView()
         view.backgroundColor = blueBlackBackgroundColor
@@ -286,8 +278,9 @@ class RecognizeViewController: UIViewController {
 }
 
 
-extension RecognizeViewController: UIScrollViewDelegate {
-    
+
+// MARK: - UI setting
+extension RecognizeViewController {
     func setNavigationBar() {
         self.navigationController?.navigationBar.tintColor = .white
         self.navigationController?.navigationBar.barTintColor = blueBlackBackgroundColor
@@ -299,25 +292,6 @@ extension RecognizeViewController: UIScrollViewDelegate {
             target: self,
             action: #selector(tapSettingButton))
         navigationItem.rightBarButtonItem = settingButton
-    }
-    
-    
-    func hideNavigationBar() {
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
-        
-    }
-
-    
-    func showNavigationBar() {
-        self.navigationController?.navigationBar.barStyle = .black
-        self.navigationController?.setNavigationBarHidden(false, animated: false)
-        
-    }
-    
-    
-    // imageSuperScrollView zoom
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.imageView
     }
     
     
@@ -346,7 +320,6 @@ extension RecognizeViewController: UIScrollViewDelegate {
         
         // topSuperView
         topSuperView.addSubview(topTextView)
-        //topTextView.text = "텍스트 박스를 클릭해보세요."
         
         // imageSuperScrollView
         imageSuperScrollView.addSubview(imageView)
@@ -483,8 +456,36 @@ extension RecognizeViewController: UIScrollViewDelegate {
         
         super.updateViewConstraints()
     }
+    
+    
+    func hideNavigationBar() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        
+    }
 
     
+    func showNavigationBar() {
+        self.navigationController?.navigationBar.barStyle = .black
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
+        
+    }
+}
+
+
+
+// MARK: - UIScrollViewDelegate
+extension RecognizeViewController: UIScrollViewDelegate {
+
+    // imageSuperScrollView zoom
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.imageView
+    }
+}
+
+
+
+// MARK: - about recognize text
+extension RecognizeViewController {
     // 넘겨받은 이미지 문자 인식하고, element frame box 그리는 함수
     func recognizeReceivedImage() {
         textRecognizeDispatchQueue.async {
@@ -537,16 +538,15 @@ extension RecognizeViewController: UIScrollViewDelegate {
             }
         }
     }
-    
 }
 
 
-// about button actions
+
+// MARK: - about button tap @IBAction
 extension RecognizeViewController {
     // 키보드가 올라올 때 footer view 도 같이 올라가도록
     @objc
     func keyboardWillShow(_ sender: Notification) {
-        
         // share 에서 message 를 클릭했을 때 발견한 버그를 방지하는 코드
         if bottomSuperView.frame.origin.y != safetyArea.frame.height - 100 {
             bottomSuperView.frame.origin.y = safetyArea.frame.height - 100
@@ -614,25 +614,16 @@ extension RecognizeViewController {
                 guard let tappedElementBox = getWhichElementBoxTapped(imageViewLocation) else { return }
                 if !tappedElementBox.tapped {
                     selectElementBox(tappedElementBox)
-//                    elementBoxDrawing.changeBoxColorToYellow(tappedElementBox.layer)
-//                    tappedElementBox.tapped = true
-//                    textLinkedList.append(elementBoxInfo: tappedElementBox)
-//                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
-//                    self.topTextView.textColor = .black
                 }
                 else {
                     unselectElementBox(tappedElementBox)
-//                    elementBoxDrawing.changeBoxColorToGreen(tappedElementBox.layer)
-//                    tappedElementBox.tapped = false
-//                    textLinkedList.remove(elementBoxInfo: tappedElementBox)
-//                    self.topTextView.text = textLinkedList.getTextWithLinkedList()
                 }
             }
         }
     }
     
     
-    // 탭한 위치에 어떤 element box 가 있는지
+    // 탭한 위치에 어떤 element box 가 있었는지
     func getWhichElementBoxTapped(_ tappedLocation: CGPoint) -> ElementBoxInfo? {
         var resultBox: ElementBoxInfo?
         for box in elementBoxInfoArray {
@@ -786,6 +777,7 @@ extension RecognizeViewController {
         self.dimView.isHidden = true
     }
 
+    
     // 전화 버튼
     @IBAction func tapCallButton(_ sender: UIButton) {
         guard let resultText = self.recognizedResultText else {
@@ -801,81 +793,8 @@ extension RecognizeViewController {
         else { showThereIsNoPhoneNumberAlert() }
     }
     
-}
-
-
-// about imagePickerController
-extension RecognizeViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    // 갤러리 버튼
-    @IBAction func tapGalleryButton(_ sender: UIButton) {
-//        let imagePicker = UIImagePickerController()
-//        imagePicker.modalPresentationStyle = .fullScreen
-//
-//        guard UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary) else {
-//            showUnknownErrorAlert()
-//            return
-//        }
-//
-//        imagePicker.delegate = self
-//        imagePicker.sourceType = .savedPhotosAlbum
-//
-//
-//        present(imagePicker, animated: true, completion: nil)
-        self.picker.modalPresentationStyle = .fullScreen
-        present(picker, animated: true, completion: nil)
-        
-    }
-    
-    
-    // 앨범에서 사진을 선택한 뒤 실행되는 delegate 메서드
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            self.receivedImage = image
-            dismiss(animated: false, completion: nil)
-        }
-        else { showUnknownErrorAlert() }
-    }
-    
-    
-    // 갤러리 픽을 취소했을때
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
-}
-
-
-// about textview placeholder
-extension RecognizeViewController: UITextViewDelegate {
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor.lightGray {
-            textView.text = nil
-            textView.textColor = UIColor.white
-        }
-    }
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            guard let resultText = self.recognizedResultText else {
-                showUnknownErrorAlert()
-                return
-            }
-            if resultText.text == "" {
-                textView.text = thereIsNoText
-            }
-            else {
-                textView.text = clickTheBoxes
-            }
-            textView.textColor = UIColor.lightGray
-        }
-    }
-}
-
-
-// about floating buttons
-extension RecognizeViewController {
-    
-    // 플로팅 버튼 눌렀을 때 통 튀게 하는 메서드
+    // 플로팅 버튼 눌렀을 때 위로 통 튀게 하는 메서드
     func bounceButton(_ button: UIButton) {
         UIView.animate(withDuration: 0.2) {
             button.transform = CGAffineTransform(translationX: 0, y: +15)
@@ -956,10 +875,47 @@ extension RecognizeViewController {
         self.navigationController?.pushViewController(subSettingViewController, animated: true)
     }
     
+    
+    // 갤러리 버튼
+    @IBAction func tapGalleryButton(_ sender: UIButton) {
+        self.picker.modalPresentationStyle = .fullScreen
+        present(picker, animated: true, completion: nil)
+        
+    }
 }
 
+
+
+// MARK: - about topTextView placeholder
+extension RecognizeViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
+            textView.text = nil
+            textView.textColor = UIColor.white
+        }
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            guard let resultText = self.recognizedResultText else {
+                showUnknownErrorAlert()
+                return
+            }
+            if resultText.text == "" {
+                textView.text = thereIsNoText
+            }
+            else {
+                textView.text = clickTheBoxes
+            }
+            textView.textColor = UIColor.lightGray
+        }
+    }
+}
+
+
+
+// MARK: - PHPickerViewControllerDelegate
 extension RecognizeViewController: PHPickerViewControllerDelegate {
-    
     func setPHPicker() {
         self.phPickerConfiguration.selectionLimit = 1
         self.phPickerConfiguration.filter = .images
@@ -985,7 +941,5 @@ extension RecognizeViewController: PHPickerViewControllerDelegate {
             picker.dismiss(animated: true, completion: nil)
         }
     }
-    
 }
-
 
