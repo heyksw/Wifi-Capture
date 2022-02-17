@@ -5,6 +5,7 @@ import GoogleMobileAds
 
 // 메인에서 설정을 눌렀을 때의 페이지
 class MainSettingViewController: UIViewController {
+    
     var colorTypeArray_Index: Int = UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")
     lazy var boxColorType: ColorType? = nil
     

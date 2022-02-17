@@ -18,6 +18,8 @@ enum AppMode {
 
 // MARK: - MainViewController
 class MainViewController: UIViewController {
+    var isCalledSetNavigationBar = false
+    
     // about class instance
     let elementBoxDrawing = ElementBoxDrawing()
     let textRecognize = TextRecognizing()
@@ -286,8 +288,10 @@ class MainViewController: UIViewController {
 
 // MARK: - UI setting
 extension MainViewController {
+    
     // 네비게이션 바 세팅
     func setNavigationBar() {
+        isCalledSetNavigationBar = true
         self.navigationController?.navigationBar.barStyle = .black
         if currentAppMode == .callingMode {
             self.navigationController?.navigationBar.topItem?.titleView = callingModeImageView
@@ -312,6 +316,7 @@ extension MainViewController {
         navigationItem.rightBarButtonItem = settingButton
         navigationItem.leftBarButtonItem = informationButton
     }
+    
     
     // UI 배치, StackView 배치
     func setUI() {
@@ -544,24 +549,6 @@ extension MainViewController: AVCapturePhotoCaptureDelegate {
         }
     }
 
-
-    // 문자 인식 박스 그리기
-    func drawAllElement(result: Text?, imageSize: CGSize) {
-        guard let result = result else {
-            showUnknownErrorAlert()
-            return
-        }
- 
-        for block in result.blocks {
-            for line in block.lines {
-                for element in line.elements {
-                    let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame)
-                    let colorType = Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")]
-                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, framePreviewSubLayer, colorType)
-                }
-            }
-        }
-    }
 }
 
 
@@ -590,6 +577,25 @@ extension MainViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         else {
             self.mainDispatchQueue.async {
                 self.elementBoxDrawing.removeFrames(layer: self.framePreviewSubLayer)
+            }
+        }
+    }
+    
+    
+    // 문자 인식 박스 그리기
+    func drawAllElement(result: Text?, imageSize: CGSize) {
+        guard let result = result else {
+            showUnknownErrorAlert()
+            return
+        }
+ 
+        for block in result.blocks {
+            for line in block.lines {
+                for element in line.elements {
+                    let scaledElementBoxSize = elementBoxDrawing.scaleElementBoxSize(elementFrame: element.frame, imageSize: imageSize, viewFrame: cameraView.frame)
+                    let colorType = Constants.colorTypeArray[UserDefaults.standard.integer(forKey: "camera_recognizeBox_colorType_index")]
+                    elementBoxDrawing.drawElementBox(scaledElementBoxSize, framePreviewSubLayer, colorType)
+                }
             }
         }
     }

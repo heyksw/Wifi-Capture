@@ -141,6 +141,8 @@ class HelpInfoViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 14)
         label.text = """
         피드백이나 문의사항은 아래 메일로 연락 부탁드립니다.
+        어떤 피드백이든 적극 경청하겠습니다.
+        
         heyksw0208@gmail.com (김상우)
         """
         return label

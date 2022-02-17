@@ -1,6 +1,6 @@
 import UIKit
 
-// 사진에서 인식한 텍스트 박스 그리기
+// 사진에서 인식한 텍스트 박스 시각화
 class ElementBoxDrawing: NSObject, CALayerDelegate {
     lazy var layer = CALayer()
 
@@ -83,7 +83,6 @@ class ElementBoxDrawing: NSObject, CALayerDelegate {
     }
     
 }
-
 
 
 enum Constants {

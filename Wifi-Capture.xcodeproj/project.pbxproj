@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		49072BF427A955320032FDCE /* AlertCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49072BF327A955320032FDCE /* AlertCollection.swift */; };
+		4927030827BE401E00CE987B /* LinkedListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4927030727BE401E00CE987B /* LinkedListTests.swift */; };
+		4927030A27BE467000CE987B /* MainViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4927030927BE467000CE987B /* MainViewControllerTests.swift */; };
+		4927030C27BE6C5900CE987B /* RecognizeViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4927030B27BE6C5900CE987B /* RecognizeViewControllerTests.swift */; };
 		492A137027B4E2C600AFE01A /* SubSettingViewcontroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492A136F27B4E2C600AFE01A /* SubSettingViewcontroller.swift */; };
 		492A137227B4F5A900AFE01A /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492A137127B4F5A900AFE01A /* InfoViewController.swift */; };
 		492A137427B4FB9500AFE01A /* DeveloperInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492A137327B4FB9500AFE01A /* DeveloperInfoViewController.swift */; };
@@ -15,13 +18,13 @@
 		4936473127871DF7003D52EE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936473027871DF7003D52EE /* SceneDelegate.swift */; };
 		4936473827871DF8003D52EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4936473727871DF8003D52EE /* Assets.xcassets */; };
 		4936473B27871DF8003D52EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4936473927871DF8003D52EE /* LaunchScreen.storyboard */; };
-		4936474627871DF8003D52EE /* Wifi_CaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */; };
 		4936475027871DF8003D52EE /* Wifi_CaptureUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936474F27871DF8003D52EE /* Wifi_CaptureUITests.swift */; };
 		4936475227871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */; };
 		4936475F27873D4D003D52EE /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936475E27873D4D003D52EE /* MainViewController.swift */; };
 		4939F9FA27AE6B5200EAC3E6 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4939F9F927AE6B5200EAC3E6 /* OnboardingViewController.swift */; };
 		4939F9FC27AE741B00EAC3E6 /* UserInfoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4939F9FB27AE741B00EAC3E6 /* UserInfoStorage.swift */; };
 		495F277E2799958D008427C2 /* ElementBoxDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495F277D2799958D008427C2 /* ElementBoxDrawing.swift */; };
+		4968BEDE27BE12F100F2BF81 /* TextRecognizingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4936474527871DF8003D52EE /* TextRecognizingTests.swift */; };
 		4986C24927AAA9A900D14147 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4986C24827AAA9A900D14147 /* LinkedList.swift */; };
 		49C57DDE27B3AB15006C6A07 /* MainSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C57DDD27B3AB15006C6A07 /* MainSettingViewController.swift */; };
 		49CD1A5227B6480300299237 /* HelpInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49CD1A5127B6480300299237 /* HelpInfoViewController.swift */; };
@@ -53,6 +56,9 @@
 		1E2F4179E44DBFDEBB079EBC /* Pods-Wifi-Capture.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wifi-Capture.debug.xcconfig"; path = "Target Support Files/Pods-Wifi-Capture/Pods-Wifi-Capture.debug.xcconfig"; sourceTree = "<group>"; };
 		22D3A67D55B46AB4CBA44D8C /* Pods-Wifi-Capture.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wifi-Capture.release.xcconfig"; path = "Target Support Files/Pods-Wifi-Capture/Pods-Wifi-Capture.release.xcconfig"; sourceTree = "<group>"; };
 		49072BF327A955320032FDCE /* AlertCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCollection.swift; sourceTree = "<group>"; };
+		4927030727BE401E00CE987B /* LinkedListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedListTests.swift; sourceTree = "<group>"; };
+		4927030927BE467000CE987B /* MainViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewControllerTests.swift; sourceTree = "<group>"; };
+		4927030B27BE6C5900CE987B /* RecognizeViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeViewControllerTests.swift; sourceTree = "<group>"; };
 		492A136F27B4E2C600AFE01A /* SubSettingViewcontroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubSettingViewcontroller.swift; sourceTree = "<group>"; };
 		492A137127B4F5A900AFE01A /* InfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 		492A137327B4FB9500AFE01A /* DeveloperInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperInfoViewController.swift; sourceTree = "<group>"; };
@@ -63,7 +69,7 @@
 		4936473A27871DF8003D52EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4936473C27871DF8003D52EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4936474127871DF8003D52EE /* Wifi-CaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wifi-CaptureTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureTests.swift; sourceTree = "<group>"; };
+		4936474527871DF8003D52EE /* TextRecognizingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognizingTests.swift; sourceTree = "<group>"; };
 		4936474B27871DF8003D52EE /* Wifi-CaptureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wifi-CaptureUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4936474F27871DF8003D52EE /* Wifi_CaptureUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITests.swift; sourceTree = "<group>"; };
 		4936475127871DF8003D52EE /* Wifi_CaptureUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wifi_CaptureUITestsLaunchTests.swift; sourceTree = "<group>"; };
@@ -161,7 +167,10 @@
 		4936474427871DF8003D52EE /* Wifi-CaptureTests */ = {
 			isa = PBXGroup;
 			children = (
-				4936474527871DF8003D52EE /* Wifi_CaptureTests.swift */,
+				4936474527871DF8003D52EE /* TextRecognizingTests.swift */,
+				4927030727BE401E00CE987B /* LinkedListTests.swift */,
+				4927030927BE467000CE987B /* MainViewControllerTests.swift */,
+				4927030B27BE6C5900CE987B /* RecognizeViewControllerTests.swift */,
 			);
 			path = "Wifi-CaptureTests";
 			sourceTree = "<group>";
@@ -408,7 +417,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4936474627871DF8003D52EE /* Wifi_CaptureTests.swift in Sources */,
+				4927030827BE401E00CE987B /* LinkedListTests.swift in Sources */,
+				4927030C27BE6C5900CE987B /* RecognizeViewControllerTests.swift in Sources */,
+				4968BEDE27BE12F100F2BF81 /* TextRecognizingTests.swift in Sources */,
+				4927030A27BE467000CE987B /* MainViewControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -576,7 +588,7 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
+				INFOPLIST_KEY_CFBundleDisplayName = ZZik_Call;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
@@ -610,7 +622,7 @@
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
+				INFOPLIST_KEY_CFBundleDisplayName = ZZik_Call;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
