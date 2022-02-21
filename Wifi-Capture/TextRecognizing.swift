@@ -103,11 +103,12 @@ extension TextRecognizing {
                 answer = ""
             }
             
-            if 10 <= answer.count && answer.count <= 11 {
+            // 0000-0000 ~ 000-0000-0000
+            if 8 <= answer.count && answer.count <= 11 {
                 break
             }
         }
-        if answer.count < 10 || answer.count > 11 {
+        if answer.count < 8 || answer.count > 11 {
             return nil
         }
         return answer

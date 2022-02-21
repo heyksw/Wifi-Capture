@@ -17,34 +17,49 @@ class Wifi_CaptureUITests: XCTestCase {
     // UserDefaults 설정에 맞춰서 초기 box On Off 버튼 세팅 설정
     func test_boxOnOff() {
         let defaults = UserDefaults.standard
-
-        // "BoxOn 으로 앱 시작"으로 설정 돼있으면
+        
+        // 1. given = "BoxOn 으로 앱 시작"으로 설정 돼있으면
         if defaults.bool(forKey: "startWithBoxON") {
-            let elementsQuery = app.scrollViews.otherElements
-            // 1. given
-            let boxOnImageButton = elementsQuery.buttons["boxOnImage"]
-            boxOnImageButton.tap()
-
             // 2. when
-            let existBoxOffImageButton = elementsQuery.buttons["boxOffImage"]
-                .exists
-
-            // 3. then
-            XCTAssertTrue(existBoxOffImageButton)
+            let existBoxOnOffButton = app.buttons["boxOnOffButton"].exists
+            XCTAssertTrue(existBoxOnOffButton)
+            
+            let boxOnImage1 = app.buttons["boxOnImage"].exists
+            let boxOffImage1 = app.buttons["boxOffImage"].exists
+            
+            XCTAssertTrue(boxOnImage1)
+            XCTAssertFalse(boxOffImage1)
+            
+            let boxOnOffButton = app.buttons["boxOnOffButton"]
+            boxOnOffButton.tap()
+            
+            let boxOnImage2 = app.buttons["boxOnImage"].exists
+            let boxOffImage2 = app.buttons["boxOffImage"].exists
+            
+            XCTAssertFalse(boxOnImage2)
+            XCTAssertTrue(boxOffImage2)
         }
-        // "BoxOff 로 앱 시작"으로 설정 돼있으면
+        // 1. given = "BoxOff 로 앱 시작"으로 설정 돼있으면
         else {
-            let elementsQuery = app.scrollViews.otherElements
-            // 1. given
-            let boxOffImageButton = elementsQuery.buttons["boxOffImage"]
-            boxOffImageButton.tap()
-
             // 2. when
-            let existBoxOnImageButton = elementsQuery.buttons["boxOnImage"]
-                .exists
+            let existBoxOnOffButton = app.buttons["boxOnOffButton"].exists
+            XCTAssertTrue(existBoxOnOffButton)
+            
+            let boxOnImage1 = app.buttons["boxOnImage"].exists
+            let boxOffImage1 = app.buttons["boxOffImage"].exists
+            
+            XCTAssertFalse(boxOnImage1)
+            XCTAssertTrue(boxOffImage1)
+            
+            let boxOnOffButton = app.buttons["boxOnOffButton"]
+            boxOnOffButton.tap()
+            
+            let boxOnImage2 = app.buttons["boxOnImage"].exists
+            let boxOffImage2 = app.buttons["boxOffImage"].exists
+            
+            XCTAssertTrue(boxOnImage2)
+            XCTAssertFalse(boxOffImage2)
 
-            // 3. then
-            XCTAssertTrue(existBoxOnImageButton)
         }
 
     }

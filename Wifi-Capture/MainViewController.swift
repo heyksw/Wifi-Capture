@@ -40,7 +40,7 @@ class MainViewController: UIViewController {
     let boxOffImage = UIImage(named: "boxOffImage")
     lazy var callingModeImageView = UIImageView(image: callingModeImage)
     lazy var normalModeImageView = UIImageView(image: normalModeImage)
-
+    
     // about avfoundation camera
     var captureDevice: AVCaptureDevice?
     var captureSession: AVCaptureSession?
@@ -98,8 +98,9 @@ class MainViewController: UIViewController {
 
     lazy var boxOnOffButton: UIButton = {
        let button = UIButton()
-        button.setImage(boxOffImage, for: .normal)
+        //button.setImage(boxOffImage, for: .normal)
         button.alpha = 0.9
+        button.accessibilityIdentifier = "boxOnOffButton"
         return button
     }()
 
