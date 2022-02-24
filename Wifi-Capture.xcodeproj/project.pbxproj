@@ -584,11 +584,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Wifi-Capture/Wifi-Capture.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = ZZik_Call;
+				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
@@ -606,7 +606,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -618,11 +618,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Wifi-Capture/Wifi-Capture.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = GR2P6HT7LF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Wifi-Capture/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = ZZik_Call;
+				INFOPLIST_KEY_CFBundleDisplayName = "찍콜";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To take pictures and recognize text in the pictures";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Gather location updates to get SSID";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Gather location updates to get SSID";
@@ -640,7 +640,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

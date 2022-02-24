@@ -158,7 +158,7 @@ class MainSettingViewController: UIViewController {
         colorTypeButton.addTarget(self, action: #selector(tapColorTypeButton(_:)), for: .touchDown)
         
         // 테스트 광고 단위 ID. 앱을 등록한뒤엔 변경을 해야 함. 구글 애드몹 홈페이지에서 '스토어 추가'
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.adUnitID = "ca-app-pub-5182976255138770/5334041980"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         bannerView.delegate = self

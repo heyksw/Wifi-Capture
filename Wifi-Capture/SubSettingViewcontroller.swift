@@ -84,7 +84,7 @@ class SubSettingViewController: UIViewController {
         colorTypeButton1.addTarget(self, action: #selector(tapColorTypeButton1(_:)), for: .touchDown)
         colorTypeButton2.addTarget(self, action: #selector(tapColorTypeButton2(_:)), for: .touchDown)
         
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.adUnitID = "ca-app-pub-5182976255138770/5334041980"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         bannerView.delegate = self
