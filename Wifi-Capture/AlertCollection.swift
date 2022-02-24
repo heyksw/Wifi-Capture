@@ -43,12 +43,7 @@ extension UIViewController {
         let okButton = UIAlertAction(title: "확인", style: .default) { (action) in
             self.dismiss(animated: true, completion: nil)
         }
-        let detailButton = UIAlertAction(title: "자세히", style: .default) { (action) in
-            self.dismiss(animated: false, completion: nil)
-            self.showDetailInstructions()
-        }
         alert.addAction(okButton)
-        alert.addAction(detailButton)
         self.present(alert, animated: true, completion: nil)
     }
     

@@ -69,17 +69,14 @@ class OnboardingViewController: UIViewController {
         return [vc1, vc2, vc3, vc4, vc5]
     }()
     
-    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
         setUI()
-        
-        print("height")
-        print(vc1illust.frame.height)
-        print(vc2illust.frame.height)
-        print(vc3illust.frame.height)
-        print(vc4illust.frame.height)
-        print(vc5illust.frame.height)
         
         if let firstVC = vcArray.first {
             pageViewController.setViewControllers([firstVC], direction: .forward, animated: true, completion: nil)
