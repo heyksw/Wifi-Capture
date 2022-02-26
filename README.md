@@ -12,7 +12,9 @@
   1. AVFoundation - 라이브 카메라에 문자 감지 박스 시각화   
   2. Google MLkit - 문자 인식   
   3. Snapkit - 코드기반 AutoLayout 구성   
-  4. Google AdMob - 배너 광고   
+  4. Google AdMob - 배너 광고  
+ 
+***
 
 ## 앱 기능 및 UI   
 ### 1. 온보딩 화면   
@@ -34,16 +36,25 @@
 - 기본모드 : 촬영 후 바로 전화를 연결하지 않습니다. 인식화면으로 이동합니다.   
    
 ### 3. 인식 화면
-gif   
+<img src ="https://user-images.githubusercontent.com/61315014/155842359-63eacc7d-f0ed-4ca8-bf54-9bf17f7b68fd.gif" width="20%" />   
+   
 - RecognizeViewController.swift   
-- 찍은 사진이나, 앨범에서 가져온 사진에서 문자를 인식합니다.   
+   
+- 찍은 사진이나, 앨범에서 가져온 사진에서 문자를 인식합니다.  
+    
 - 문자 박스를 선택하면 상단의 Text View 에 표시됩니다.   
+   
 - 선택한 텍스트를 복사 / 공유 할 수 있습니다.   
    
 ### 4. 그 외 설정, 정보 화면
 이미지   
+
 - MainSettingViewController.swift   
+   
 - SubSettingViewController.swift   
+   
 - InfoViewController.swift   
+   
 - 여러가지 설정을 할 수 있습니다.   
+   
 - Google AdMob 배너 광고를 표시합니다.
