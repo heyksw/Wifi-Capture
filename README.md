@@ -17,14 +17,17 @@
 ## 앱 기능 및 UI   
 ### 1. 온보딩 화면   
 <img src ="https://user-images.githubusercontent.com/61315014/155839877-2d8c320c-1dcf-4560-a8fa-a6fa705ad605.gif" width="20%" />        
-- OnboardingViewController.swift   
+- OnboardingViewController.swift    
+
 - 앱을 다운로드 받고 첫 실행했을 때만 띄워주는 화면입니다.  
    
 ### 2. 메인 화면   
 <img src ="https://user-images.githubusercontent.com/61315014/155840408-73721286-3f3d-4ccb-b325-45909e335e46.gif" width="20%" />     
 - MainViewController.swift   
 - 라이브 카메라에서 문자 감지 박스를 시각화합니다.   
+
 - 전화모드 : 촬영한 사진안에서 전화번호를 인식했을 경우, 바로 전화 연결을 시도합니다. 그 뒤 인식화면으로 이동합니다.  
+
 - 기본모드 : 촬영 후 바로 전화를 연결하지 않습니다. 인식화면으로 이동합니다.   
    
 ### 3. 인식 화면
