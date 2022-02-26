@@ -1,7 +1,10 @@
 <img width="515" alt="앱 아이콘이랑 이름" src="https://user-images.githubusercontent.com/61315014/155673238-7e328891-866a-4fb6-8aa6-5ff992e56e0b.png">
 
 <img width="1306" alt="앱 스크린샷 정렬된거" src="https://user-images.githubusercontent.com/61315014/155672842-71c0023d-8b97-4d5d-a1e5-75eee1bae163.png">
-   
+
+ 
+***
+
 ## 개발 정보   
 - 앱 이름 : 찍콜 - AI 글자인식 카메라 앱   
 - 앱스토어 링크 : https://apps.apple.com/kr/app/찍콜-ai-글자인식-카메라-앱/id1609551668   
@@ -13,8 +16,7 @@
   2. Google MLkit - 문자 인식   
   3. Snapkit - 코드기반 AutoLayout 구성   
   4. Google AdMob - 배너 광고  
- 
-***
+
 
 ## 앱 기능 및 UI   
 ### 1. 온보딩 화면   
