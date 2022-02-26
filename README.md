@@ -20,14 +20,14 @@
 
 ## 앱 기능 및 UI   
 ### 1. 온보딩 화면   
-<img src ="https://user-images.githubusercontent.com/61315014/155839877-2d8c320c-1dcf-4560-a8fa-a6fa705ad605.gif" width="20%" />  <img src ="https://user-images.githubusercontent.com/61315014/155842810-1c323ab0-9a9c-4832-be91-d5e968b423af.gif" width="20% />
+<img src ="https://user-images.githubusercontent.com/61315014/155839877-2d8c320c-1dcf-4560-a8fa-a6fa705ad605.gif" width="20%" />
 
 - OnboardingViewController.swift    
 
 - 앱을 다운로드 받고 첫 실행했을 때만 띄워주는 화면입니다.  
    
 ### 2. 메인 화면   
-<img src ="https://user-images.githubusercontent.com/61315014/155840408-73721286-3f3d-4ccb-b325-45909e335e46.gif" width="20%" />   
+<img src ="https://user-images.githubusercontent.com/61315014/155840408-73721286-3f3d-4ccb-b325-45909e335e46.gif" width="20%" />  <img src ="https://user-images.githubusercontent.com/61315014/155842860-33dd2c2b-97cd-4965-9249-ae8e2b6e6bec.gif" width="20%" /> 
 
 - MainViewController.swift   
 
