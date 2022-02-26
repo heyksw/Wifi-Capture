@@ -20,7 +20,7 @@
 
 ## 앱 기능 및 UI   
 ### 1. 온보딩 화면   
-<img src ="https://user-images.githubusercontent.com/61315014/155839877-2d8c320c-1dcf-4560-a8fa-a6fa705ad605.gif" width="20%" /> 
+<img src ="https://user-images.githubusercontent.com/61315014/155839877-2d8c320c-1dcf-4560-a8fa-a6fa705ad605.gif" width="20%" />  <img src ="https://user-images.githubusercontent.com/61315014/155842810-1c323ab0-9a9c-4832-be91-d5e968b423af.gif" width="20% />
 
 - OnboardingViewController.swift    
 
