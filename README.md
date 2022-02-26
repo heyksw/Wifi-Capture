@@ -3,7 +3,7 @@
 <img width="1306" alt="앱 스크린샷 정렬된거" src="https://user-images.githubusercontent.com/61315014/155672842-71c0023d-8b97-4d5d-a1e5-75eee1bae163.png">
 
  
-***
+
 
 ## 개발 정보   
 - 앱 이름 : 찍콜 - AI 글자인식 카메라 앱   
