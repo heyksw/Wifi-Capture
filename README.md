@@ -12,10 +12,10 @@
 - 개발 인원 : 1인   
 - 개발 기간 : 2022.01.03 ~ 2022.02.25 (앱 배포)   매일 하루에 10시간 이상 투자.   
 - 주요 기술 :   
-  1. AVFoundation - 라이브 카메라에 문자 감지 박스 시각화   
-  2. Google MLkit - 문자 인식   
-  3. Snapkit - 코드기반 AutoLayout 구성   
-  4. Google AdMob - 배너 광고  
+  - AVFoundation - 라이브 카메라에 문자 감지 박스 시각화   
+  - Google MLkit - 문자 인식   
+  - Snapkit - 코드기반 AutoLayout 구성   
+  - Google AdMob - 배너 광고  
 
 
 ## 앱 기능 및 UI   
