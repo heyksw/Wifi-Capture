@@ -6,12 +6,12 @@
 
 
 ## 개발 정보   
-- 앱 이름 : 찍콜 - AI 글자인식 카메라 앱   
-- 앱스토어 링크 : https://apps.apple.com/kr/app/찍콜-ai-글자인식-카메라-앱/id1609551668   
-- 데모 동영상 링크 : https://www.youtube.com/watch?v=XvUyOoAYM2A   
-- 개발 인원 : 1인   
-- 개발 기간 : 2022.01.03 ~ 2022.02.25 (앱 배포)   매일 하루에 10시간 이상 투자.   
-- 주요 기술 :   
+- **앱 이름** : 찍콜 - AI 글자인식 카메라 앱   
+- **앱스토어 링크** : https://apps.apple.com/kr/app/찍콜-ai-글자인식-카메라-앱/id1609551668   
+- **데모 동영상 링크** : https://www.youtube.com/watch?v=XvUyOoAYM2A   
+- **개발 인원** : 1인 개발  
+- **개발 기간** : 2022.01.03 ~ 2022.02.25 (앱 배포)   매일 하루에 10시간 이상 투자.   
+- **주요 기술** :   
   - AVFoundation - 라이브 카메라에 문자 감지 박스 시각화   
   - Google MLkit - 문자 인식   
   - Snapkit - 코드기반 AutoLayout 구성   
