@@ -50,7 +50,7 @@
 - 선택한 텍스트를 복사 / 공유 할 수 있습니다.   
    
 ### 4. 그 외 설정, 정보 화면
-이미지   
+<img src ="https://user-images.githubusercontent.com/61315014/156487261-1d050061-d489-4eb2-be26-cf79c7164574.PNG" width="20%" /> <img src ="https://user-images.githubusercontent.com/61315014/156487343-d01e8880-3fe6-4f41-a91a-2bf26099414b.PNG" width="20%" />
 
 - MainSettingViewController.swift   
    
