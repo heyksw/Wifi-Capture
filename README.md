@@ -50,7 +50,7 @@
 - 선택한 텍스트를 복사 / 공유 할 수 있습니다.   
    
 ### 4. 그 외 설정, 정보 화면
-<img src ="https://user-images.githubusercontent.com/61315014/156487261-1d050061-d489-4eb2-be26-cf79c7164574.PNG" width="20%" /> <img src ="https://user-images.githubusercontent.com/61315014/156487343-d01e8880-3fe6-4f41-a91a-2bf26099414b.PNG" width="20%" />
+<img src ="https://user-images.githubusercontent.com/61315014/156487261-1d050061-d489-4eb2-be26-cf79c7164574.PNG" width="20%" /> <img src ="https://user-images.githubusercontent.com/61315014/156487343-d01e8880-3fe6-4f41-a91a-2bf26099414b.PNG" width="20%" /> <img src="https://user-images.githubusercontent.com/61315014/156487926-1cd80c01-2c78-4bc0-8712-2e17f1824c56.PNG" width="20%" /> <img src="https://user-images.githubusercontent.com/61315014/156487999-ec6a58c9-d20e-4d94-993f-52895ac852a6.PNG" width="20%" />
 
 - MainSettingViewController.swift   
    
@@ -58,6 +58,10 @@
    
 - InfoViewController.swift   
    
+- HelpInfoViewController.swift
+   
 - 여러가지 설정을 할 수 있습니다.   
+   
+- 앱에 관한 정보를 표시합니다.
    
 - Google AdMob 배너 광고를 표시합니다.
