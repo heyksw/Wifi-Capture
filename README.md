@@ -70,7 +70,7 @@
 ## 개발 일기   
 노션에 앱 개발 시작 날 부터 배포 완료 날까지 매일 개발 일기를 작성했습니다.   
 ### 일기 스크린샷 1
-<img width="996" alt="개발일기1" src="https://user-images.githubusercontent.com/61315014/158165643-8aae6aef-a989-4c5b-ab31-44277f66bbb4.png"> 
+<img width="996" alt="개발일기1" src="https://user-images.githubusercontent.com/61315014/158165643-8aae6aef-a989-4c5b-ab31-44277f66bbb4.png">  
 ### 일기 스크린샷 2 
 <img width="951" alt="개발일기2" src="https://user-images.githubusercontent.com/61315014/158165523-38ade5be-7cb8-4df5-a943-0f79f23cf186.png">   
 ### 일기 상세 내용
