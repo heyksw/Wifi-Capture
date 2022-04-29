@@ -16,7 +16,8 @@
   - Google MLkit - 문자 인식   
   - Snapkit - 코드기반 AutoLayout 구성   
   - Google AdMob - 배너 광고  
-  - Unit Test Code 작성    
+  - Unit Test Code 작성   
+  - Architecture - MVC 
   
 
 ## 앱 기능 및 UI   
